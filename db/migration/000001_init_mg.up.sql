@@ -48,6 +48,7 @@ CREATE TABLE "course_progress" (
 CREATE TABLE "course_enrolments" (
   "enrolment_id" bigserial PRIMARY KEY,
   "course_id" bigint,
+  "request_id" bigint,
   "student_id" bigint
 );
 
@@ -56,14 +57,14 @@ CREATE TABLE "assignments" (
   "course_id" bigint,
   "type" varchar NOT NULL,
   "title" varchar NOT NULL,
-  "description" varchar NOT NULL
+  "description" varchar NOT NULL,
+  "submittion_date" date NOT NULL
 );
 
 CREATE TABLE "submissions" (
   "submission_id" bigserial PRIMARY KEY,
   "assignment_id" bigint,
-  "student_id" bigint,
-  "submittion_date" date NOT NULL
+  "student_id" bigint
 );
 
 CREATE TABLE "requests" (
@@ -139,6 +140,8 @@ ALTER TABLE "courses" ADD FOREIGN KEY ("teacher_id") REFERENCES "teachers" ("tea
 ALTER TABLE "course_progress" ADD FOREIGN KEY ("enromentl_id") REFERENCES "course_enrolments" ("enrolment_id");
 
 ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id");
+
+ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("request_id") REFERENCES "requests" ("request_id");
 
 ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("student_id");
 
