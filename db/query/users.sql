@@ -1,19 +1,19 @@
---name: CreateUser :one
+-- name: CreateUser :one
 INSERT INTO users (
     user_name,
     role,
     full_name,
-    hashed_password
+    hashed_password,
     email
 ) VALUES (
     $1, $2, $3, $4, $5
 ) RETURNING*;
 
---name: GetUser :one
+-- name: GetUser :one
 SELECT * FROM users
 WHERE user_name = $1 LIMIT 1;
 
---name: UpdateUser :one
+-- name: UpdateUser :one
 UPDATE users
 SET 
     hashed_password = COALESCE(sqlc.narg(hashed_password), hashed_password),
