@@ -1,27 +1,29 @@
 --name CreateResource :one
-INSERT INTO students (
-    user_name
+INSERT INTO resources (
+    title,
+    type,
+    content_url
 ) VALUES (
-    $1
+    $1, $2, $3
 ) RETURNING *;
 
 --name: GetResource :one
-SELECT * FROM students
-WHERE student_id = $1;
+SELECT * FROM resources
+WHERE assignment_id = $1 AND course_id = $2;
 
 --name: UpdateResource :one
-UPDATE students
-SET user_name = $2
-WHERE student_id = $1
+UPDATE resources
+SET title = $3, type = $4, content_url = $5
+WHERE assignment_id = $1 AND course_id = $2
 RETURNING *;
 
 --name: ListResource :many
-SELECT * FROM students
-WHERE user_name = $1
-ORDER BY student_id
-LIMIT $2
-OFFSET $3;
+SELECT * FROM resources
+WHERE assignment_id = $1 AND course_id = $2
+ORDER BY resource_id
+LIMIT $3
+OFFSET $4;
 
 --name: DeleteResource :exec
-DELETE FROM students
-WHERE student_id = $1;
+DELETE FROM resources
+WHERE resource_id = $1 AND course_id = $2;
