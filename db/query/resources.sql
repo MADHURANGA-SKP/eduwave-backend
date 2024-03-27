@@ -1,4 +1,4 @@
--- name CreateResource :one
+-- name: CreateResource :one
 INSERT INTO resources (
     title,
     type,
