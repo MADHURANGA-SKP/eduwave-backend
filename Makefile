@@ -15,7 +15,6 @@ dropdb:
 migrateup:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up
 
-
 migratedown:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up" -verbose down
 
