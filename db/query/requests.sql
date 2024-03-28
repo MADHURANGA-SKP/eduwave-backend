@@ -25,6 +25,6 @@ ORDER BY request_id
 LIMIT $4
 OFFSET $5;
 
--- name: DeleteAdmin :exec
+-- name: DeleteRequest :exec
 DELETE FROM requests
 WHERE request_id = $1;

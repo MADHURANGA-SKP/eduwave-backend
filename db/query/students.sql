@@ -1,4 +1,4 @@
--- name CreateStudent :one
+-- name: CreateStudent :one
 INSERT INTO students (
     user_name
 ) VALUES (

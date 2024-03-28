@@ -1,4 +1,4 @@
--- name GetCourseProgress :one
+-- name: GetCourseProgress :one
 SELECT * FROM course_progress
 WHERE courseprogress_id = $1 AND enrolment_id = $2 
 LIMIT 1;
