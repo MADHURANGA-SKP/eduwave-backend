@@ -10,7 +10,6 @@ import (
 )
 
 type Querier interface {
-	CreateAdmin(ctx context.Context, userName sql.NullString) (Admin, error)
 	CreateAssignment(ctx context.Context, arg CreateAssignmentParams) (Assignment, error)
 	CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error)
 	CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error)
@@ -32,7 +31,6 @@ type Querier interface {
 	GetTeacher(ctx context.Context, teacherID int64) (Teacher, error)
 	GetUser(ctx context.Context, userName string) (User, error)
 	Getsubmissions(ctx context.Context, arg GetsubmissionsParams) (Submission, error)
-	ListAdmin(ctx context.Context, arg ListAdminParams) ([]Admin, error)
 	ListCourseProgress(ctx context.Context, arg ListCourseProgressParams) ([]CourseProgress, error)
 	ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error)
 	ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error)
