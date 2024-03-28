@@ -18,7 +18,11 @@ const (
 // AuthMiddleware creates a gin middleware for authorization
 func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		// Check if authorization header is provided
 		authorizationHeader := ctx.GetHeader(authorizationHeaderKey)
+
+
+		// Check if authorization header is empty
 
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provided")
@@ -27,6 +31,9 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		}
 
 		fields := strings.Fields(authorizationHeader)
+		
+		// Check if authorization header has valid format
+
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
@@ -34,7 +41,9 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		}
 
 		authorizationType := strings.ToLower(fields[0])
-		if authorizationType != authorizationTypeBearer {
+
+		// Check if authorization type is supported
+        if authorizationType != authorizationTypeBearer {
 			err := fmt.Errorf("unsupported authorization type %s", authorizationType)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
 			return
@@ -42,7 +51,9 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
 		accessToken := fields[1]
 		payload, err := tokenMaker.VerifyToken(accessToken)
-		if err != nil {
+
+		// Handle verification errors
+        if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
 			return
 		}

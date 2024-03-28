@@ -9,32 +9,37 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// renewAccessTokenRequest represents the structure of the request to renew access token
 type renewAccessTokenRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
+// renewAccessTokenResponse represents the structure of the response after renewing access token
 type renewAccessTokenResponse struct {
 	AccessToken          string    `json:"access_token"`
 	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }
 
+// renewAccessToken handles the renewal of access token
 func (server *Server) renewAccessToken(ctx *gin.Context) {
 	var req renewAccessTokenRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))  
 		return
 	}
 
 	refreshPayload, err := server.tokenMaker.VerifyToken(req.RefreshToken)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+	    // If token verification fails, respond with unauthorized error
+        ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
 	session, err := server.store.GetSession(ctx, refreshPayload.ID)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			// If session record is not found, respond with not found error
+            ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -48,7 +53,8 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 	}
 
 	if session.Username != refreshPayload.Username {
-		err := fmt.Errorf("incorrect session user")
+		// If session username doesn't match refresh payload username, respond with unauthorized error
+        err := fmt.Errorf("incorrect session user")
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
@@ -71,7 +77,8 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	    // If token creation fails, respond with internal server error
+        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
