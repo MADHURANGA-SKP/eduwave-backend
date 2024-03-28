@@ -106,6 +106,7 @@ func (store *Store) UpdateAdmin(ctx context.Context, arg UpdateAdminParams)(Upda
 	return result, err
 }
 
+
 //CreateAssignmentParam contains the input parameters of the Updating of the data
 type CreateAssignmentParam struct{
 	Type           string        `json:"type"`
