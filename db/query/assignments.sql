@@ -3,7 +3,7 @@ INSERT INTO assignments (
     type,
     title,
     description,
-    submittion_date
+    submission_date
 ) VALUES (
     $1, $2, $3, $4
 )  RETURNING *;
@@ -14,7 +14,7 @@ WHERE course_id = $1;
 
 -- name: UpdateAssignment :one
 UPDATE assignments
-SET type = $2, title = $3, description = $4, submittion_date = $5
+SET type = $2, title = $3, description = $4, submission_date = $5
 WHERE course_id = $1
 RETURNING *;
 
