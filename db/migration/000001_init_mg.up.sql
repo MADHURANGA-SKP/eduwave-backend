@@ -1,6 +1,19 @@
+CREATE TYPE "user_role" AS ENUM (
+  'admin',
+  'student',
+  'teacher'
+);
+
+CREATE TYPE "type_resource" AS ENUM (
+  'pdf',
+  'video',
+  'image',
+  'doc'
+);
+
 CREATE TABLE "users" (
   "user_name" varchar PRIMARY KEY,
-  "role" varchar NOT NULL,
+  "role" user_role NOT NULL,
   "hashed_password" varchar NOT NULL,
   "full_name" varchar NOT NULL,
   "email" varchar NOT NULL,
@@ -83,7 +96,7 @@ CREATE TABLE "resources" (
   "course_id" bigint,
   "assignment_id" bigint,
   "title" varchar NOT NULL,
-  "type" ENUM(pdf,video,link,doc) NOT NULL,
+  "type" type_resource NOT NULL,
   "content_url" varchar NOT NULL
 );
 
