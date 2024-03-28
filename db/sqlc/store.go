@@ -77,7 +77,7 @@ type UpdateAdminParam struct{
 	UserName sql.NullString `json:"user_name"`
 }
 
-//UpdateTodoResult contains the result of the Updating of the data
+//UpdateAdminResponse contains the result of the Updating of the data
 type UpdateAdminResponse struct{
 	Admin Admin `json:"admin"`
 }
@@ -105,7 +105,6 @@ func (store *Store) UpdateAdmin(ctx context.Context, arg UpdateAdminParams)(Upda
 	})
 	return result, err
 }
-
 
 //CreateAssignmentParam contains the input parameters of the Updating of the data
 type CreateAssignmentParam struct{
@@ -367,6 +366,4 @@ func(store *Store) UpdateRequest(ctx context.Context, arg UpdateRequestsParam)(U
 func (store *Store) ListRequest(ctx context.Context, params ListRequestParams) ([]Request, error) {
     return store.Queries.ListRequest(ctx, params)
 }
-
-
 
