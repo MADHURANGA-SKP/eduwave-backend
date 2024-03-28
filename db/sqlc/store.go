@@ -75,14 +75,14 @@ func (store *Store) GetAdmin(ctx context.Context, arg GetAdminParam)(GetAdminRes
 }
 
 
-//UpdateteTodoTxParams contains the input parameters of the Updating of the data 
+//UpdateAdminParam contains the input parameters of the Updating of the data 
 type UpdateAdminParam struct{
 	AdminID  int64          `json:"admin_id"`
 	UserName sql.NullString `json:"user_name"`
 }
 
 
-//UpdateTodoResult contains the result of the Updating of the data
+//UpdateAdminResponse contains the result of the Updating of the data
 type UpdateAdminResponse struct{
 	Admin Admin `json:"admin"`
 }
