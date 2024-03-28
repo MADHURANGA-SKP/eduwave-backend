@@ -44,13 +44,13 @@ func (store *Store) DeleteAdmin(ctx context.Context, adminID int64) error {
 }
 
 
-//GetAccountTxParams contains the input parameters of the Geting of the data 
+//GetAdminParam contains the input parameters of the Geting of the data 
 type GetAdminParam struct{
 	AdminID  int64 `json:"admin_id" binding:"required"`
 	UserName  string `json:"user_name" binding:"required"`
 }
 
-//GetAccountResult contains the result of the Geting of the data
+//GetAdminResponse contains the result of the Geting of the data
 type GetAdminResponse struct{
 	Admin Admin `json:"admin"`
 }
