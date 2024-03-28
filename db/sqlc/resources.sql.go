@@ -21,9 +21,9 @@ INSERT INTO resources (
 `
 
 type CreateResourceParams struct {
-	Title      string      `json:"title"`
-	Type       interface{} `json:"type"`
-	ContentUrl string      `json:"content_url"`
+	Title      string       `json:"title"`
+	Type       TypeResource `json:"type"`
+	ContentUrl string       `json:"content_url"`
 }
 
 func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error) {
@@ -140,7 +140,7 @@ type UpdateResourceParams struct {
 	AssignmentID sql.NullInt64 `json:"assignment_id"`
 	CourseID     sql.NullInt64 `json:"course_id"`
 	Title        string        `json:"title"`
-	Type         interface{}   `json:"type"`
+	Type         TypeResource  `json:"type"`
 	ContentUrl   string        `json:"content_url"`
 }
 

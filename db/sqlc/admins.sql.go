@@ -10,21 +10,6 @@ import (
 	"database/sql"
 )
 
-const createAdmin = `-- name: CreateAdmin :one
-INSERT INTO admins(
-    user_name
-) VALUES (
-    $1
-) RETURNING admin_id, user_name
-`
-
-func (q *Queries) CreateAdmin(ctx context.Context, userName sql.NullString) (Admin, error) {
-	row := q.db.QueryRowContext(ctx, createAdmin, userName)
-	var i Admin
-	err := row.Scan(&i.AdminID, &i.UserName)
-	return i, err
-}
-
 const deleteAdmin = `-- name: DeleteAdmin :exec
 DELETE FROM admins
 WHERE admin_id = $1
@@ -45,43 +30,6 @@ func (q *Queries) GetAdmin(ctx context.Context, adminID int64) (Admin, error) {
 	var i Admin
 	err := row.Scan(&i.AdminID, &i.UserName)
 	return i, err
-}
-
-const listAdmin = `-- name: ListAdmin :many
-SELECT admin_id, user_name FROM admins
-WHERE user_name = $1
-ORDER BY admin_id
-LIMIT $2
-OFFSET $3
-`
-
-type ListAdminParams struct {
-	UserName sql.NullString `json:"user_name"`
-	Limit    int32          `json:"limit"`
-	Offset   int32          `json:"offset"`
-}
-
-func (q *Queries) ListAdmin(ctx context.Context, arg ListAdminParams) ([]Admin, error) {
-	rows, err := q.db.QueryContext(ctx, listAdmin, arg.UserName, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Admin{}
-	for rows.Next() {
-		var i Admin
-		if err := rows.Scan(&i.AdminID, &i.UserName); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const updateAdmin = `-- name: UpdateAdmin :one
