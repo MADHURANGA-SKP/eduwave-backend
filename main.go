@@ -7,7 +7,7 @@ import (
 	util "eduwave-back-end/util"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -28,9 +28,12 @@ func main(){
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
-		log.Fatal().Msg("cannot connect to db")
+		log.Fatal("cannot connect to db",err)
 	}
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("cannot connect to the db",err)
+	}
 
 	store := db.NewStore(conn)
 	runGinServer(config, *store)
@@ -39,11 +42,11 @@ func main(){
 func runGinServer(config util.Config, store db.Store){
 	server, err := api.NewServer(config, store)
 	if err != nil {
-		log.Fatal().Msg("cannot create server")
+		log.Fatal("cannot create server",err)
 	}
 
 	err = server.Start(config.HTTPServerAddress)
 	if err != nil {
-		log.Fatal().Msg("cannot start server")
+		log.Fatal("cannot start server",err)
 	}
 }
