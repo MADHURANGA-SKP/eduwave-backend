@@ -31,7 +31,7 @@ func (server *Server) createResource(ctx *gin.Context) {
 		ContentUrl: req.ContentUrl,
 	}
 
-	resource, err := server.store.CreateResource(ctx, arg)
+	resource, err := server.store.CreateResource(ctx, db.CreateResourceParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -70,7 +70,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 // getResourceRequest defines the request body structure for getting a resource
 type getResourceRequest struct {
-	AssignmentID int64         `uri:"assignment_id" binding:"required,min=1"`
+	AssignmentID sql.NullInt64         `uri:"assignment_id" binding:"required,min=1"`
 	CourseID     sql.NullInt64 `uri:"course_id"`
 }
 
@@ -87,7 +87,7 @@ func (server *Server) getResource(ctx *gin.Context) {
 		CourseID:     req.CourseID,
 	}
 
-	resource, err := server.store.GetResource(ctx, arg)
+	resource, err := server.store.GetResource(ctx, db.GetResourceParam(arg))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -102,8 +102,6 @@ func (server *Server) getResource(ctx *gin.Context) {
 
 // updateResourceRequest defines the request body structure for updating a resource
 type updateResourceRequest struct {
-	AssignmentID int64           `uri:"assignment_id" binding:"required,min=1"`
-	CourseID     sql.NullInt64   `uri:"course_id"`
 	Title        string          `json:"title"`
 	Type         db.TypeResource `json:"type"`
 	ContentUrl   string          `json:"content_url"`
@@ -118,8 +116,6 @@ func (server *Server) updateResource(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateResourceParams{
-		AssignmentID: req.AssignmentID,
-		CourseID:     req.CourseID,
 		Title:        req.Title,
 		Type:         req.Type,
 		ContentUrl:   req.ContentUrl,

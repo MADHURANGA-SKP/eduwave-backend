@@ -1,11 +1,10 @@
 package api
 
 import (
-	"api_lms/util"
 	db "eduwave-back-end/db/sqlc"
-	"fmt"
-
 	"eduwave-back-end/token"
+	"eduwave-back-end/util"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )

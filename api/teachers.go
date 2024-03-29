@@ -2,6 +2,7 @@
 package api
 
 import (
+	"database/sql"
 	db "eduwave-back-end/db/sqlc"
 	"net/http"
 	"strconv"
@@ -12,7 +13,7 @@ import (
 type createTeacherRequest struct {
 	FullName       string `json:"full_name" binding:"required"`
 	Email          string `json:"email" binding:"required,email"`
-	UserName       string `json:"user_name"`
+	UserName       sql.NullString `json:"user_name"`
 	HashedPassword string `json:"hashed_password" binding:"required"`
 	IsActive       bool   `json:"is_active"`
 }
@@ -32,24 +33,34 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 		IsActive:       req.IsActive,
 	}
 
-	teacher, err := server.store.CreateTeacher(ctx, arg)
+	teacher, err := server.store.CreateTeacher(ctx, db.CreateTeacherParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	ctx.JSON(http.StatusOK, teacher)
+}
+
+type GetTeacherRequest struct {
+	TeacherID int64 `json:"teacher_id"`
 }
 
 func (server *Server) getTeacher(ctx *gin.Context) {
-	teacherID, err := strconv.ParseInt(ctx.Param("teacher_id"), 10, 64)
-	if err != nil {
+	var req GetTeacherRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	teacher, err := server.store.GetTeacher(ctx, teacherID)
+	arg := db.GetTeacherParam{req.TeacherID}
+
+	teacher, err := server.store.GetTeacher(ctx, arg)
 	if err != nil {
+		if err == sql.ErrNoRows{
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+		}
+
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -57,31 +68,23 @@ func (server *Server) getTeacher(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, teacher)
 }
 
+type ListTeacherParams struct {
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+    PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
 func (server *Server) listTeachers(ctx *gin.Context) {
-	adminID, err := strconv.ParseInt(ctx.Query("admin_id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	limit, err := strconv.ParseInt(ctx.DefaultQuery("limit", "10"), 10, 32)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	offset, err := strconv.ParseInt(ctx.DefaultQuery("offset", "0"), 10, 32)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	var req ListTeacherParams
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
 
 	arg := db.ListTeacherParams{
-		AdminID: adminID,
-		Limit:   int32(limit),
-		Offset:  int32(offset),
-	}
-
+        Limit:  req.PageSize,
+        Offset: (req.PageID - 1) * req.PageSize,
+    }
+	
 	teachers, err := server.store.ListTeacher(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

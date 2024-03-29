@@ -11,12 +11,11 @@ import (
 )
 
 type createRequestRequest struct {
-	IsActive   bool `json:"is_active" binding:"required"`
-	IsPending  bool `json:"is_pending" binding:"required"`
-	IsAccepted bool `json:"is_accepted" binding:"required"`
-	IsDeclined bool `json:"is_declined" binding:"required"`
+	IsActive   sql.NullBool `json:"is_active"`
+    IsPending  sql.NullBool `json:"is_pending"`
+    IsAccepted sql.NullBool `json:"is_accepted"`
+    IsDeclined sql.NullBool `json:"is_declined"`
 }
-
 func (server *Server) createRequest(ctx *gin.Context) {
 	var req createRequestRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -31,7 +30,7 @@ func (server *Server) createRequest(ctx *gin.Context) {
 		IsDeclined: req.IsDeclined,
 	}
 
-	request, err := server.store.CreateRequest(ctx, arg)
+	request, err := server.store.CreateRequest(ctx, db.CreateRequestParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -41,7 +40,7 @@ func (server *Server) createRequest(ctx *gin.Context) {
 }
 
 type getRequestRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
+	RequestID int64 `uri:"Request_id"`
 }
 
 func (server *Server) getRequest(ctx *gin.Context) {
@@ -51,7 +50,9 @@ func (server *Server) getRequest(ctx *gin.Context) {
 		return
 	}
 
-	request, err := server.store.GetRequest(ctx, req.ID)
+	arg := db.GetRequestParam{RequestID: req.RequestID}
+
+	request, err := server.store.GetRequest(ctx, arg)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -81,9 +82,6 @@ func (server *Server) listRequests(ctx *gin.Context) {
 	}
 
 	arg := db.ListRequestParams{
-		StudentID: req.StudentID,
-		TeacherID: req.TeacherID,
-		CourseID:  req.CourseID,
 		Limit:     req.Limit,
 		Offset:    req.Offset,
 	}

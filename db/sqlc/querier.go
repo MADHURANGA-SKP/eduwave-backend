@@ -11,6 +11,7 @@ import (
 
 type Querier interface {
 	CreateAssignment(ctx context.Context, arg CreateAssignmentParams) (Assignment, error)
+	CreateCourseProgress(ctx context.Context, progress string) (CourseProgress, error)
 	CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error)
 	CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error)
 	CreateStudent(ctx context.Context, userName sql.NullString) (Student, error)

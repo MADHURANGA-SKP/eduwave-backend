@@ -2,6 +2,7 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -12,13 +13,7 @@ import (
 
 // createUserRequest defines the request body structure for creating a new student
 type createStudentRequest struct {
-	UserName string `json:"user_name" binding:"required"`
-}
-
-// studentResponse defines the response body structure for a student
-type studentResponse struct {
-	StudentID int64  `json:"student_id"`
-	UserName  string `json:"user_name"`
+	UserName sql.NullString `json:"user_name" binding:"required"`
 }
 
 // createStudent creates a new student
@@ -29,46 +24,50 @@ func (server *Server) createStudent(ctx *gin.Context) {
 		return
 	}
 
-	student, err := server.store.CreateStudent(ctx, db.CreateStudentParams{
+	arg := db.CreateStudentParam{
 		UserName: req.UserName,
-	})
+	}
+
+	student, err := server.store.CreateStudent(ctx, arg)
 	if err != nil {
+		errCode := db.ErrorCode(err)
+		if errCode == db.ForeignKeyViolation || errCode == db.UniqueViolations {
+			ctx.JSON(http.StatusForbidden, errorResponse(err))
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	rsp := studentResponse{
-		StudentID: student.StudentID,
-		UserName:  student.UserName,
-	}
-	ctx.JSON(http.StatusOK, rsp)
+	ctx.JSON(http.StatusOK, student)
+}
+
+type ListStudentRequest struct {
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+    PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 // listStudents returns a list of students
 func (server *Server) listStudents(ctx *gin.Context) {
-	userName := ctx.Query("user_name")
-	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
-	offset, _ := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
+	var req ListStudentRequest
+    if err := ctx.ShouldBindQuery(&req); err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
 
-	students, err := server.store.ListStudents(ctx, db.ListStudentsParams{
-		UserName: userName,
-		Limit:    int32(limit),
-		Offset:   int32(offset),
-	})
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
 
-	var resp []studentResponse
-	for _, student := range students {
-		resp = append(resp, studentResponse{
-			StudentID: student.StudentID,
-			UserName:  student.UserName,
-		})
-	}
+    arg := db.ListStudentsParams{
+        Limit:  req.PageSize,
+        Offset: (req.PageID - 1) * req.PageSize,
+    }
 
-	ctx.JSON(http.StatusOK, resp)
+    rsp, err := server.store.ListStudents(ctx, arg)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+        return
+    }
+
+	ctx.JSON(http.StatusOK, rsp)
 }
 
 // deleteStudent deletes a student by ID
@@ -91,36 +90,41 @@ func (server *Server) deleteStudent(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Student deleted successfully"})
 }
 
+type UpdateStudentRequest struct {
+	StudentID int64          `json:"student_id"`
+	UserName  sql.NullString `json:"user_name"`
+}
+
 // updateStudent updates a student by ID
 func (server *Server) updateStudent(ctx *gin.Context) {
-	// Parse student ID from path parameter
-	studentID, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	// Parse request body to get updated student information
-	var req createStudentRequest
+	var req UpdateStudentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	// Call the database store function to update the student
-	updatedStudent, err := server.store.UpdateStudent(ctx, db.UpdateStudentParams{
-		StudentID: studentID,
-		UserName:  req.UserName,
-	})
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
+	ID, err := strconv.Atoi(ctx.Param("id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
 
-	// Respond with the updated student information
-	rsp := studentResponse{
-		StudentID: updatedStudent.StudentID,
-		UserName:  updatedStudent.UserName,
-	}
-	ctx.JSON(http.StatusOK, rsp)
+	arg := db.UpdateStudentParams{
+		StudentID: int64(ID),
+		UserName: req.UserName,
+    }
+
+	// Call the database store function to update the student
+	updatedStudent, err := server.store.UpdateStudent(ctx,arg)
+		if err != nil {
+			if err == sql.ErrNoRows{
+				ctx.JSON(http.StatusNotFound, errorResponse(err))
+			}
+	
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+
+
+	ctx.JSON(http.StatusOK, updatedStudent)
 }

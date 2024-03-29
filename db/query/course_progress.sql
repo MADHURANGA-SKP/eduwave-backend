@@ -1,3 +1,10 @@
+-- name: CreateCourseProgress :one
+INSERT INTO course_progress (
+    progress
+) VALUES (
+    $1
+) RETURNING *;
+
 -- name: GetCourseProgress :one
 SELECT * FROM course_progress
 WHERE courseprogress_id = $1 AND enrolment_id = $2 

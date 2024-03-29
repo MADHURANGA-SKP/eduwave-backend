@@ -32,10 +32,9 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 		Title:          req.Title,
 		Description:    req.Description,
 		SubmissionDate: req.SubmissionDate,
-		CourseID:       req.CourseID,
 	}
 
-	assignment, err := server.store.CreateAssignment(ctx, arg)
+	assignment, err := server.store.CreateAssignment(ctx, db.CreateAssignmentParam(arg) )
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -44,28 +43,40 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
+type GetAssignmentRequest struct {
+	CourseID sql.NullInt64 `json:"course_id"`
+}
+
 func (server *Server) getAssignment(ctx *gin.Context) {
-	courseID, err := strconv.ParseInt(ctx.Param("course_id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("invalid course_id")))
-		return
+	var req GetAssignmentRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
-	assignment, err := server.store.GetAssignment(ctx, sql.NullInt64{Int64: courseID, Valid: true})
+	assignment, err := server.store.GetAssignment(ctx, req.CourseID)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
+
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
+
 	ctx.JSON(http.StatusOK, assignment)
 }
 
+type UpdateAssignmentRequest struct {
+	Type           string        `json:"type"`
+	Title          string        `json:"title"`
+	Description    string        `json:"description"`
+	SubmissionDate time.Time     `json:"submission_date"`
+}
+
 func (server *Server) updateAssignment(ctx *gin.Context) {
-	var req createAssignmentRequest
+	var req UpdateAssignmentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

@@ -10,6 +10,21 @@ import (
 	"database/sql"
 )
 
+const createCourseProgress = `-- name: CreateCourseProgress :one
+INSERT INTO course_progress (
+    progress
+) VALUES (
+    $1
+) RETURNING courseprogress_id, enrolment_id, progress
+`
+
+func (q *Queries) CreateCourseProgress(ctx context.Context, progress string) (CourseProgress, error) {
+	row := q.db.QueryRowContext(ctx, createCourseProgress, progress)
+	var i CourseProgress
+	err := row.Scan(&i.CourseprogressID, &i.EnrolmentID, &i.Progress)
+	return i, err
+}
+
 const getCourseProgress = `-- name: GetCourseProgress :one
 SELECT courseprogress_id, enrolment_id, progress FROM course_progress
 WHERE courseprogress_id = $1 AND enrolment_id = $2 
