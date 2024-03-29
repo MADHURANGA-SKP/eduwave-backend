@@ -13,6 +13,7 @@ import (
 
 type Querier interface {
 	CreateAssignment(ctx context.Context, arg CreateAssignmentParams) (Assignment, error)
+	CreateCourseProgress(ctx context.Context, progress string) (CourseProgress, error)
 	CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error)
 	CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)

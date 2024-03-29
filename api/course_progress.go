@@ -2,6 +2,7 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 
 	db "eduwave-back-end/db/sqlc"
@@ -11,16 +12,9 @@ import (
 
 // createCourseProgressRequest defines the request body structure for creating course progress
 type createCourseProgressRequest struct {
-	EnrolmentID int64  `json:"enrolment_id" binding:"required"`
 	Progress    string `json:"progress" binding:"required"`
 }
 
-// courseProgressResponse defines the response body structure for course progress
-type courseProgressResponse struct {
-	CourseProgressID int64  `json:"course_progress_id"`
-	EnrolmentID      int64  `json:"enrolment_id"`
-	Progress         string `json:"progress"`
-}
 
 // createCourseProgress creates course progress
 func (server *Server) createCourseProgress(ctx *gin.Context) {
@@ -30,8 +24,7 @@ func (server *Server) createCourseProgress(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.CreateCourseProgressParams{
-		EnrolmentID: req.EnrolmentID,
+	arg := db.CreateCourseProgressPram{
 		Progress:    req.Progress,
 	}
 
@@ -40,19 +33,14 @@ func (server *Server) createCourseProgress(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
-	rsp := courseProgressResponse{
-		CourseProgressID: courseProgress.CourseprogressID,
-		EnrolmentID:      courseProgress.EnrolmentID,
-		Progress:         courseProgress.Progress,
-	}
-	ctx.JSON(http.StatusOK, rsp)
+	
+	ctx.JSON(http.StatusOK, courseProgress)
 }
 
 // getCourseProgressRequest defines the request body structure for getting course progress by ID
 type getCourseProgressRequest struct {
-	ID          int64 `uri:"id" binding:"required,min=1"`
-	EnrolmentID int64 `uri:"enrolment_id" binding:"required,min=1"`
+	CourseprogressID int64         `json:"courseprogress_id"`
+	EnrolmentID      sql.NullInt64 `json:"enrolment_id"`
 }
 
 // getCourseProgress returns course progress by ID
@@ -64,32 +52,26 @@ func (server *Server) getCourseProgress(ctx *gin.Context) {
 	}
 
 	arg := db.GetCourseProgressParams{
-		CourseprogressID: req.ID,
+		CourseprogressID: req.CourseprogressID,
 		EnrolmentID:      req.EnrolmentID,
 	}
 
-	courseProgress, err := server.store.GetCourseProgress(ctx, arg)
+	courseProgress, err := server.store.GetCourseProgress(ctx, db.GetCourseProgressParam(arg))
 	if err != nil {
-		if db.IsErrNoRows(err) {
+		if err == sql.ErrNoRows{
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
 		}
 
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	rsp := courseProgressResponse{
-		CourseProgressID: courseProgress.CourseprogressID,
-		EnrolmentID:      courseProgress.EnrolmentID,
-		Progress:         courseProgress.Progress,
-	}
-	ctx.JSON(http.StatusOK, rsp)
+	ctx.JSON(http.StatusOK, courseProgress)
 }
 
 // listCourseProgressRequest defines the request body structure for listing course progress
 type listCourseProgressRequest struct {
-	EnrolmentID int64 `form:"enrolment_id" binding:"required,min=1"`
+	EnrolmentID sql.NullInt64 `form:"enrolment_id" binding:"required,min=1"`
 	Limit       int32 `form:"limit" binding:"required,min=1,max=100"`
 	Offset      int32 `form:"offset" binding:"required,min=0"`
 }
@@ -114,14 +96,5 @@ func (server *Server) listCourseProgress(ctx *gin.Context) {
 		return
 	}
 
-	var resp []courseProgressResponse
-	for _, courseProgress := range courseProgressList {
-		resp = append(resp, courseProgressResponse{
-			CourseProgressID: courseProgress.CourseprogressID,
-			EnrolmentID:      courseProgress.EnrolmentID,
-			Progress:         courseProgress.Progress,
-		})
-	}
-
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, courseProgressList)
 }

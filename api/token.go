@@ -1,6 +1,7 @@
 package api
 
 import (
+	db "eduwave-back-end/db/sqlc"
 	"errors"
 	"fmt"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 
 // renewAccessTokenRequest represents the structure of the request to renew access token
 type renewAccessTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // renewAccessTokenResponse represents the structure of the response after renewing access token
@@ -24,49 +25,46 @@ type renewAccessTokenResponse struct {
 func (server *Server) renewAccessToken(ctx *gin.Context) {
 	var req renewAccessTokenRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))  
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	refreshPayload, err := server.tokenMaker.VerifyToken(req.RefreshToken)
 	if err != nil {
-	    // If token verification fails, respond with unauthorized error
-        ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
 	session, err := server.store.GetSession(ctx, refreshPayload.ID)
 	if err != nil {
-		if errors.Is(err, db.ErrRecordNotFound) {
-			// If session record is not found, respond with not found error
-            ctx.JSON(http.StatusNotFound, errorResponse(err))
+		if errors.Is(err, db.ErrRecordNotFound){
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	if session.IsBlocked {
+	if session.IsBlocked{
 		err := fmt.Errorf("blocked session")
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	if session.Username != refreshPayload.Username {
-		// If session username doesn't match refresh payload username, respond with unauthorized error
-        err := fmt.Errorf("incorrect session user")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+	if session.UserName != refreshPayload.Username{
+		err := fmt.Errorf("incorrect session user")
+		ctx.JSON(http.StatusUnauthorized,errorResponse(err))
 		return
 	}
 
-	if session.RefreshToken != req.RefreshToken {
-		err := fmt.Errorf("mismatched session token")
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+	if session.RefreshToken != req.RefreshToken{
+		err := fmt.Errorf("session token missmatched")
+		ctx.JSON(http.StatusUnauthorized,errorResponse(err))
 		return
 	}
 
-	if time.Now().After(session.ExpiresAt) {
-		err := fmt.Errorf("expired session")
+	if time.Now().After(session.ExpiresAt){
+		err := fmt.Errorf("exipired session")
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
@@ -77,13 +75,12 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
-	    // If token creation fails, respond with internal server error
-        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	rsp := renewAccessTokenResponse{
-		AccessToken:          accessToken,
+		AccessToken: accessToken,
 		AccessTokenExpiresAt: accessPayload.ExpiredAt,
 	}
 	ctx.JSON(http.StatusOK, rsp)
