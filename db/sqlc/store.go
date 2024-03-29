@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 //store provide all funtions to execute db queries and data trival and transfers
@@ -136,7 +138,6 @@ func (store *Store) CreateAssignment(ctx context.Context, arg CreateAssignmentPa
 				return err
 			}
 	
-		
 			return nil
 		})
 		return result, err
@@ -747,6 +748,8 @@ type CreateUserParam struct {
 //CreateUserResponse contains the result of the creation
 type CreateUserResponse struct {
 	User User `json:"user"`
+	// Admin Admin `json:"admin"`
+	// Student Student `json:"student"`
 }
 
 //CreateUser db handler fro api call to create a user in database
@@ -755,6 +758,7 @@ func(store *Store) CreateUser(ctx context.Context, arg CreateUserParam)(CreateUs
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
+
 		result.User, err = q.CreateUser(ctx, CreateUserParams{
 			UserName: arg.UserName,
 			Role: arg.Role,
@@ -766,7 +770,7 @@ func(store *Store) CreateUser(ctx context.Context, arg CreateUserParam)(CreateUs
 		if err != nil {
 			return err
 		}
-
+		// result.Student, err = q.CreateStudent(ctx, arg.)
 		return nil
 	})
 
@@ -806,7 +810,7 @@ type UpdateUserParam struct {
 	HashedPassword    sql.NullString `json:"hashed_password"`
 	FullName          sql.NullString `json:"full_name"`
 	Email             sql.NullString `json:"email"`
-	UserName          string         `json:"user_name"`
+	UserName          sql.NullString         `json:"user_name"`
 }
 
 //UpdateUserResponse contains the result of the updating data
@@ -821,7 +825,7 @@ func(store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam)(UpdateUs
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		updateUser, err := q.UpdateUser(ctx, UpdateUserParams{
+		result.User, err = q.UpdateUser(ctx, UpdateUserParams{
 			HashedPassword: arg.HashedPassword,
 			FullName: arg.FullName,
 			Email: arg.Email,
@@ -832,8 +836,146 @@ func(store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam)(UpdateUs
 			return err
 		}
 
-		result.User = updateUser
 		return nil
 	})
+	return result, err
+}
+
+
+//CreateSessionParam contans input paramters of the creation of the session
+type CreateSessionParam struct {
+	SessionID    uuid.UUID `json:"session_id"`
+	UserName     string    `json:"user_name"`
+	RefreshToken string    `json:"refresh_token"`
+	UserAgent    string    `json:"user_agent"`
+	ClientIp     string    `json:"client_ip"`
+	IsBlocked    bool      `json:"is_blocked"`
+	ExpiresAt    time.Time `json:"expires_at"`
+}
+
+//CreateSessionResponse contains the resut of the creating the data 
+type CreateSessionResponse struct{
+	Session Session `json:"session"`
+}
+
+//CreateSession db handler for api call to create session data in database
+func(store *Store) CreateSession(ctx context.Context, arg CreateSessionParam)(CreateSessionResponse, error){
+	var result CreateSessionResponse
+
+	err := store.execTx(ctx, func (q *Queries) error {
+		var err error
+
+		result.Session, err = q.CreateSession(ctx, CreateSessionParams{
+			SessionID: arg.SessionID,
+			UserName: arg.UserName,
+			RefreshToken: arg.RefreshToken,
+			UserAgent: arg.UserAgent,
+			ClientIp: arg.ClientIp,
+			IsBlocked: arg.IsBlocked,
+			ExpiresAt:  arg.ExpiresAt,
+		})
+
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return result, err
+}
+
+
+//GetSessionParam contains the input parameters of getting session data
+type GetSessionparam struct {
+	SessionID    uuid.UUID `json:"session_id"`
+}
+
+//GetSessionResponse contain the result of the getting session data
+type GetSessionResponse struct {
+	Session Session `json:"session"`
+}
+
+//GetSession db handler for api call to get session data in database
+func(store *Store) GetSession(ctx context.Context, arg GetSessionparam)(GetSessionResponse, error){
+	var result GetSessionResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Session, err = q.GetSession(ctx, arg.SessionID)
+
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return result, err
+}
+
+//CreateVerifyEmailParam contaisn the input parameters of verify email data
+type CreateVerifyEmailParam struct {
+	UserName   string `json:"user_name"`
+	Email      string `json:"email"`
+	SecretCode string `json:"secret_code"`
+}
+
+//CreateVersifyEmailResponse contains the result of Creating session data
+type CreateVerifyEmailResponse struct{
+	VerifyEmail VerifyEmail `json:"verify_email"`
+}
+
+//CreateSession db handler for api call to create email verification data in database
+func(store *Store) CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParam)(CreateVerifyEmailResponse, error){
+	var result CreateVerifyEmailResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.VerifyEmail, err = q.CreateVerifyEmail(ctx, CreateVerifyEmailParams{
+			UserName: arg.UserName,
+			Email: arg.Email,
+			SecretCode: arg.SecretCode,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return result, err
+}
+
+//UpdateVersifyEmailParam contains input parameters of update Verify email data
+type UpdateVerifyEmailParam struct {
+	EmailID    int64  `json:"email_id"`
+	SecretCode string `json:"secret_code"`
+}
+
+//UpdateVerifyEmailResponse contains the result of updating verify email data
+type UpdateVerifyEmailResponse struct {
+	VerifyEmail VerifyEmail `json:"verify_email"`
+}
+
+//UpdateVeridyEmail db handler fro api all to update verify emaildata in database
+func(store *Store) UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParam)(UpdateVerifyEmailResponse, error){
+	var result UpdateVerifyEmailResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.VerifyEmail, err = q.UpdateVerifyEmail(ctx, UpdateVerifyEmailParams{
+			EmailID: arg.EmailID,
+			SecretCode: arg.SecretCode,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
 	return result, err
 }
