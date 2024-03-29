@@ -1,3 +1,4 @@
+// resources controller
 package api
 
 import (
