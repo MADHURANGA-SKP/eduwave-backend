@@ -34,7 +34,7 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 		SubmissionDate: req.SubmissionDate,
 	}
 
-	assignment, err := server.store.CreateAssignment(ctx, db.CreateAssignmentParam(arg) )
+	assignment, err := server.store.CreateAssignment(ctx, db.CreateAssignmentParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -64,15 +64,14 @@ func (server *Server) getAssignment(ctx *gin.Context) {
 		return
 	}
 
-
 	ctx.JSON(http.StatusOK, assignment)
 }
 
 type UpdateAssignmentRequest struct {
-	Type           string        `json:"type"`
-	Title          string        `json:"title"`
-	Description    string        `json:"description"`
-	SubmissionDate time.Time     `json:"submission_date"`
+	Type           string    `json:"type"`
+	Title          string    `json:"title"`
+	Description    string    `json:"description"`
+	SubmissionDate time.Time `json:"submission_date"`
 }
 
 func (server *Server) updateAssignment(ctx *gin.Context) {

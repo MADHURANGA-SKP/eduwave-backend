@@ -70,7 +70,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 // getResourceRequest defines the request body structure for getting a resource
 type getResourceRequest struct {
-	AssignmentID sql.NullInt64         `uri:"assignment_id" binding:"required,min=1"`
+	AssignmentID sql.NullInt64 `uri:"assignment_id" binding:"required,min=1"`
 	CourseID     sql.NullInt64 `uri:"course_id"`
 }
 
@@ -102,9 +102,9 @@ func (server *Server) getResource(ctx *gin.Context) {
 
 // updateResourceRequest defines the request body structure for updating a resource
 type updateResourceRequest struct {
-	Title        string          `json:"title"`
-	Type         db.TypeResource `json:"type"`
-	ContentUrl   string          `json:"content_url"`
+	Title      string          `json:"title"`
+	Type       db.TypeResource `json:"type"`
+	ContentUrl string          `json:"content_url"`
 }
 
 // updateResource updates a resource
@@ -116,9 +116,9 @@ func (server *Server) updateResource(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateResourceParams{
-		Title:        req.Title,
-		Type:         req.Type,
-		ContentUrl:   req.ContentUrl,
+		Title:      req.Title,
+		Type:       req.Type,
+		ContentUrl: req.ContentUrl,
 	}
 
 	resource, err := server.store.UpdateResource(ctx, arg)

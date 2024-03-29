@@ -12,9 +12,8 @@ import (
 
 // createCourseProgressRequest defines the request body structure for creating course progress
 type createCourseProgressRequest struct {
-	Progress    string `json:"progress" binding:"required"`
+	Progress string `json:"progress" binding:"required"`
 }
-
 
 // createCourseProgress creates course progress
 func (server *Server) createCourseProgress(ctx *gin.Context) {
@@ -25,7 +24,7 @@ func (server *Server) createCourseProgress(ctx *gin.Context) {
 	}
 
 	arg := db.CreateCourseProgressPram{
-		Progress:    req.Progress,
+		Progress: req.Progress,
 	}
 
 	courseProgress, err := server.store.CreateCourseProgress(ctx, arg)
@@ -33,7 +32,7 @@ func (server *Server) createCourseProgress(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	
+
 	ctx.JSON(http.StatusOK, courseProgress)
 }
 
@@ -58,7 +57,7 @@ func (server *Server) getCourseProgress(ctx *gin.Context) {
 
 	courseProgress, err := server.store.GetCourseProgress(ctx, db.GetCourseProgressParam(arg))
 	if err != nil {
-		if err == sql.ErrNoRows{
+		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 		}
 
@@ -72,8 +71,8 @@ func (server *Server) getCourseProgress(ctx *gin.Context) {
 // listCourseProgressRequest defines the request body structure for listing course progress
 type listCourseProgressRequest struct {
 	EnrolmentID sql.NullInt64 `form:"enrolment_id" binding:"required,min=1"`
-	Limit       int32 `form:"limit" binding:"required,min=1,max=100"`
-	Offset      int32 `form:"offset" binding:"required,min=0"`
+	Limit       int32         `form:"limit" binding:"required,min=1,max=100"`
+	Offset      int32         `form:"offset" binding:"required,min=0"`
 }
 
 // listCourseProgress returns a list of course progress

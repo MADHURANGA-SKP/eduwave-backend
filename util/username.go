@@ -17,12 +17,12 @@ func ValidateString(value string, minLength int, maxLength int) error {
 	return nil
 }
 
-//IsSupportUsername returns true if the Username is supported 
+//IsSupportUsername returns true if the Username is supported
 func IsSupportedUsername(username string) error {
-	if err := ValidateString(username, 3 ,100); err != nil {
+	if err := ValidateString(username, 3, 100); err != nil {
 		return err
 	}
-	if !isValidUsername(username){
+	if !isValidUsername(username) {
 		return fmt.Errorf("must contain lowercase and Uppercase letters, digits, ot underscore")
 	}
 	return nil
