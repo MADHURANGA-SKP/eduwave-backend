@@ -1,4 +1,4 @@
-module api_lms
+module eduwave-back-end
 
 go 1.22.1
 
