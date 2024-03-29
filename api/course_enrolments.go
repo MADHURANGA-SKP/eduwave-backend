@@ -1,3 +1,4 @@
+// course enrolments controller
 package api
 
 import (
