@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 // server serves hhtp requests
@@ -29,6 +31,11 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		store:      store,
 		tokenMaker: tokenMaker,
 	}
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("user_name", validUsername)
+	}
+
 	server.setupRouter()
 	return server, nil
 }
@@ -36,53 +43,53 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	router.POST("/users", server.createUser)
+	router.POST("create/user", server.createUser)
 	router.POST("/users/login", server.loginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
 	//requests
-	authRoutes.POST("/requests", server.createRequest)
-	authRoutes.GET("/requests/:id", server.getRequest)
-	authRoutes.GET("/requests", server.listRequests)
-	authRoutes.DELETE("/requests/:id", server.deleteRequest)
-	authRoutes.PUT("/requests/ :id", server.updateRequest)
+	authRoutes.POST("create/requests", server.createRequest)
+	authRoutes.GET("get/requests/:id", server.getRequest)
+	authRoutes.GET("list/requests", server.listRequests)
+	authRoutes.DELETE("remove/requests/:id", server.deleteRequest)
+	authRoutes.PUT("update/requests/ :id", server.updateRequest)
 
 	//student
-	authRoutes.POST("/students", server.createStudent)
-	authRoutes.GET("/students", server.listStudents)
-	authRoutes.PUT("/students/:id", server.updateStudent)
-	authRoutes.DELETE("/students/:id", server.deleteStudent)
+	authRoutes.POST("create/students", server.createStudent)
+	authRoutes.GET("list/students", server.listStudents)
+	authRoutes.PUT("update/students/:id", server.updateStudent)
+	authRoutes.DELETE("delete/students/:id", server.deleteStudent)
 
 	//teacher
-	authRoutes.POST("/teachers", server.createTeacher)
-	authRoutes.GET("/teachers/:id", server.getTeacher)
-	authRoutes.GET("/teachers", server.listTeachers)
-	authRoutes.PUT("/teachers/ :id", server.updateTeacher)
-	authRoutes.DELETE("/teachers/ :id", server.deleteTeacher)
+	authRoutes.POST("create/teachers", server.createTeacher)
+	authRoutes.GET("get/teachers/:id", server.getTeacher)
+	authRoutes.GET("list/teachers", server.listTeachers)
+	authRoutes.PUT("update/teachers/ :id", server.updateTeacher)
+	authRoutes.DELETE("delete/teachers/ :id", server.deleteTeacher)
 
 	//admin
-	authRoutes.GET("/admins/:id", server.getAdmin)
-	authRoutes.PUT("/admins/ :id", server.updateAdmin)
-	authRoutes.DELETE("/admin/ :id", server.deleteAdmin)
+	authRoutes.GET("get/admins/:id", server.getAdmin)
+	authRoutes.PUT("update/admins/ :id", server.updateAdmin)
+	authRoutes.DELETE("delete/admin/ :id", server.deleteAdmin)
 
 	//assignment
-	authRoutes.POST("/assignments", server.createAssignment)
-	authRoutes.GET("/assignments/:id", server.getAssignment)
-	authRoutes.PUT("/assignments/ :id", server.updateAssignment)
-	authRoutes.DELETE("/assignments/ :id", server.deleteAssignment)
+	authRoutes.POST("create/assignments", server.createAssignment)
+	authRoutes.GET("get/assignments/:id", server.getAssignment)
+	authRoutes.PUT("update/assignments/ :id", server.updateAssignment)
+	authRoutes.DELETE("delete/assignments/ :id", server.deleteAssignment)
 
 	//course_enrolments
-	authRoutes.GET("/courseEnrolments", server.listEnrolments)
+	authRoutes.GET("list/courseEnrolments", server.listEnrolments)
 
 	//course_progress
-	authRoutes.GET("/courseProgress", server.listCourseProgress)
-	authRoutes.GET("/courseProgress/:id", server.getCourseProgress)
+	authRoutes.GET("list/courseProgress", server.listCourseProgress)
+	authRoutes.GET("get/courseProgress/:id", server.getCourseProgress)
 
 	//submissions
-	authRoutes.GET("/assignments/:id", server.getSubmission)
-	authRoutes.GET("/submissions", server.listSubmissions)
+	authRoutes.GET("get/submissions/:id", server.getSubmission)
+	authRoutes.GET("list/submissions", server.listSubmissions)
 
 	server.router = router
 }
