@@ -1,0 +1,186 @@
+Project eduWave_back_end {
+    database_type: 'PostgreSQL'
+    Note: '''
+    # Eduwave Database
+  '''
+}
+
+Enum user_role {
+  admin
+  student
+  teacher
+}
+
+Table users {
+  user_name varchar [pk]
+  role user_role [not null]
+  hashed_password varchar [not null]
+  full_name varchar [not null]
+  email varchar [not null]
+  is_email_verified bool [not null, default: false]
+  password_changed_at timestamp [not null, default: '0001-01-01']
+  created_at timestamptz [not null, default: `now()`]
+}
+
+
+Table admins {
+  admin_id bigserial [pk]
+  user_name varchar  [ref: - users.user_name]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    user_name
+    (user_name) [unique]
+}
+}
+
+Table teachers {
+teacher_id bigserial [pk]
+admin_id bigint [ref: > admins.admin_id]
+full_name varchar [not null]
+email varchar [not null]
+user_name varchar [ref: > users.user_name]
+hashed_password varchar [not null]
+is_active bool [not null]
+created_at timestamptz [not null, default: `now()`] 
+
+   Indexes {
+    admin_id
+    (user_name) [unique]
+}
+}
+
+Table students {
+  student_id bigserial [pk]
+  user_name varchar  [ref: > users.user_name]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (user_name) [unique]
+}
+}
+
+Table courses  {
+course_id bigserial [pk]
+teacher_id bigint [ref: > teachers.teacher_id]
+title varchar [not null]
+type varchar [not null]
+description varchar [not null]
+created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    teacher_id
+}
+}
+
+Table course_progress {
+  courseprogress_id bigserial [pk]
+  enrolment_id bigint [ref: > course_enrolments.enrolment_id]
+  progress varchar [not null]
+
+  Indexes {
+      courseprogress_id
+}
+}
+
+Table course_enrolments {
+  enrolment_id bigserial [pk]
+  course_id bigint [ref: > courses.course_id]
+  request_id bigint [ref: > requests.request_id]
+  student_id bigint [ref: > students.student_id]
+
+  Indexes {
+    course_id
+    student_id
+    (course_id,student_id)
+}
+}
+
+Table assignments {
+  assignment_id bigserial [pk]
+  course_id bigint [ref: > courses.course_id]
+  type varchar [not null]
+  title varchar [not null]
+  description varchar [not null]
+  submission_date date [not null]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+      course_id
+}
+}
+
+Table submissions {
+  submission_id bigserial [pk]
+  assignment_id bigint [ref: > assignments.assignment_id]
+  student_id bigint [ref: > students.student_id]
+
+  Indexes {
+      assignment_id
+      student_id
+}
+}
+
+
+Table requests {
+  request_id  bigserial [pk]
+  student_id bigint [Ref: > students.student_id]
+  teacher_id bigint [Ref: > teachers.teacher_id]
+  course_id bigint [Ref: > courses.course_id]
+  is_active bool
+  is_pending bool
+  is_accepted bool
+  is_declined bool
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    student_id
+    teacher_id
+    course_id
+    (student_id,teacher_id,course_id)
+}
+}
+
+Enum type_resource {
+  pdf
+  video
+  image
+  doc
+}
+
+Table resources {
+  resource_id bigserial [pk]
+  course_id bigint [ref: > courses.course_id]
+  assignment_id bigint [ref: > assignments.assignment_id]
+  title varchar [not null]
+  type type_resource [not null]
+  content_url varchar [not null]
+  created_at timestamptz [not null, default: `now()`]
+  
+  Indexes {
+    course_id
+    assignment_id
+      (course_id,assignment_id)
+}
+}
+
+Table sessions {
+  session_id uuid [pk]
+  user_name varchar [ref: > users.user_name, not null]
+  refresh_token varchar [not null]
+  user_agent varchar [not null]
+  client_ip varchar [not null]
+  is_blocked boolean [not null, default: false]
+  expires_at timestamptz [not null]
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table verify_emails {
+  email_id bigserial [pk]
+  user_name varchar [ref: > users.user_name, not null]
+  email varchar [not null]
+  secret_code varchar [not null]
+  is_used bool [not null, default: false]
+  created_at timestamptz [not null, default: `now()`]
+  expired_at timestamptz [not null, default: `now() + interval '15 minutes'`]
+}

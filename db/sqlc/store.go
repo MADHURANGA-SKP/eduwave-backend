@@ -834,7 +834,7 @@ type UpdateUserParam struct {
 	HashedPassword    sql.NullString `json:"hashed_password"`
 	FullName          sql.NullString `json:"full_name"`
 	Email             sql.NullString `json:"email"`
-	UserName          sql.NullString `json:"user_name"`
+	UserName          string `json:"user_name"`
 }
 
 //UpdateUserResponse contains the result of the updating data

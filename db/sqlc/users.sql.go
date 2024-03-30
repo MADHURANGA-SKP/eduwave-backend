@@ -82,7 +82,7 @@ SET
     email = COALESCE($4, email),
     is_email_verified = COALESCE($5, is_email_verified)
 WHERE
-    user_name = COALESCE($6, user_name)
+    user_name = $6
 RETURNING user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at
 `
 
@@ -92,7 +92,7 @@ type UpdateUserParams struct {
 	FullName          sql.NullString `json:"full_name"`
 	Email             sql.NullString `json:"email"`
 	IsEmailVerified   sql.NullBool   `json:"is_email_verified"`
-	UserName          sql.NullString `json:"user_name"`
+	UserName          string         `json:"user_name"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {

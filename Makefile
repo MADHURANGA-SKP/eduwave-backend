@@ -21,10 +21,13 @@ migratedown:
 sqlc:
 	sqlc generate
 
-test:
-	go test -v -cover ./...
+dbdocs:
+	dbdocs build doc/db.dbml
+
+dbschema:
+	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
 
 server:
 	go run main.go
 
-.PHONY: postgres createdb migrate dropdb migrateup migratedown sqlc server 
+.PHONY: postgres createdb migrate dropdb migrateup migratedown sqlc server dbdocs dbschema
