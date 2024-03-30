@@ -11,11 +11,11 @@ import (
 )
 
 type createTeacherRequest struct {
-	FullName       string `json:"full_name" binding:"required"`
-	Email          string `json:"email" binding:"required,email"`
+	FullName       string         `json:"full_name" binding:"required"`
+	Email          string         `json:"email" binding:"required,email"`
 	UserName       sql.NullString `json:"user_name"`
-	HashedPassword string `json:"hashed_password" binding:"required"`
-	IsActive       bool   `json:"is_active"`
+	HashedPassword string         `json:"hashed_password" binding:"required"`
+	IsActive       bool           `json:"is_active"`
 }
 
 func (server *Server) createTeacher(ctx *gin.Context) {
@@ -53,11 +53,11 @@ func (server *Server) getTeacher(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.GetTeacherParam{req.TeacherID}
+	arg := db.GetTeacherParam{TeacherID: req.TeacherID}
 
 	teacher, err := server.store.GetTeacher(ctx, arg)
 	if err != nil {
-		if err == sql.ErrNoRows{
+		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 		}
 
@@ -70,21 +70,21 @@ func (server *Server) getTeacher(ctx *gin.Context) {
 
 type ListTeacherParams struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-    PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 func (server *Server) listTeachers(ctx *gin.Context) {
 	var req ListTeacherParams
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-        ctx.JSON(http.StatusBadRequest, errorResponse(err))
-        return
-    }
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 
 	arg := db.ListTeacherParams{
-        Limit:  req.PageSize,
-        Offset: (req.PageID - 1) * req.PageSize,
-    }
-	
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
 	teachers, err := server.store.ListTeacher(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

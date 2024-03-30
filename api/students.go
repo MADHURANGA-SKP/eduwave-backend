@@ -44,28 +44,27 @@ func (server *Server) createStudent(ctx *gin.Context) {
 
 type ListStudentRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-    PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 // listStudents returns a list of students
 func (server *Server) listStudents(ctx *gin.Context) {
 	var req ListStudentRequest
-    if err := ctx.ShouldBindQuery(&req); err != nil {
-        ctx.JSON(http.StatusBadRequest, errorResponse(err))
-        return
-    }
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 
+	arg := db.ListStudentsParams{
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
 
-    arg := db.ListStudentsParams{
-        Limit:  req.PageSize,
-        Offset: (req.PageID - 1) * req.PageSize,
-    }
-
-    rsp, err := server.store.ListStudents(ctx, arg)
-    if err != nil {
-        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-        return
-    }
+	rsp, err := server.store.ListStudents(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
 
 	ctx.JSON(http.StatusOK, rsp)
 }
@@ -104,27 +103,26 @@ func (server *Server) updateStudent(ctx *gin.Context) {
 	}
 
 	ID, err := strconv.Atoi(ctx.Param("id"))
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, errorResponse(err))
-        return
-    }
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 
 	arg := db.UpdateStudentParams{
 		StudentID: int64(ID),
-		UserName: req.UserName,
-    }
+		UserName:  req.UserName,
+	}
 
 	// Call the database store function to update the student
-	updatedStudent, err := server.store.UpdateStudent(ctx,arg)
-		if err != nil {
-			if err == sql.ErrNoRows{
-				ctx.JSON(http.StatusNotFound, errorResponse(err))
-			}
-	
-			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
+	updatedStudent, err := server.store.UpdateStudent(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
 		}
 
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
 
 	ctx.JSON(http.StatusOK, updatedStudent)
 }

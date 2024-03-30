@@ -37,7 +37,7 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 
 	session, err := server.store.GetSession(ctx, refreshPayload.ID)
 	if err != nil {
-		if errors.Is(err, db.ErrRecordNotFound){
+		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
@@ -45,25 +45,25 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	if session.IsBlocked{
+	if session.IsBlocked {
 		err := fmt.Errorf("blocked session")
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	if session.UserName != refreshPayload.Username{
+	if session.UserName != refreshPayload.Username {
 		err := fmt.Errorf("incorrect session user")
-		ctx.JSON(http.StatusUnauthorized,errorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	if session.RefreshToken != req.RefreshToken{
+	if session.RefreshToken != req.RefreshToken {
 		err := fmt.Errorf("session token missmatched")
-		ctx.JSON(http.StatusUnauthorized,errorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	if time.Now().After(session.ExpiresAt){
+	if time.Now().After(session.ExpiresAt) {
 		err := fmt.Errorf("exipired session")
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
@@ -80,7 +80,7 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 	}
 
 	rsp := renewAccessTokenResponse{
-		AccessToken: accessToken,
+		AccessToken:          accessToken,
 		AccessTokenExpiresAt: accessPayload.ExpiredAt,
 	}
 	ctx.JSON(http.StatusOK, rsp)

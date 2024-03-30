@@ -9,7 +9,7 @@ import (
 
 const (
 	ForeignKeyViolation = "23503"
-	UniqueViolations = "23505"
+	UniqueViolations    = "23505"
 )
 
 var ErrRecordNotFound = pgx.ErrNoRows
@@ -25,4 +25,3 @@ func ErrorCode(err error) string {
 	}
 	return ""
 }
-

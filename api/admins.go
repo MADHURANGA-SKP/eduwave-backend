@@ -33,7 +33,7 @@ func (server *Server) deleteAdmin(ctx *gin.Context) {
 
 // getAdminRequest defines the request body structure for getting an admin
 type getAdminRequest struct {
-	AdminID  int64 `json:"admin_id" binding:"required,min=1"`
+	AdminID int64 `json:"admin_id" binding:"required,min=1"`
 }
 
 // getAdmin retrieves an admin

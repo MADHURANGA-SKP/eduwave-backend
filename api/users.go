@@ -13,10 +13,10 @@ import (
 )
 
 type createUserRequest struct {
-	UserName       string   `json:"user_name"`
-	FullName       string   `json:"full_name"`
-	HashedPassword string   `json:"hashed_password"`
-	Email          string   `json:"email"`
+	UserName       string `json:"user_name"`
+	FullName       string `json:"full_name"`
+	HashedPassword string `json:"hashed_password"`
+	Email          string `json:"email"`
 }
 
 type userResponse struct {
@@ -43,7 +43,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	
+
 	hashedPassword, err := util.HashPassword(req.HashedPassword)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -51,10 +51,10 @@ func (server *Server) createUser(ctx *gin.Context) {
 	}
 
 	arg := db.CreateUserParams{
-		UserName: req.UserName,
-		FullName: req.FullName,
+		UserName:       req.UserName,
+		FullName:       req.FullName,
 		HashedPassword: hashedPassword,
-		Email: req.Email,
+		Email:          req.Email,
 	}
 
 	user, err := server.store.CreateUser(ctx, db.CreateUserParam(arg))
@@ -66,7 +66,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	
+
 	rsp := newUserResponse(user.User)
 	ctx.JSON(http.StatusOK, rsp)
 }
@@ -91,12 +91,12 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	
+
 	user, err := server.store.GetUser(ctx, db.GetUserParam{
 		UserName: req.Username,
 	})
 	if err != nil {
-		if errors.Is(err, db.ErrRecordNotFound){
+		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
@@ -131,13 +131,13 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	session, err := server.store.CreateSession(ctx, db.CreateSessionParam{
-		SessionID: refreshPayload.ID,
-		UserName: user.User.UserName,
+		SessionID:    refreshPayload.ID,
+		UserName:     user.User.UserName,
 		RefreshToken: refreshToken,
-		UserAgent: ctx.Request.UserAgent(),
-		ClientIp: ctx.ClientIP(),
-		IsBlocked: false,
-		ExpiresAt: refreshPayload.ExpiredAt,
+		UserAgent:    ctx.Request.UserAgent(),
+		ClientIp:     ctx.ClientIP(),
+		IsBlocked:    false,
+		ExpiresAt:    refreshPayload.ExpiredAt,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -145,12 +145,12 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	rsp := loginUserResponse{
-		SessionID: session.Session.SessionID,
-		AccessToken: accessToken,
-		AccessTokenExpiresAt: accessPayload.ExpiredAt,
-		RefreshToken: refreshToken,
+		SessionID:             session.Session.SessionID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
-		User: newUserResponse(user.User),
+		User:                  newUserResponse(user.User),
 	}
 
 	ctx.JSON(http.StatusOK, rsp)

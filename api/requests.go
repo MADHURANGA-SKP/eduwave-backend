@@ -12,10 +12,11 @@ import (
 
 type createRequestRequest struct {
 	IsActive   sql.NullBool `json:"is_active"`
-    IsPending  sql.NullBool `json:"is_pending"`
-    IsAccepted sql.NullBool `json:"is_accepted"`
-    IsDeclined sql.NullBool `json:"is_declined"`
+	IsPending  sql.NullBool `json:"is_pending"`
+	IsAccepted sql.NullBool `json:"is_accepted"`
+	IsDeclined sql.NullBool `json:"is_declined"`
 }
+
 func (server *Server) createRequest(ctx *gin.Context) {
 	var req createRequestRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -82,8 +83,8 @@ func (server *Server) listRequests(ctx *gin.Context) {
 	}
 
 	arg := db.ListRequestParams{
-		Limit:     req.Limit,
-		Offset:    req.Offset,
+		Limit:  req.Limit,
+		Offset: req.Offset,
 	}
 
 	requests, err := server.store.ListRequest(ctx, arg)
