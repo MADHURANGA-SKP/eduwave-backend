@@ -138,8 +138,8 @@ type CourseProgress struct {
 	Progress         string        `json:"progress"`
 }
 
-type Matirial struct {
-	MatirialID  int64         `json:"matirial_id"`
+type Material struct {
+	MaterialID  int64         `json:"material_id"`
 	CourseID    sql.NullInt64 `json:"course_id"`
 	Title       string        `json:"title"`
 	Description string        `json:"description"`
@@ -160,7 +160,7 @@ type Request struct {
 
 type Resource struct {
 	ResourceID int64         `json:"resource_id"`
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"material_id"`
 	Title      string        `json:"title"`
 	Type       TypeResource  `json:"type"`
 	ContentUrl string        `json:"content_url"`

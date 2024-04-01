@@ -9,21 +9,21 @@ INSERT INTO resources (
 
 -- name: GetResource :one
 SELECT * FROM resources
-WHERE matirial_id = $1 AND resource_id = $2;
+WHERE material_id = $1 AND resource_id = $2;
 
 -- name: UpdateResource :one
 UPDATE resources
 SET title = $3, type = $4, content_url = $5
-WHERE matirial_id = $1 AND resource_id = $2
+WHERE material_id = $1 AND resource_id = $2
 RETURNING *;
 
 -- name: ListResource :many
 SELECT * FROM resources
-WHERE matirial_id = $1 AND resource_id = $2
+WHERE material_id = $1 AND resource_id = $2
 ORDER BY resource_id
 LIMIT $3
 OFFSET $4;
 
 -- name: DeleteResource :exec
 DELETE FROM resources
-WHERE resource_id = $1 AND matirial_id = $2;
+WHERE resource_id = $1 AND material_id = $2;
