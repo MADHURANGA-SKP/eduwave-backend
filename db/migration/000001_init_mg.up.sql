@@ -54,8 +54,8 @@ CREATE TABLE "courses" (
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE "matirials" (
-  "matirial_id" bigserial PRIMARY KEY,
+CREATE TABLE "materials" (
+  "material_id" bigserial PRIMARY KEY,
   "course_id" bigint,
   "title" varchar NOT NULL,
   "description" varchar NOT NULL,
@@ -105,7 +105,7 @@ CREATE TABLE "requests" (
 
 CREATE TABLE "resources" (
   "resource_id" bigserial PRIMARY KEY,
-  "matirial_id" bigint,
+  "material_id" bigint,
   "title" varchar NOT NULL,
   "type" type_resource NOT NULL,
   "content_url" varchar NOT NULL,
@@ -124,7 +124,7 @@ CREATE UNIQUE INDEX ON "students" ("user_name");
 
 CREATE INDEX ON "courses" ("teacher_id");
 
-CREATE INDEX ON "matirials" ("course_id");
+CREATE INDEX ON "materials" ("course_id");
 
 CREATE INDEX ON "course_progress" ("courseprogress_id");
 
@@ -146,9 +146,9 @@ CREATE INDEX ON "requests" ("course_id");
 
 CREATE INDEX ON "requests" ("student_id", "teacher_id", "course_id");
 
-CREATE INDEX ON "resources" ("matirial_id");
+CREATE INDEX ON "resources" ("material_id");
 
-CREATE INDEX ON "resources" ("matirial_id");
+CREATE INDEX ON "resources" ("material_id");
 
 ALTER TABLE "admins" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
 
@@ -160,7 +160,7 @@ ALTER TABLE "students" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_n
 
 ALTER TABLE "courses" ADD FOREIGN KEY ("teacher_id") REFERENCES "teachers" ("teacher_id");
 
-ALTER TABLE "matirials" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id");
+ALTER TABLE "materials" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id");
 
 ALTER TABLE "course_progress" ADD FOREIGN KEY ("enrolment_id") REFERENCES "course_enrolments" ("enrolment_id");
 
@@ -182,4 +182,4 @@ ALTER TABLE "requests" ADD FOREIGN KEY ("teacher_id") REFERENCES "teachers" ("te
 
 ALTER TABLE "requests" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id");
 
-ALTER TABLE "resources" ADD FOREIGN KEY ("matirial_id") REFERENCES "matirials" ("matirial_id");
+ALTER TABLE "resources" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("material_id");

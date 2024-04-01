@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createCourses = `-- name: CreateCourses :one
@@ -41,21 +42,31 @@ func (q *Queries) CreateCourses(ctx context.Context, arg CreateCoursesParams) (C
 
 const deleteCourses = `-- name: DeleteCourses :exec
 DELETE FROM courses
-WHERE course_id = $1
+WHERE course_id = $1 AND teacher_id = $2
 `
 
-func (q *Queries) DeleteCourses(ctx context.Context, courseID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteCourses, courseID)
+type DeleteCoursesParams struct {
+	CourseID  int64         `json:"course_id"`
+	TeacherID sql.NullInt64 `json:"teacher_id"`
+}
+
+func (q *Queries) DeleteCourses(ctx context.Context, arg DeleteCoursesParams) error {
+	_, err := q.db.ExecContext(ctx, deleteCourses, arg.CourseID, arg.TeacherID)
 	return err
 }
 
 const getCourses = `-- name: GetCourses :one
 SELECT course_id, teacher_id, title, type, description, created_at FROM courses
-WHERE course_id = $1
+WHERE course_id = $1 AND teacher_id = $2
 `
 
-func (q *Queries) GetCourses(ctx context.Context, courseID int64) (Course, error) {
-	row := q.db.QueryRowContext(ctx, getCourses, courseID)
+type GetCoursesParams struct {
+	CourseID  int64         `json:"course_id"`
+	TeacherID sql.NullInt64 `json:"teacher_id"`
+}
+
+func (q *Queries) GetCourses(ctx context.Context, arg GetCoursesParams) (Course, error) {
+	row := q.db.QueryRowContext(ctx, getCourses, arg.CourseID, arg.TeacherID)
 	var i Course
 	err := row.Scan(
 		&i.CourseID,
@@ -115,7 +126,7 @@ func (q *Queries) ListCourses(ctx context.Context, arg ListCoursesParams) ([]Cou
 const updateCourses = `-- name: UpdateCourses :one
 UPDATE courses
 SET title = $2, type = $3, description = $4
-WHERE course_id = $1
+WHERE course_id = $1 AND teacher_id = $2
 RETURNING course_id, teacher_id, title, type, description, created_at
 `
 

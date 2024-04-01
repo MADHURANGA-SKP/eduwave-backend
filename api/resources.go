@@ -43,7 +43,7 @@ func (server *Server) createResource(ctx *gin.Context) {
 // deleteResourceRequest defines the request body structure for deleting a resource
 type deleteResourceRequest struct {
 	ResourceID int64         `json:"resource_id"`
-    MatirialID sql.NullInt64 `json:"matirial_id"`
+    MaterialID sql.NullInt64 `json:"matirial_id"`
 }
 
 // deleteResource deletes a resource
@@ -56,7 +56,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 	arg := db.DeleteResourceParams{
 		ResourceID: req.ResourceID,
-		MatirialID: req.MatirialID,
+		MaterialID: req.MaterialID,
 	}
 
 	err := server.store.DeleteResource(ctx, arg)
@@ -70,7 +70,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 // getResourceRequest defines the request body structure for getting a resource
 type getResourceRequest struct {
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"matirial_id"`
     ResourceID int64         `json:"resource_id"`
 }
 
@@ -83,7 +83,7 @@ func (server *Server) getResource(ctx *gin.Context) {
 	}
 
 	arg := db.GetResourceParams{
-		MatirialID: req.MatirialID,
+		MaterialID: req.MaterialID,
 		ResourceID: req.ResourceID,
 	}
 
@@ -102,7 +102,7 @@ func (server *Server) getResource(ctx *gin.Context) {
 
 // updateResourceRequest defines the request body structure for updating a resource
 type updateResourceRequest struct {
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"matirial_id"`
 	ResourceID int64         `json:"resource_id"`
 	Title      string        `json:"title"`
 	Type       db.TypeResource  `json:"type"`
@@ -118,7 +118,7 @@ func (server *Server) updateResource(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateResourceParams{
-		MatirialID: req.MatirialID,
+		MaterialID: req.MaterialID,
 		ResourceID: req.ResourceID,
 		Title:      req.Title,
 		Type:       req.Type,
