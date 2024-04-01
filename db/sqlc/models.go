@@ -101,17 +101,19 @@ func (ns NullUserRole) Value() (driver.Value, error) {
 }
 
 type Admin struct {
-	AdminID  int64          `json:"admin_id"`
-	UserName sql.NullString `json:"user_name"`
+	AdminID   int64          `json:"admin_id"`
+	UserName  sql.NullString `json:"user_name"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
 type Assignment struct {
 	AssignmentID   int64         `json:"assignment_id"`
-	CourseID       sql.NullInt64 `json:"course_id"`
+	ResourceID     sql.NullInt64 `json:"resource_id"`
 	Type           string        `json:"type"`
 	Title          string        `json:"title"`
 	Description    string        `json:"description"`
 	SubmissionDate time.Time     `json:"submission_date"`
+	CreatedAt      time.Time     `json:"created_at"`
 }
 
 type Course struct {
@@ -136,6 +138,14 @@ type CourseProgress struct {
 	Progress         string        `json:"progress"`
 }
 
+type Matirial struct {
+	MatirialID  int64         `json:"matirial_id"`
+	CourseID    sql.NullInt64 `json:"course_id"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	CreatedAt   time.Time     `json:"created_at"`
+}
+
 type Request struct {
 	RequestID  int64         `json:"request_id"`
 	StudentID  sql.NullInt64 `json:"student_id"`
@@ -145,15 +155,16 @@ type Request struct {
 	IsPending  sql.NullBool  `json:"is_pending"`
 	IsAccepted sql.NullBool  `json:"is_accepted"`
 	IsDeclined sql.NullBool  `json:"is_declined"`
+	CreatedAt  time.Time     `json:"created_at"`
 }
 
 type Resource struct {
-	ResourceID   int64         `json:"resource_id"`
-	CourseID     sql.NullInt64 `json:"course_id"`
-	AssignmentID sql.NullInt64 `json:"assignment_id"`
-	Title        string        `json:"title"`
-	Type         TypeResource  `json:"type"`
-	ContentUrl   string        `json:"content_url"`
+	ResourceID int64         `json:"resource_id"`
+	MatirialID sql.NullInt64 `json:"matirial_id"`
+	Title      string        `json:"title"`
+	Type       TypeResource  `json:"type"`
+	ContentUrl string        `json:"content_url"`
+	CreatedAt  time.Time     `json:"created_at"`
 }
 
 type Session struct {
@@ -170,6 +181,7 @@ type Session struct {
 type Student struct {
 	StudentID int64          `json:"student_id"`
 	UserName  sql.NullString `json:"user_name"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
 type Submission struct {

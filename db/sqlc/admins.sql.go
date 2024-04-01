@@ -21,14 +21,14 @@ func (q *Queries) DeleteAdmin(ctx context.Context, adminID int64) error {
 }
 
 const getAdmin = `-- name: GetAdmin :one
-SELECT admin_id, user_name FROM admins
+SELECT admin_id, user_name, created_at FROM admins
 WHERE admin_id = $1
 `
 
 func (q *Queries) GetAdmin(ctx context.Context, adminID int64) (Admin, error) {
 	row := q.db.QueryRowContext(ctx, getAdmin, adminID)
 	var i Admin
-	err := row.Scan(&i.AdminID, &i.UserName)
+	err := row.Scan(&i.AdminID, &i.UserName, &i.CreatedAt)
 	return i, err
 }
 
@@ -36,7 +36,7 @@ const updateAdmin = `-- name: UpdateAdmin :one
 UPDATE admins
 SET user_name = $2
 WHERE admin_id = $1
-RETURNING admin_id, user_name
+RETURNING admin_id, user_name, created_at
 `
 
 type UpdateAdminParams struct {
@@ -47,6 +47,6 @@ type UpdateAdminParams struct {
 func (q *Queries) UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Admin, error) {
 	row := q.db.QueryRowContext(ctx, updateAdmin, arg.AdminID, arg.UserName)
 	var i Admin
-	err := row.Scan(&i.AdminID, &i.UserName)
+	err := row.Scan(&i.AdminID, &i.UserName, &i.CreatedAt)
 	return i, err
 }

@@ -44,7 +44,8 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 }
 
 type GetAssignmentRequest struct {
-	CourseID sql.NullInt64 `json:"course_id"`
+	AssignmentID int64         `json:"assignment_id"`
+	ResourceID   sql.NullInt64 `json:"resource_id"`
 }
 
 func (server *Server) getAssignment(ctx *gin.Context) {
@@ -53,7 +54,10 @@ func (server *Server) getAssignment(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
-	assignment, err := server.store.GetAssignment(ctx, req.CourseID)
+	assignment, err := server.store.GetAssignment(ctx, db.GetAssignmentParam{
+		AssignmentID: req.AssignmentID,
+		ResourceID: req.ResourceID,
+	})
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -88,14 +92,20 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateAssignmentParams{
-		CourseID:       sql.NullInt64{Int64: courseID, Valid: true},
+		ResourceID:       sql.NullInt64{Int64: courseID, Valid: true},
 		Type:           req.Type,
 		Title:          req.Title,
 		Description:    req.Description,
 		SubmissionDate: req.SubmissionDate,
 	}
 
-	assignment, err := server.store.UpdateAssignment(ctx, arg)
+	assignment, err := server.store.UpdateAssignment(ctx, db.UpdateAssignmentParam{
+		ResourceID: arg.ResourceID,
+		Type: arg.Type,
+		Title: arg.Title,
+		Description: arg.Description,
+		SubmissionDate: arg.SubmissionDate,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -104,14 +114,23 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
+type DeleteAssignmentRequest struct {
+	AssignmentID int64         `json:"assignment_id"`
+	ResourceID   sql.NullInt64 `json:"resource_id"`
+}
+
 func (server *Server) deleteAssignment(ctx *gin.Context) {
 	assignmentID, err := strconv.ParseInt(ctx.Param("assignment_id"), 10, 64)
+	resourceID, err := strconv.ParseInt(ctx.Param("resource_id"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("invalid assignment_id")))
 		return
 	}
 
-	err = server.store.DeleteAssignment(ctx, assignmentID)
+	err = server.store.DeleteAssignment(ctx, db.DeleteAssignmentParam{
+		AssignmentID: assignmentID,
+		ResourceID : sql.NullInt64{Int64: resourceID, Valid: true},
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

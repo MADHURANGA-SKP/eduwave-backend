@@ -19,7 +19,7 @@ INSERT INTO assignments (
     submission_date
 ) VALUES (
     $1, $2, $3, $4
-)  RETURNING assignment_id, course_id, type, title, description, submission_date
+)  RETURNING assignment_id, resource_id, type, title, description, submission_date, created_at
 `
 
 type CreateAssignmentParams struct {
@@ -39,40 +39,52 @@ func (q *Queries) CreateAssignment(ctx context.Context, arg CreateAssignmentPara
 	var i Assignment
 	err := row.Scan(
 		&i.AssignmentID,
-		&i.CourseID,
+		&i.ResourceID,
 		&i.Type,
 		&i.Title,
 		&i.Description,
 		&i.SubmissionDate,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const deleteAssignment = `-- name: DeleteAssignment :exec
 DELETE FROM assignments
-WHERE assignment_id = $1
+WHERE assignment_id = $1 AND resource_id =$2
 `
 
-func (q *Queries) DeleteAssignment(ctx context.Context, assignmentID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteAssignment, assignmentID)
+type DeleteAssignmentParams struct {
+	AssignmentID int64         `json:"assignment_id"`
+	ResourceID   sql.NullInt64 `json:"resource_id"`
+}
+
+func (q *Queries) DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAssignment, arg.AssignmentID, arg.ResourceID)
 	return err
 }
 
 const getAssignment = `-- name: GetAssignment :one
-SELECT assignment_id, course_id, type, title, description, submission_date FROM assignments
-WHERE course_id = $1
+SELECT assignment_id, resource_id, type, title, description, submission_date, created_at FROM assignments
+WHERE assignment_id = $1 AND resource_id =$2
 `
 
-func (q *Queries) GetAssignment(ctx context.Context, courseID sql.NullInt64) (Assignment, error) {
-	row := q.db.QueryRowContext(ctx, getAssignment, courseID)
+type GetAssignmentParams struct {
+	AssignmentID int64         `json:"assignment_id"`
+	ResourceID   sql.NullInt64 `json:"resource_id"`
+}
+
+func (q *Queries) GetAssignment(ctx context.Context, arg GetAssignmentParams) (Assignment, error) {
+	row := q.db.QueryRowContext(ctx, getAssignment, arg.AssignmentID, arg.ResourceID)
 	var i Assignment
 	err := row.Scan(
 		&i.AssignmentID,
-		&i.CourseID,
+		&i.ResourceID,
 		&i.Type,
 		&i.Title,
 		&i.Description,
 		&i.SubmissionDate,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -80,12 +92,12 @@ func (q *Queries) GetAssignment(ctx context.Context, courseID sql.NullInt64) (As
 const updateAssignment = `-- name: UpdateAssignment :one
 UPDATE assignments
 SET type = $2, title = $3, description = $4, submission_date = $5
-WHERE course_id = $1
-RETURNING assignment_id, course_id, type, title, description, submission_date
+WHERE resource_id = $1
+RETURNING assignment_id, resource_id, type, title, description, submission_date, created_at
 `
 
 type UpdateAssignmentParams struct {
-	CourseID       sql.NullInt64 `json:"course_id"`
+	ResourceID     sql.NullInt64 `json:"resource_id"`
 	Type           string        `json:"type"`
 	Title          string        `json:"title"`
 	Description    string        `json:"description"`
@@ -94,7 +106,7 @@ type UpdateAssignmentParams struct {
 
 func (q *Queries) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) (Assignment, error) {
 	row := q.db.QueryRowContext(ctx, updateAssignment,
-		arg.CourseID,
+		arg.ResourceID,
 		arg.Type,
 		arg.Title,
 		arg.Description,
@@ -103,11 +115,12 @@ func (q *Queries) UpdateAssignment(ctx context.Context, arg UpdateAssignmentPara
 	var i Assignment
 	err := row.Scan(
 		&i.AssignmentID,
-		&i.CourseID,
+		&i.ResourceID,
 		&i.Type,
 		&i.Title,
 		&i.Description,
 		&i.SubmissionDate,
+		&i.CreatedAt,
 	)
 	return i, err
 }

@@ -57,10 +57,10 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("update/requests/ :id", server.updateRequest)
 
 	//student
-	authRoutes.POST("create/students", server.createStudent)
-	authRoutes.GET("list/students", server.listStudents)
-	authRoutes.PUT("update/students/:id", server.updateStudent)
-	authRoutes.DELETE("delete/students/:id", server.deleteStudent)
+	authRoutes.POST("create/students", server.createStudent)//
+	authRoutes.GET("list/students", server.listStudents)//
+	authRoutes.PUT("update/students/:id", server.updateStudent)//
+	authRoutes.DELETE("delete/students/:id", server.deleteStudent)//
 
 	//teacher
 	authRoutes.POST("create/teachers", server.createTeacher)
@@ -88,6 +88,7 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("get/courseProgress/:id", server.getCourseProgress)
 
 	//submissions
+	// authRoutes.POST("create/submissions/", server.createsubmission)
 	authRoutes.GET("get/submissions/:id", server.getSubmission)
 	authRoutes.GET("list/submissions", server.listSubmissions)
 

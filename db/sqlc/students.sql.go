@@ -15,13 +15,13 @@ INSERT INTO students (
     user_name
 ) VALUES (
     $1
-) RETURNING student_id, user_name
+) RETURNING student_id, user_name, created_at
 `
 
 func (q *Queries) CreateStudent(ctx context.Context, userName sql.NullString) (Student, error) {
 	row := q.db.QueryRowContext(ctx, createStudent, userName)
 	var i Student
-	err := row.Scan(&i.StudentID, &i.UserName)
+	err := row.Scan(&i.StudentID, &i.UserName, &i.CreatedAt)
 	return i, err
 }
 
@@ -36,19 +36,19 @@ func (q *Queries) DeleteStudent(ctx context.Context, studentID int64) error {
 }
 
 const getStudent = `-- name: GetStudent :one
-SELECT student_id, user_name FROM students
+SELECT student_id, user_name, created_at FROM students
 WHERE student_id = $1
 `
 
 func (q *Queries) GetStudent(ctx context.Context, studentID int64) (Student, error) {
 	row := q.db.QueryRowContext(ctx, getStudent, studentID)
 	var i Student
-	err := row.Scan(&i.StudentID, &i.UserName)
+	err := row.Scan(&i.StudentID, &i.UserName, &i.CreatedAt)
 	return i, err
 }
 
 const listStudents = `-- name: ListStudents :many
-SELECT student_id, user_name FROM students
+SELECT student_id, user_name, created_at FROM students
 WHERE user_name = $1
 ORDER BY student_id
 LIMIT $2
@@ -70,7 +70,7 @@ func (q *Queries) ListStudents(ctx context.Context, arg ListStudentsParams) ([]S
 	items := []Student{}
 	for rows.Next() {
 		var i Student
-		if err := rows.Scan(&i.StudentID, &i.UserName); err != nil {
+		if err := rows.Scan(&i.StudentID, &i.UserName, &i.CreatedAt); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -88,7 +88,7 @@ const updateStudent = `-- name: UpdateStudent :one
 UPDATE students
 SET user_name = $2
 WHERE student_id = $1
-RETURNING student_id, user_name
+RETURNING student_id, user_name, created_at
 `
 
 type UpdateStudentParams struct {
@@ -99,6 +99,6 @@ type UpdateStudentParams struct {
 func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error) {
 	row := q.db.QueryRowContext(ctx, updateStudent, arg.StudentID, arg.UserName)
 	var i Student
-	err := row.Scan(&i.StudentID, &i.UserName)
+	err := row.Scan(&i.StudentID, &i.UserName, &i.CreatedAt)
 	return i, err
 }

@@ -143,76 +143,92 @@ func (store *Store) CreateAssignment(ctx context.Context, arg CreateAssignmentPa
 	return result, err
 }
 
-//DeleteAssignment db handler for api call to delete a admin from the database
-func (store *Store) DeleteAssignment(ctx context.Context, assignmentID int64) error {
-	return store.Queries.DeleteAssignment(ctx, assignmentID)
+//DeleteAssignmentParam contains the input parameters of the geting  the data
+type DeleteAssignmentParam struct {
+	AssignmentID int64         `json:"assignment_id"`
+	ResourceID   sql.NullInt64 `json:"resource_id"`
 }
 
-// //GetAssignmentParam contains the input parameters of the geting  the data
-// type GetAssignmentParam struct {
-// 	CourseID sql.NullInt64 `json:"course_id"`
-// }
 
-// //GetAssignmentResponse contains the result of the geting the data
-// type GetAssignmentResponse struct {
-// 	Assignment Assignment `json:"assignment"`
-// }
+//DeleteAssignment db handler for api call to delete a admin from the database
+func (store *Store) DeleteAssignment(ctx context.Context, arg DeleteAssignmentParam) error {
+	return store.Queries.DeleteAssignment(ctx, DeleteAssignmentParams{
+		AssignmentID: arg.AssignmentID,
+		ResourceID: arg.ResourceID,
+	})
+}
 
-// //GetAssignment db handler for api call to retrive a assignment data from the database
-// func (store *Store) GetAssignment(ctx context.Context, arg GetAssignmentParam)(GetAssignmentResponse, error){
-// 	var result GetAssignmentResponse
+//GetAssignmentParam contains the input parameters of the geting  the data
+type GetAssignmentParam struct {
+	AssignmentID int64         `json:"assignment_id"`
+	ResourceID   sql.NullInt64 `json:"resource_id"`
+}
 
-// 	err := store.execTx(ctx, func (q *Queries) error {
-// 		var err error
+//GetAssignmentResponse contains the result of the geting the data
+type GetAssignmentResponse struct {
+	Assignment Assignment `json:"assignment"`
+}
 
-// 		result.Assignment, err = q.GetAssignment(ctx, arg.CourseID)
+//GetAssignment db handler for api call to retrive a assignment data from the database
+func (store *Store) GetAssignment(ctx context.Context, arg GetAssignmentParam)(GetAssignmentResponse, error){
+	var result GetAssignmentResponse
 
-// 		if err != nil {
-// 			return err
-// 		}
+	err := store.execTx(ctx, func (q *Queries) error {
+		var err error
 
-// 		return nil
-// 	})
-// 	return result, err
-// }
+		result.Assignment, err = q.GetAssignment(ctx, GetAssignmentParams{
+			AssignmentID: arg.AssignmentID,
+			ResourceID: arg.ResourceID,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	return result, err
+}
 
 //UpdateAssignmentParam contains the input parameters of the updating of the data
-// type UpdateAssignmentParam struct {
-// 	Type           string        `json:"type"`
-// 	Title          string        `json:"title"`
-// 	Description    string        `json:"description"`
-// 	SubmissionDate time.Time     `json:"submission_date"`
-// }
+type UpdateAssignmentParam struct {
+	ResourceID     sql.NullInt64 `json:"resource_id"`
+	Type           string        `json:"type"`
+	Title          string        `json:"title"`
+	Description    string        `json:"description"`
+	SubmissionDate time.Time     `json:"submission_date"`
+}
 
-// //UpdateAssignmentResponse contains the result of the updating of the data
-// type UpdateAssignmentResponse struct {
-// 	Assignment Assignment `json:"assignment"`
-// }
+//UpdateAssignmentResponse contains the result of the updating of the data
+type UpdateAssignmentResponse struct {
+	Assignment Assignment `json:"assignment"`
+}
 
-// //UpdateAssignment db handler for api call to update a assignment data of the database
-// func (store *Store) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParam)(UpdateAssignmentResponse, error){
-// 	var result UpdateAssignmentResponse
+//UpdateAssignment db handler for api call to update a assignment data of the database
+func (store *Store) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParam)(UpdateAssignmentResponse, error){
+	var result UpdateAssignmentResponse
 
-// 	err := store.execTx(ctx, func (q *Queries) error {
-// 		var err error
+	err := store.execTx(ctx, func (q *Queries) error {
+		var err error
 
-// 		updateAssignment, err := q.UpdateAssignment(ctx, UpdateAssignmentParams{
-// 			Type: arg.Type,
-// 			Title: arg.Title,
-// 			Description: arg.Description,
-// 			SubmissionDate: arg.SubmissionDate,
-// 		})
+		updateAssignment, err := q.UpdateAssignment(ctx, UpdateAssignmentParams{
+			ResourceID: arg.ResourceID,
+			Type: arg.Type,
+			Title: arg.Title,
+			Description: arg.Description,
+			SubmissionDate: arg.SubmissionDate,
+		})
 
-// 		if err != nil {
-// 			return err
-// 		}
+		if err != nil {
+			return err
+		}
 
-// 		result.Assignment = updateAssignment
-// 		return nil
+		result.Assignment = updateAssignment
+		return nil
 
-// 	})
-// 	return result, err
-// }
+	})
+	return result, err
+}
 
 //ListEnrolments db handler for api call to list enrolment data of the database
 func (store *Store) ListEnrolments(ctx context.Context, params ListEnrolmentsParams) ([]CourseEnrolment, error) {
@@ -316,14 +332,24 @@ func (store *Store) CreateRequest(ctx context.Context, arg CreateRequestParam) (
 	return result, err
 }
 
+//GetRequestParam contains the input parameters of the retriving  data
+type DeleteRequestParam struct {
+	StudentID sql.NullInt64 `json:"student_id"`
+	RequestID int64         `json:"request_id"`
+}
+
 //DeleteRequest db handler for api call to delete a request from the database
-func (store *Store) DeleteRequest(ctx context.Context, requestID int64) error {
-	return store.Queries.DeleteRequest(ctx, requestID)
+func (store *Store) DeleteRequest(ctx context.Context, arg DeleteRequestParam) error {
+	return store.Queries.DeleteRequest(ctx, DeleteRequestParams{
+		StudentID: arg.StudentID,
+		RequestID: arg.RequestID,
+	})
 }
 
 //GetRequestParam contains the input parameters of the retriving  data
 type GetRequestParam struct {
-	RequestID int64 `json:"Request_id"`
+	StudentID sql.NullInt64 `json:"student_id"`
+	RequestID int64         `json:"request_id"`
 }
 
 //GetRequestResponse contains the result of the updating of the data
@@ -338,7 +364,10 @@ func (store *Store) GetRequest(ctx context.Context, arg GetRequestParam) (GetReq
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		result.Request, err = q.GetRequest(ctx, arg.RequestID)
+		result.Request, err = q.GetRequest(ctx, GetRequestParams{
+			StudentID: arg.StudentID,
+			RequestID: arg.RequestID,
+		})
 
 		if err != nil {
 			return err
@@ -434,8 +463,8 @@ func (store *Store) DeleteResource(ctx context.Context, params DeleteResourcePar
 
 //GetResourceParam contains the input paramters of the retriving data
 type GetResourceParam struct {
-	AssignmentID sql.NullInt64 `json:"assignment_id"`
-	CourseID     sql.NullInt64 `json:"course_id"`
+	MatirialID sql.NullInt64 `json:"matirial_id"`
+	ResourceID int64         `json:"resource_id"`
 }
 
 //GetResourceResponse contains the result of the retriving data
@@ -451,8 +480,8 @@ func (store *Store) GetResource(ctx context.Context, arg GetResourceParam) (GetR
 		var err error
 
 		result.Resource, err = q.GetResource(ctx, GetResourceParams{
-			AssignmentID: arg.AssignmentID,
-			CourseID:     arg.CourseID,
+			MatirialID: arg.MatirialID,
+			ResourceID: arg.ResourceID,
 		})
 
 		if err != nil {
@@ -471,39 +500,39 @@ func (store *Store) ListResource(ctx context.Context, params ListResourceParams)
 }
 
 //UpdateResourceParam contains the input parameters of the updating data
-// type UpdateResourceParam struct {
-// 	Title        string        `json:"title"`
-// 	Type         TypeResource  `json:"type"`
-// 	ContentUrl   string        `json:"content_url"`
-// }
+type UpdateResourceParam struct {
+	Title        string        `json:"title"`
+	Type         TypeResource  `json:"type"`
+	ContentUrl   string        `json:"content_url"`
+}
 
-// //UpdateResourceResponse contains the result of the updating data
-// type UpdateResourceResponse struct {
-// 	Resource Resource `json:"resource"`
-// }
+//UpdateResourceResponse contains the result of the updating data
+type UpdateResourceResponse struct {
+	Resource Resource `json:"resource"`
+}
 
-// //UpdateResource db handler for api call to update resource data in the database
-// func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(UpdateResourceResponse, error){
-// 	var result UpdateResourceResponse
+//UpdateResource db handler for api call to update resource data in the database
+func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(UpdateResourceResponse, error){
+	var result UpdateResourceResponse
 
-// 	err := store.execTx( ctx, func(q *Queries) error {
-// 		var err error
+	err := store.execTx( ctx, func(q *Queries) error {
+		var err error
 
-// 		result.Resource, err = q.UpdateResource(ctx, UpdateResourceParams{
-// 			Title: arg.Title,
-// 			Type: arg.Type,
-// 			ContentUrl:  arg.ContentUrl,
-// 		})
+		result.Resource, err = q.UpdateResource(ctx, UpdateResourceParams{
+			Title: arg.Title,
+			Type: arg.Type,
+			ContentUrl:  arg.ContentUrl,
+		})
 
-// 		if err != nil {
-// 			return err
-// 		}
+		if err != nil {
+			return err
+		}
 
-// 		return nil
-// 	})
+		return nil
+	})
 
-// 	return result, err
-// }
+	return result, err
+}
 
 //CreateStudentParam contains the input parameters of the creation of the student
 type CreateStudentParam struct {
@@ -716,43 +745,43 @@ func (store *Store) ListTeachers(ctx context.Context, params ListTeacherParams) 
 }
 
 //UpdateTeacherParams contains the input parameters of updating data
-// type UpdateTeacherParam struct {
-// 	FullName       string         `json:"full_name"`
-// 	Email          string         `json:"email"`
-// 	UserName       sql.NullString `json:"user_name"`
-// 	HashedPassword string         `json:"hashed_password"`
-// 	IsActive       bool           `json:"is_active"`
-// }
+type UpdateTeacherParam struct {
+	FullName       string         `json:"full_name"`
+	Email          string         `json:"email"`
+	UserName       sql.NullString `json:"user_name"`
+	HashedPassword string         `json:"hashed_password"`
+	IsActive       bool           `json:"is_active"`
+}
 
-// //UpdateTeachersResponse contains the result of the upating data
-// type UpdateTeacherResponse struct {
-// 	Teacher Teacher `json:"teacher"`
-// }
+//UpdateTeachersResponse contains the result of the upating data
+type UpdateTeacherResponse struct {
+	Teacher Teacher `json:"teacher"`
+}
 
-// //UpdateTeacher db handler for api call t o update teacher data in database
-// func(store *Store) UpdateTeacher(ctx context.Context, arg UpdateTeacherParam)(UpdateTeacherResponse, error){
-// 	var result UpdateTeacherResponse
+//UpdateTeacher db handler for api call t o update teacher data in database
+func(store *Store) UpdateTeacher(ctx context.Context, arg UpdateTeacherParam)(UpdateTeacherResponse, error){
+	var result UpdateTeacherResponse
 
-// 	err := store.execTx(ctx, func(q *Queries) error {
-// 		var err error
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
 
-// 		result.Teacher, err = q.UpdateTeacher(ctx, UpdateTeacherParams{
-// 			FullName: arg.FullName,
-// 			Email: arg.Email,
-// 			UserName: arg.UserName,
-// 			HashedPassword: arg.HashedPassword,
-// 			IsActive: arg.IsActive,
-// 		})
+		result.Teacher, err = q.UpdateTeacher(ctx, UpdateTeacherParams{
+			FullName: arg.FullName,
+			Email: arg.Email,
+			UserName: arg.UserName,
+			HashedPassword: arg.HashedPassword,
+			IsActive: arg.IsActive,
+		})
 
-// 		if err != nil {
-// 			return err
-// 		}
+		if err != nil {
+			return err
+		}
 
-// 		return err
-// 	})
+		return err
+	})
 
-// 	return result, err
-// }
+	return result, err
+}
 
 //CreateUserParam contains the input parameters of data
 type CreateUserParam struct {
@@ -995,3 +1024,5 @@ func (store *Store) UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmail
 
 	return result, err
 }
+
+//CreateCourse

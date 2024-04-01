@@ -10,7 +10,7 @@ INSERT INTO requests (
 
 -- name: GetRequest :one
 SELECT * FROM requests
-WHERE request_id = $1;
+WHERE student_id = $1 AND request_id = $2;
 
 -- name: UpdateRequests :one
 UPDATE requests
@@ -27,4 +27,4 @@ OFFSET $5;
 
 -- name: DeleteRequest :exec
 DELETE FROM requests
-WHERE request_id = $1;
+WHERE student_id = $1 AND request_id = $2;
