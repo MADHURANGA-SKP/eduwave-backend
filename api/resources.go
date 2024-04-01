@@ -42,8 +42,8 @@ func (server *Server) createResource(ctx *gin.Context) {
 
 // deleteResourceRequest defines the request body structure for deleting a resource
 type deleteResourceRequest struct {
-	ResourceID int64         `uri:"resource_id" binding:"required,min=1"`
-	CourseID   sql.NullInt64 `uri:"course_id"`
+	ResourceID int64         `json:"resource_id"`
+    MatirialID sql.NullInt64 `json:"matirial_id"`
 }
 
 // deleteResource deletes a resource
@@ -56,7 +56,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 	arg := db.DeleteResourceParams{
 		ResourceID: req.ResourceID,
-		CourseID:   req.CourseID,
+		MatirialID: req.MatirialID,
 	}
 
 	err := server.store.DeleteResource(ctx, arg)
@@ -70,8 +70,8 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 // getResourceRequest defines the request body structure for getting a resource
 type getResourceRequest struct {
-	AssignmentID sql.NullInt64 `uri:"assignment_id" binding:"required,min=1"`
-	CourseID     sql.NullInt64 `uri:"course_id"`
+	MatirialID sql.NullInt64 `json:"matirial_id"`
+    ResourceID int64         `json:"resource_id"`
 }
 
 // getResource retrieves a resource
@@ -83,8 +83,8 @@ func (server *Server) getResource(ctx *gin.Context) {
 	}
 
 	arg := db.GetResourceParams{
-		AssignmentID: req.AssignmentID,
-		CourseID:     req.CourseID,
+		MatirialID: req.MatirialID,
+		ResourceID: req.ResourceID,
 	}
 
 	resource, err := server.store.GetResource(ctx, db.GetResourceParam(arg))
@@ -102,9 +102,11 @@ func (server *Server) getResource(ctx *gin.Context) {
 
 // updateResourceRequest defines the request body structure for updating a resource
 type updateResourceRequest struct {
-	Title      string          `json:"title"`
-	Type       db.TypeResource `json:"type"`
-	ContentUrl string          `json:"content_url"`
+	MatirialID sql.NullInt64 `json:"matirial_id"`
+	ResourceID int64         `json:"resource_id"`
+	Title      string        `json:"title"`
+	Type       db.TypeResource  `json:"type"`
+	ContentUrl string        `json:"content_url"`
 }
 
 // updateResource updates a resource
@@ -116,12 +118,18 @@ func (server *Server) updateResource(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateResourceParams{
+		MatirialID: req.MatirialID,
+		ResourceID: req.ResourceID,
 		Title:      req.Title,
 		Type:       req.Type,
 		ContentUrl: req.ContentUrl,
 	}
 
-	resource, err := server.store.UpdateResource(ctx, arg)
+	resource, err := server.store.UpdateResource(ctx, db.UpdateResourceParam{
+		Title: arg.Title,
+		Type: arg.Type,
+		ContentUrl:arg.ContentUrl,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

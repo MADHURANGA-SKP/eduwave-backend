@@ -97,7 +97,8 @@ func (server *Server) listRequests(ctx *gin.Context) {
 }
 
 type deleteRequestRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
+	StudentID sql.NullInt64 `json:"student_id"`
+	RequestID int64         `json:"request_id"`
 }
 
 func (server *Server) deleteRequest(ctx *gin.Context) {
@@ -107,7 +108,10 @@ func (server *Server) deleteRequest(ctx *gin.Context) {
 		return
 	}
 
-	err := server.store.DeleteRequest(ctx, req.ID)
+	err := server.store.DeleteRequest(ctx, db.DeleteRequestParam{
+		StudentID: req.StudentID,
+		RequestID: req.RequestID,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

@@ -73,6 +73,18 @@ created_at timestamptz [not null, default: `now()`]
 }
 }
 
+Table matirials  {
+matirial_id bigserial [pk]
+course_id bigint [ref: > courses.course_id]
+title varchar [not null]
+description varchar [not null]
+created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    course_id
+}
+}
+
 Table course_progress {
   courseprogress_id bigserial [pk]
   enrolment_id bigint [ref: > course_enrolments.enrolment_id]
@@ -98,16 +110,12 @@ Table course_enrolments {
 
 Table assignments {
   assignment_id bigserial [pk]
-  course_id bigint [ref: > courses.course_id]
+  resource_id bigint [ref: > resources.resource_id]
   type varchar [not null]
   title varchar [not null]
   description varchar [not null]
   submission_date date [not null]
   created_at timestamptz [not null, default: `now()`]
-
-  Indexes {
-      course_id
-}
 }
 
 Table submissions {
@@ -150,17 +158,15 @@ Enum type_resource {
 
 Table resources {
   resource_id bigserial [pk]
-  course_id bigint [ref: > courses.course_id]
-  assignment_id bigint [ref: > assignments.assignment_id]
+  matirial_id bigint [ref: > matirials.matirial_id]
   title varchar [not null]
   type type_resource [not null]
   content_url varchar [not null]
   created_at timestamptz [not null, default: `now()`]
   
   Indexes {
-    course_id
-    assignment_id
-      (course_id,assignment_id)
+    matirial_id
+      (matirial_id)
 }
 }
 

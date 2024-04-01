@@ -4,6 +4,7 @@ package api
 import (
 	"database/sql"
 	db "eduwave-back-end/db/sqlc"
+	"eduwave-back-end/util"
 	"net/http"
 	"strconv"
 
@@ -101,6 +102,13 @@ func (server *Server) updateTeacher(ctx *gin.Context) {
 		return
 	}
 
+	
+	hashedPassword, err := util.HashPassword(req.HashedPassword)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	teacherID, err := strconv.ParseInt(ctx.Param("teacher_id"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -116,7 +124,13 @@ func (server *Server) updateTeacher(ctx *gin.Context) {
 		IsActive:       req.IsActive,
 	}
 
-	teacher, err := server.store.UpdateTeacher(ctx, arg)
+	teacher, err := server.store.UpdateTeacher(ctx, db.UpdateTeacherParam{
+		FullName: arg.FullName,
+		Email: arg.Email,
+		UserName: arg.UserName,
+		HashedPassword:hashedPassword,
+		IsActive: arg.IsActive,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
