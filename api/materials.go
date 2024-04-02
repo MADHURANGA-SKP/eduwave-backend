@@ -15,6 +15,17 @@ type CreateMaterialRequest struct {
 	CourseID    int64  `json:"course_id" binding:"required"`
 }
 
+// @Summary Create a new material
+// @Description Create a new material
+// @ID create-material
+// @Accept  json
+// @Produce  json
+// @Param request body CreateMaterialRequest true "Create Material Request"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /material [post]
 // CreateMaterial creates a new material
 func (server *Server) CreateMaterial(ctx *gin.Context) {
 	var req CreateMaterialRequest
@@ -42,6 +53,17 @@ type GetMaterialsRequest struct {
 	CourseID int64 `uri:"course_id" binding:"required,min=1"`
 }
 
+// @Summary Get materials for a course
+// @Description Get materials for a course
+// @ID get-materials
+// @Accept  json
+// @Produce  json
+// @Param course_id path int true "Course ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /material/{course_id} [get]
 // GetMaterials retrieves materials for a given course ID
 func (server *Server) GetMaterials(ctx *gin.Context) {
 	var req GetMaterialsRequest
@@ -73,6 +95,18 @@ type UpdateMaterialRequest struct {
 	CourseID    int64  `json:"course_id" binding:"required"`
 }
 
+// @Summary Update a material
+// @Description Update a material
+// @ID update-material
+// @Accept  json
+// @Produce  json
+// @Param material_id path int true "Material ID"
+// @Param request body UpdateMaterialRequest true "Update Material Request"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /material/{material_id} [put]
 // UpdateMaterial updates a material
 func (server *Server) UpdateMaterial(ctx *gin.Context) {
 	var req UpdateMaterialRequest
@@ -103,6 +137,18 @@ type DeleteMaterialRequest struct {
 	CourseID   int64 `uri:"course_id" binding:"required,min=1"`
 }
 
+// @Summary Delete a material
+// @Description Delete a material
+// @ID delete-material
+// @Accept  json
+// @Produce  json
+// @Param material_id path int true "Material ID"
+// @Param course_id path int true "Course ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /material/{material_id}/{course_id} [delete]
 // DeleteMaterial deletes a material
 func (server *Server) DeleteMaterial(ctx *gin.Context) {
 	var req DeleteMaterialRequest

@@ -17,6 +17,17 @@ type createRequestRequest struct {
 	IsDeclined sql.NullBool `json:"is_declined"`
 }
 
+// createRequest represents the request body for create a request.
+// @Summary Create a new request
+// @Description Create a new request with the given parameters
+// @Accept json
+// @Produce json
+// @Param request body createRequestRequest true "Request data"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /requests [post]
 func (server *Server) createRequest(ctx *gin.Context) {
 	var req createRequestRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -44,6 +55,15 @@ type getRequestRequest struct {
 	RequestID int64 `uri:"Request_id"`
 }
 
+// @Summary Get a request by ID
+// @Description Get a request by its ID
+// @Produce json
+// @Param request_id path int true "Request ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /request/{request_id} [get]
 func (server *Server) getRequest(ctx *gin.Context) {
 	var req getRequestRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -75,6 +95,19 @@ type listRequestRequest struct {
 	Offset    int32 `form:"offset" binding:"required,min=0"`
 }
 
+// @Summary List requests
+// @Description List requests based on provided parameters
+// @Produce json
+// @Param student_id query int false "Student ID"
+// @Param teacher_id query int false "Teacher ID"
+// @Param course_id query int false "Course ID"
+// @Param limit query int false "Limit"
+// @Param offset query int false "Offset"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /requests [get]
 func (server *Server) listRequests(ctx *gin.Context) {
 	var req listRequestRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -101,6 +134,16 @@ type deleteRequestRequest struct {
 	RequestID int64         `json:"request_id"`
 }
 
+// @Summary Delete a request
+// @Description Delete a request by student and request ID
+// @Produce json
+// @Param student_id path int true "Student ID"
+// @Param request_id path int true "Request ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /request/{student_id}/{request_id} [delete]
 func (server *Server) deleteRequest(ctx *gin.Context) {
 	var req deleteRequestRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -128,6 +171,16 @@ type updateRequestRequest struct {
 	IsDeclined bool  `json:"is_declined" binding:"required"`
 }
 
+// @Summary Update a request
+// @Description Update a request with the provided parameters
+// @Accept json
+// @Produce json
+// @Param request body updateRequestRequest true "Request data"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /request/{student_id} [put]
 func (server *Server) updateRequest(ctx *gin.Context) {
 	var req updateRequestRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

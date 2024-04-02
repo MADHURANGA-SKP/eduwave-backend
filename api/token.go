@@ -21,6 +21,17 @@ type renewAccessTokenResponse struct {
 	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }
 
+// @Summary Renew Access Token
+// @Description Renew access token using refresh token
+// @ID renew-access-token
+// @Accept json
+// @Produce json
+// @Param refresh_token body string true "Refresh Token"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /tokens/renew_access [post]
 // renewAccessToken handles the renewal of access token
 func (server *Server) renewAccessToken(ctx *gin.Context) {
 	var req renewAccessTokenRequest
@@ -51,7 +62,7 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	if session.UserName != refreshPayload.Username {
+	if session.UserName != refreshPayload.UserName {
 		err := fmt.Errorf("incorrect session user")
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
@@ -70,7 +81,7 @@ func (server *Server) renewAccessToken(ctx *gin.Context) {
 	}
 
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
-		refreshPayload.Username,
+		refreshPayload.UserName,
 		refreshPayload.Role,
 		server.config.AccessTokenDuration,
 	)

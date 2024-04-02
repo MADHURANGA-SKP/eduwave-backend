@@ -47,6 +47,17 @@ type ListStudentRequest struct {
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
+// @Summary List students
+// @Description Returns a list of students with pagination
+// @ID list-students
+// @Produce json
+// @Param page_id query int true "Page ID" minimum(1)
+// @Param page_size query int true "Page Size" minimum(5) maximum(10)
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /students [get]
 // listStudents returns a list of students
 func (server *Server) listStudents(ctx *gin.Context) {
 	var req ListStudentRequest
@@ -69,6 +80,16 @@ func (server *Server) listStudents(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
+// @Summary Delete student by ID
+// @Description Deletes a student by their ID
+// @ID delete-student
+// @Produce json
+// @Param id path int64 true "Student ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /students/{student_id} [delete]
 // deleteStudent deletes a student by ID
 func (server *Server) deleteStudent(ctx *gin.Context) {
 	// Parse student ID from path parameter
@@ -94,6 +115,18 @@ type UpdateStudentRequest struct {
     UserName  string `json:"user_name"`
 }
 
+// @Summary Update student
+// @Description Update a student by their ID
+// @ID update-student
+// @Accept json
+// @Produce json
+// @Param id path int64 true "Student ID"
+// @Param student body UpdateStudentRequest true "Student data"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /students/:student_id [put]
 // updateStudent updates a student by ID
 func (server *Server) updateStudent(ctx *gin.Context) {
 	var req UpdateStudentRequest

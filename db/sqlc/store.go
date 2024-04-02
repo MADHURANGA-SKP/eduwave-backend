@@ -84,7 +84,7 @@ func (store *Store) DeleteAdmin(ctx context.Context, adminID int64) error {
 
 //GetAdminParam contains the input parameters of the geting the data
 type GetAdminParam struct {
-	AdminID int64 `json:"admin_id"`
+	AdminID int64 `uri:"admin_id,min=1"`
 }
 
 //GetAdminResponse contains the result of the geting the data
@@ -760,7 +760,7 @@ func (store *Store) DeleteTeacher(ctx context.Context, teacherID int64) error {
 
 //GetTeacherParam contains the input paramters of the retrive data
 type GetTeacherParam struct {
-	TeacherID int64 `json:"teacher_id"`
+	TeacherID int64 `uri:"id,min=1"`
 }
 
 //GetTeacherResponse contains the results of the Reriving data

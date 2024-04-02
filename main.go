@@ -11,8 +11,12 @@ import (
 
 	"log"
 
+	_ "eduwave-back-end/docs"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -37,10 +41,13 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	runGinServer(config, *store)
+	runGinServer(config, *store, router)
 }
 
-func runGinServer(config util.Config, store db.Store) {
+func runGinServer(config util.Config, store db.Store, router *gin.Engine) {
+	// Serve Swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	server, err := api.NewServer(config, store)
 	if err != nil {
 		log.Fatal("cannot create server", err)

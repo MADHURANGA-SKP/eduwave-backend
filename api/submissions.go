@@ -16,6 +16,17 @@ type getSubmissionRequest struct {
     StudentID    int64 `json:"student_id"`
 }
 
+// @Summary Get a submission
+// @Description Retrieves a submission by assignment and student ID
+// @ID getSubmission
+// @Produce json
+// @Param assignment_id path int true "Assignment ID"
+// @Param student_id path int true "Student ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /submissions/{assignment_id}/{student_id} [get]
 // getSubmission retrieves a submission
 func (server *Server) getSubmission(ctx *gin.Context) {
 	var req getSubmissionRequest
@@ -49,6 +60,18 @@ type listSubmissionsRequest struct {
 	Offset       int32 `form:"offset" binding:"required,min=0"`
 }
 
+// @Summary List submissions
+// @Description Lists submissions for a given assignment ID
+// @ID listSubmissions
+// @Produce json
+// @Param assignment_id path int true "Assignment ID"
+// @Param limit query int true "Limit" minimum(1) maximum(100)
+// @Param offset query int true "Offset" minimum(0)
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /submissions [get]
 // listSubmissions lists submissions
 func (server *Server) listSubmissions(ctx *gin.Context) {
 	var req listSubmissionsRequest

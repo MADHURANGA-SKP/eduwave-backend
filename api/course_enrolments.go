@@ -16,6 +16,20 @@ type listEnrolmentsRequest struct {
 	Offset    int32 `form:"offset" binding:"required"`
 }
 
+// @Summary List enrolments
+// @Description List enrolments for a student in a course
+// @ID list-enrolments
+// @Accept  json
+// @Produce  json
+// @Param student_id query int true "Student ID"
+// @Param course_id query int true "Course ID"
+// @Param limit query int true "Limit"
+// @Param offset query int true "Offset"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /courseEnrolments [get]
 func (server *Server) listEnrolments(ctx *gin.Context) {
 	var req listEnrolmentsRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {

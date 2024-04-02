@@ -11,6 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create a new assignment
+// @Description Create a new assignment with the provided details
+// @ID create-assignment
+// @Accept json
+// @Produce json
+// @Param request body createAssignmentRequest true "Assignment details"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /assignments [post]
 type createAssignmentRequest struct {
 	Type           string    `json:"type" binding:"required"`
 	Title          string    `json:"title" binding:"required"`
@@ -42,6 +53,18 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
+// @Summary Get an assignment by ID
+// @Description Get an assignment by its ID and resource ID
+// @ID get-assignment
+// @Accept json
+// @Produce json
+// @Param assignment_id path int true "Assignment ID"
+// @Param resource_id path int true "Resource ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /assignments/{assignment_id}/{resource_id} [get]
 type GetAssignmentRequest struct {
 	AssignmentID int64         `json:"assignment_id"`
 	ResourceID   int64 `json:"resource_id"`
@@ -70,6 +93,17 @@ func (server *Server) getAssignment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
+// @Summary Update an assignment
+// @Description Update an assignment with the provided details
+// @ID update-assignment
+// @Accept json
+// @Produce json
+// @Param request body UpdateAssignmentRequest true "Updated assignment details"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /assignments/{assignment_id} [put]
 type UpdateAssignmentRequest struct {
 	Type           string    `json:"type"`
 	Title          string    `json:"title"`
@@ -110,6 +144,18 @@ type DeleteAssignmentRequest struct {
 	ResourceID   int64 `json:"resource_id"`
 }
 
+// @Summary Delete an assignment
+// @Description Delete an assignment by its ID and resource ID
+// @ID delete-assignment
+// @Accept json
+// @Produce json
+// @Param assignment_id path int true "Assignment ID"
+// @Param resource_id path int true "Resource ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /assignments/{assignment_id}/{resource_id} [delete]
 func (server *Server) deleteAssignment(ctx *gin.Context) {
 	assignmentID, err := strconv.ParseInt(ctx.Param("assignment_id"), 10, 64)
 	resourceID, err := strconv.ParseInt(ctx.Param("resource_id"), 10, 64)
