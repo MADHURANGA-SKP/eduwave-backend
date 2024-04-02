@@ -3,8 +3,11 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	db "eduwave-back-end/db/sqlc"
+	"eduwave-back-end/token"
+	"eduwave-back-end/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,8 +66,11 @@ func (server *Server) getAdmin(ctx *gin.Context) {
 
 // updateAdminRequest defines the request body structure for updating an admin
 type updateAdminRequest struct {
-	AdminID  int64  `json:"admin_id" binding:"required,min=1"`
-	UserName string `json:"user_name"`
+	AdminID        int64  `json:"admin_id"`
+    FullName       string `json:"full_name"`
+    UserName       string `json:"user_name"`
+    Email          string `json:"email"`
+    HashedPassword string `json:"hashed_password"`
 }
 
 // updateAdmin updates an admin
@@ -75,9 +81,24 @@ func (server *Server) updateAdmin(ctx *gin.Context) {
 		return
 	}
 
+	hashedPassword, err := util.HashPassword(req.HashedPassword)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	adminID, err := strconv.Atoi(ctx.Param("id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
+
 	arg := db.UpdateAdminParams{
-		AdminID:  req.AdminID,
-		UserName: sql.NullString{String: req.UserName, Valid: req.UserName != ""},
+		AdminID: int64(adminID),
+		FullName: req.FullName,
+		UserName: req.UserName,
+		Email: req.Email,
+		HashedPassword: hashedPassword,
 	}
 
 	admin, err := server.store.UpdateAdmin(ctx, arg)
@@ -87,4 +108,43 @@ func (server *Server) updateAdmin(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, admin)
+}
+
+// CreateAdminRequest defines the request body structure for updating an admin
+type CreateAdminRequest struct {
+	FullName       string `json:"full_name"`
+    UserName       string `json:"user_name"`
+    Email          string `json:"email"`
+    HashedPassword string `json:"hashed_password"`
+}
+
+// CreateAdmin Creates an admin
+func (server *Server) createAdmin(ctx *gin.Context) {
+	var req CreateAdminRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	hashedPassword, err := util.HashPassword(req.HashedPassword)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	arg := db.CreateAdminParams{
+		FullName: req.FullName,
+		UserName: authPayload.Username,
+		Email: req.Email,
+		HashedPassword: hashedPassword,
+	}
+
+	admin, err := server.store.CreateAdmin(ctx, db.CreateAdminParam(arg))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, admin )
 }

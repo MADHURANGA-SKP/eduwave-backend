@@ -1,10 +1,21 @@
+-- name: CreateAdmin :one
+INSERT INTO admins (
+    full_name,
+    user_name,
+    email,
+    hashed_password
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING *;
+
+
 -- name: GetAdmin :one
 SELECT * FROM admins
 WHERE admin_id = $1;
 
 -- name: UpdateAdmin :one
 UPDATE admins
-SET user_name = $2
+SET full_name = $2, user_name = $3, email = $4, hashed_password = $5
 WHERE admin_id = $1
 RETURNING *;
 

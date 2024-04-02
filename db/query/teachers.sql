@@ -1,12 +1,13 @@
 -- name: CreateTeacher :one
 INSERT INTO teachers(
+    admin_id,
     full_name,
     email,
     user_name,
     hashed_password,
     is_active
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6
 ) RETURNING *;
 
 -- name: GetTeacher :one
@@ -21,7 +22,7 @@ RETURNING *;
 
 -- name: ListTeacher :many
 SELECT * FROM teachers
-WHERE admin_id = $1
+WHERE teacher_id = $1
 ORDER BY teacher_id
 LIMIT $2
 OFFSET $3;

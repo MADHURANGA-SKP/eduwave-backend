@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createCourseProgress = `-- name: CreateCourseProgress :one
@@ -32,8 +31,8 @@ LIMIT 1
 `
 
 type GetCourseProgressParams struct {
-	CourseprogressID int64         `json:"courseprogress_id"`
-	EnrolmentID      sql.NullInt64 `json:"enrolment_id"`
+	CourseprogressID int64 `json:"courseprogress_id"`
+	EnrolmentID      int64 `json:"enrolment_id"`
 }
 
 func (q *Queries) GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error) {
@@ -52,9 +51,9 @@ OFFSET $3
 `
 
 type ListCourseProgressParams struct {
-	EnrolmentID sql.NullInt64 `json:"enrolment_id"`
-	Limit       int32         `json:"limit"`
-	Offset      int32         `json:"offset"`
+	EnrolmentID int64 `json:"enrolment_id"`
+	Limit       int32 `json:"limit"`
+	Offset      int32 `json:"offset"`
 }
 
 func (q *Queries) ListCourseProgress(ctx context.Context, arg ListCourseProgressParams) ([]CourseProgress, error) {

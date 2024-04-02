@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const listEnrolments = `-- name: ListEnrolments :many
@@ -19,10 +18,10 @@ OFFSET $4
 `
 
 type ListEnrolmentsParams struct {
-	StudentID sql.NullInt64 `json:"student_id"`
-	CourseID  sql.NullInt64 `json:"course_id"`
-	Limit     int32         `json:"limit"`
-	Offset    int32         `json:"offset"`
+	StudentID int64 `json:"student_id"`
+	CourseID  int64 `json:"course_id"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
 }
 
 func (q *Queries) ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error) {

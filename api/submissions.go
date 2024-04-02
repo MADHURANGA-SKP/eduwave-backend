@@ -12,8 +12,8 @@ import (
 
 // getSubmissionRequest defines the request body structure for getting a submission
 type getSubmissionRequest struct {
-	AssignmentID int64 `uri:"assignment_id" binding:"required,min=1"`
-	StudentID    int64 `uri:"student_id" binding:"required,min=1"`
+	AssignmentID int64 `json:"assignment_id"`
+    StudentID    int64 `json:"student_id"`
 }
 
 // getSubmission retrieves a submission
@@ -25,8 +25,8 @@ func (server *Server) getSubmission(ctx *gin.Context) {
 	}
 
 	arg := db.GetsubmissionsParams{
-		AssignmentID: sql.NullInt64{Int64: req.AssignmentID, Valid: true},
-		StudentID:    sql.NullInt64{Int64: req.StudentID, Valid: true},
+		AssignmentID: req.AssignmentID,
+		StudentID: req.StudentID,
 	}
 
 	submission, err := server.store.Getsubmissions(ctx, arg)
@@ -58,7 +58,7 @@ func (server *Server) listSubmissions(ctx *gin.Context) {
 	}
 
 	arg := db.ListsubmissionsParams{
-		AssignmentID: sql.NullInt64{Int64: req.AssignmentID, Valid: true},
+		AssignmentID: req.AssignmentID,
 		Limit:        req.Limit,
 		Offset:       req.Offset,
 	}

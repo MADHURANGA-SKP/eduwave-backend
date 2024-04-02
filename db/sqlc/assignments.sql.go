@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
@@ -55,8 +54,8 @@ WHERE assignment_id = $1 AND resource_id =$2
 `
 
 type DeleteAssignmentParams struct {
-	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   sql.NullInt64 `json:"resource_id"`
+	AssignmentID int64 `json:"assignment_id"`
+	ResourceID   int64 `json:"resource_id"`
 }
 
 func (q *Queries) DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error {
@@ -70,8 +69,8 @@ WHERE assignment_id = $1 AND resource_id =$2
 `
 
 type GetAssignmentParams struct {
-	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   sql.NullInt64 `json:"resource_id"`
+	AssignmentID int64 `json:"assignment_id"`
+	ResourceID   int64 `json:"resource_id"`
 }
 
 func (q *Queries) GetAssignment(ctx context.Context, arg GetAssignmentParams) (Assignment, error) {
@@ -97,11 +96,11 @@ RETURNING assignment_id, resource_id, type, title, description, submission_date,
 `
 
 type UpdateAssignmentParams struct {
-	ResourceID     sql.NullInt64 `json:"resource_id"`
-	Type           string        `json:"type"`
-	Title          string        `json:"title"`
-	Description    string        `json:"description"`
-	SubmissionDate time.Time     `json:"submission_date"`
+	ResourceID     int64     `json:"resource_id"`
+	Type           string    `json:"type"`
+	Title          string    `json:"title"`
+	Description    string    `json:"description"`
+	SubmissionDate time.Time `json:"submission_date"`
 }
 
 func (q *Queries) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) (Assignment, error) {

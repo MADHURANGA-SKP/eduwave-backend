@@ -1,9 +1,3 @@
-CREATE TYPE "user_role" AS ENUM (
-  'admin',
-  'student',
-  'teacher'
-);
-
 CREATE TYPE "type_resource" AS ENUM (
   'pdf',
   'video',
@@ -13,7 +7,7 @@ CREATE TYPE "type_resource" AS ENUM (
 
 CREATE TABLE "users" (
   "user_name" varchar PRIMARY KEY,
-  "role" user_role NOT NULL,
+  "role" varchar NOT NULL DEFAULT 'student',
   "hashed_password" varchar NOT NULL,
   "full_name" varchar NOT NULL,
   "email" varchar NOT NULL,
@@ -24,16 +18,19 @@ CREATE TABLE "users" (
 
 CREATE TABLE "admins" (
   "admin_id" bigserial PRIMARY KEY,
-  "user_name" varchar,
+  "user_name" varchar NOT NULL,
+  "hashed_password" varchar NOT NULL,
+  "full_name" varchar NOT NULL,
+  "email" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "teachers" (
   "teacher_id" bigserial PRIMARY KEY,
-  "admin_id" bigint,
+  "admin_id" bigint NOT NULL,
   "full_name" varchar NOT NULL,
   "email" varchar NOT NULL,
-  "user_name" varchar,
+  "user_name" varchar NOT NULL,
   "hashed_password" varchar NOT NULL,
   "is_active" bool NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
@@ -41,13 +38,13 @@ CREATE TABLE "teachers" (
 
 CREATE TABLE "students" (
   "student_id" bigserial PRIMARY KEY,
-  "user_name" varchar,
+  "user_name" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "courses" (
   "course_id" bigserial PRIMARY KEY,
-  "teacher_id" bigint,
+  "teacher_id" bigint NOT NULL,
   "title" varchar NOT NULL,
   "type" varchar NOT NULL,
   "description" varchar NOT NULL,
@@ -56,7 +53,7 @@ CREATE TABLE "courses" (
 
 CREATE TABLE "materials" (
   "material_id" bigserial PRIMARY KEY,
-  "course_id" bigint,
+  "course_id" bigint NOT NULL,
   "title" varchar NOT NULL,
   "description" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
@@ -64,20 +61,20 @@ CREATE TABLE "materials" (
 
 CREATE TABLE "course_progress" (
   "courseprogress_id" bigserial PRIMARY KEY,
-  "enrolment_id" bigint,
+  "enrolment_id" bigint NOT NULL,
   "progress" varchar NOT NULL
 );
 
 CREATE TABLE "course_enrolments" (
   "enrolment_id" bigserial PRIMARY KEY,
-  "course_id" bigint,
-  "request_id" bigint,
-  "student_id" bigint
+  "course_id" bigint NOT NULL,
+  "request_id" bigint NOT NULL,
+  "student_id" bigint NOT NULL
 );
 
 CREATE TABLE "assignments" (
   "assignment_id" bigserial PRIMARY KEY,
-  "resource_id" bigint,
+  "resource_id" bigint NOT NULL,
   "type" varchar NOT NULL,
   "title" varchar NOT NULL,
   "description" varchar NOT NULL,
@@ -87,15 +84,15 @@ CREATE TABLE "assignments" (
 
 CREATE TABLE "submissions" (
   "submission_id" bigserial PRIMARY KEY,
-  "assignment_id" bigint,
-  "student_id" bigint
+  "assignment_id" bigint NOT NULL,
+  "student_id" bigint NOT NULL
 );
 
 CREATE TABLE "requests" (
   "request_id" bigserial PRIMARY KEY,
-  "student_id" bigint,
-  "teacher_id" bigint,
-  "course_id" bigint,
+  "student_id" bigint NOT NULL,
+  "teacher_id" bigint NOT NULL,
+  "course_id" bigint NOT NULL,
   "is_active" bool,
   "is_pending" bool,
   "is_accepted" bool,
@@ -105,7 +102,7 @@ CREATE TABLE "requests" (
 
 CREATE TABLE "resources" (
   "resource_id" bigserial PRIMARY KEY,
-  "material_id" bigint,
+  "material_id" bigint NOT NULL,
   "title" varchar NOT NULL,
   "type" type_resource NOT NULL,
   "content_url" varchar NOT NULL,
@@ -114,13 +111,7 @@ CREATE TABLE "resources" (
 
 CREATE INDEX ON "admins" ("user_name");
 
-CREATE UNIQUE INDEX ON "admins" ("user_name");
-
 CREATE INDEX ON "teachers" ("admin_id");
-
-CREATE UNIQUE INDEX ON "teachers" ("user_name");
-
-CREATE UNIQUE INDEX ON "students" ("user_name");
 
 CREATE INDEX ON "courses" ("teacher_id");
 
@@ -150,11 +141,7 @@ CREATE INDEX ON "resources" ("material_id");
 
 CREATE INDEX ON "resources" ("material_id");
 
-ALTER TABLE "admins" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
-
 ALTER TABLE "teachers" ADD FOREIGN KEY ("admin_id") REFERENCES "admins" ("admin_id");
-
-ALTER TABLE "teachers" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
 
 ALTER TABLE "students" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
 

@@ -7,23 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
-
-const createStudent = `-- name: CreateStudent :one
-INSERT INTO students (
-    user_name
-) VALUES (
-    $1
-) RETURNING student_id, user_name, created_at
-`
-
-func (q *Queries) CreateStudent(ctx context.Context, userName sql.NullString) (Student, error) {
-	row := q.db.QueryRowContext(ctx, createStudent, userName)
-	var i Student
-	err := row.Scan(&i.StudentID, &i.UserName, &i.CreatedAt)
-	return i, err
-}
 
 const deleteStudent = `-- name: DeleteStudent :exec
 DELETE FROM students
@@ -56,9 +40,9 @@ OFFSET $3
 `
 
 type ListStudentsParams struct {
-	UserName sql.NullString `json:"user_name"`
-	Limit    int32          `json:"limit"`
-	Offset   int32          `json:"offset"`
+	UserName string `json:"user_name"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
 }
 
 func (q *Queries) ListStudents(ctx context.Context, arg ListStudentsParams) ([]Student, error) {
@@ -92,8 +76,8 @@ RETURNING student_id, user_name, created_at
 `
 
 type UpdateStudentParams struct {
-	StudentID int64          `json:"student_id"`
-	UserName  sql.NullString `json:"user_name"`
+	StudentID int64  `json:"student_id"`
+	UserName  string `json:"user_name"`
 }
 
 func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error) {

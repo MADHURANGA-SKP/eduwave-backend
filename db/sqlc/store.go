@@ -41,6 +41,42 @@ func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 	return tx.Commit()
 }
 
+//CreateAdminParam contains the input parameters of the Createing the data
+type CreateAdminParam struct {
+	FullName       string `json:"full_name"`
+    UserName       string `json:"user_name"`
+    Email          string `json:"email"`
+    HashedPassword string `json:"hashed_password"`
+}
+
+//CreateAdminResponse contains the result of the Createing the data
+type CreateAdminResponse struct {
+	Admin Admin `json:"admin"`
+}
+
+//CreateAdmin db handler for api call to retrive a admin data from the database
+func (store *Store) CreateAdmin(ctx context.Context, arg CreateAdminParam) (CreateAdminResponse, error) {
+	var result CreateAdminResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Admin, err = q.CreateAdmin(ctx, CreateAdminParams{
+			FullName: arg.FullName,
+			UserName: arg.UserName,
+			Email: arg.Email,
+			HashedPassword: arg.HashedPassword,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	return result, err
+}
+
 //DeleteAdmin db handler for api call to delete a admin from the database
 func (store *Store) DeleteAdmin(ctx context.Context, adminID int64) error {
 	return store.Queries.DeleteAdmin(ctx, adminID)
@@ -76,7 +112,11 @@ func (store *Store) GetAdmin(ctx context.Context, arg GetAdminParam) (GetAdminRe
 
 //UpdateAdminParam contains the input parameters of the updating the data
 type UpdateAdminParam struct {
-	UserName sql.NullString `json:"user_name"`
+	AdminID        int64  `json:"admin_id"`
+    FullName       string `json:"full_name"`
+    UserName       string `json:"user_name"`
+    Email          string `json:"email"`
+    HashedPassword string `json:"hashed_password"`
 }
 
 //UpdateAdminResponse contains the result of the updating the data
@@ -91,7 +131,11 @@ func (store *Store) UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Upd
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		updateAdmin, err := q.UpdateAdmin(ctx, UpdateAdminParams{
+			AdminID: arg.AdminID,
+			FullName: arg.FullName,
 			UserName: arg.UserName,
+			Email: arg.Email,
+			HashedPassword: arg.HashedPassword,
 		})
 
 		if err != nil {
@@ -146,7 +190,7 @@ func (store *Store) CreateAssignment(ctx context.Context, arg CreateAssignmentPa
 //DeleteAssignmentParam contains the input parameters of the geting  the data
 type DeleteAssignmentParam struct {
 	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   sql.NullInt64 `json:"resource_id"`
+	ResourceID   int64 `json:"resource_id"`
 }
 
 
@@ -161,7 +205,7 @@ func (store *Store) DeleteAssignment(ctx context.Context, arg DeleteAssignmentPa
 //GetAssignmentParam contains the input parameters of the geting  the data
 type GetAssignmentParam struct {
 	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   sql.NullInt64 `json:"resource_id"`
+	ResourceID   int64 `json:"resource_id"`
 }
 
 //GetAssignmentResponse contains the result of the geting the data
@@ -192,7 +236,7 @@ func (store *Store) GetAssignment(ctx context.Context, arg GetAssignmentParam)(G
 
 //UpdateAssignmentParam contains the input parameters of the updating of the data
 type UpdateAssignmentParam struct {
-	ResourceID     sql.NullInt64 `json:"resource_id"`
+	ResourceID     int64 `json:"resource_id"`
 	Type           string        `json:"type"`
 	Title          string        `json:"title"`
 	Description    string        `json:"description"`
@@ -266,7 +310,7 @@ func (store *Store) CreateCourseProgress(ctx context.Context, arg CreateCoursePr
 //GetCourseProgressParam contains input parameters to get courseprogress data
 type GetCourseProgressParam struct {
 	CourseprogressID int64         `json:"courseprogress_id"`
-	EnrolmentID      sql.NullInt64 `json:"enrolment_id"`
+	EnrolmentID      int64 `json:"enrolment_id"`
 }
 
 //GetCourseProgressResponse contains the result of the updating of the data
@@ -334,7 +378,7 @@ func (store *Store) CreateRequest(ctx context.Context, arg CreateRequestParam) (
 
 //GetRequestParam contains the input parameters of the retriving  data
 type DeleteRequestParam struct {
-	StudentID sql.NullInt64 `json:"student_id"`
+	StudentID int64 `json:"student_id"`
 	RequestID int64         `json:"request_id"`
 }
 
@@ -348,7 +392,7 @@ func (store *Store) DeleteRequest(ctx context.Context, arg DeleteRequestParam) e
 
 //GetRequestParam contains the input parameters of the retriving  data
 type GetRequestParam struct {
-	StudentID sql.NullInt64 `json:"student_id"`
+	StudentID int64 `json:"student_id"`
 	RequestID int64         `json:"request_id"`
 }
 
@@ -463,7 +507,7 @@ func (store *Store) DeleteResource(ctx context.Context, params DeleteResourcePar
 
 //GetResourceParam contains the input paramters of the retriving data
 type GetResourceParam struct {
-	MaterialID sql.NullInt64 `json:"Material_id"`
+	MaterialID int64 `json:"Material_id"`
 	ResourceID int64         `json:"resource_id"`
 }
 
@@ -501,6 +545,7 @@ func (store *Store) ListResource(ctx context.Context, params ListResourceParams)
 
 //UpdateResourceParam contains the input parameters of the updating data
 type UpdateResourceParam struct {
+	MaterialID int64        `json:"material_id"`
 	Title        string        `json:"title"`
 	Type         TypeResource  `json:"type"`
 	ContentUrl   string        `json:"content_url"`
@@ -519,6 +564,7 @@ func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(
 		var err error
 
 		result.Resource, err = q.UpdateResource(ctx, UpdateResourceParams{
+			MaterialID: arg.MaterialID,
 			Title: arg.Title,
 			Type: arg.Type,
 			ContentUrl:  arg.ContentUrl,
@@ -534,34 +580,34 @@ func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(
 	return result, err
 }
 
-//CreateStudentParam contains the input parameters of the creation of the student
-type CreateStudentParam struct {
-	UserName sql.NullString `json:"user_name"`
-}
+// //CreateStudentParam contains the input parameters of the creation of the student
+// type CreateStudentParam struct {
+// 	UserName string `json:"user_name"`
+// }
 
-//CreateStudentResponse contains the result of the Student Creation in databse
-type CreateStudentResponse struct {
-	Student Student `json:"student"`
-}
+// //CreateStudentResponse contains the result of the Student Creation in databse
+// type CreateStudentResponse struct {
+// 	Student Student `json:"student"`
+// }
 
-//CreateStudent db handler for api call to creation of the student in database
-func (store *Store) CreateStudent(ctx context.Context, arg CreateStudentParam) (CreateStudentResponse, error) {
-	var result CreateStudentResponse
+// //CreateStudent db handler for api call to creation of the student in database
+// func (store *Store) CreateStudent(ctx context.Context, arg CreateStudentParam) (CreateStudentResponse, error) {
+// 	var result CreateStudentResponse
 
-	err := store.execTx(ctx, func(q *Queries) error {
-		var err error
+// 	err := store.execTx(ctx, func(q *Queries) error {
+// 		var err error
 
-		result.Student, err = q.CreateStudent(ctx, arg.UserName)
+// 		result.Student, err = q.CreateStudent(ctx, arg.UserName)
 
-		if err != nil {
-			return err
-		}
+// 		if err != nil {
+// 			return err
+// 		}
 
-		return nil
-	})
+// 		return nil
+// 	})
 
-	return result, err
-}
+// 	return result, err
+// }
 
 //DeleteStudent db handler for api call to celete ctudent from teh database
 func (store *Store) DeleteStudent(ctx context.Context, studentID int64) error {
@@ -634,8 +680,8 @@ func (store *Store) UpdateStudent(ctx context.Context, arg UpdateStudentParams) 
 
 //GetSubmissionParam contains the input parameters of getting the data
 type GetSubmissionsParam struct {
-	AssignmentID sql.NullInt64 `json:"assignment_id"`
-	StudentID    sql.NullInt64 `json:"student_id"`
+	AssignmentID int64 `json:"assignment_id"`
+    StudentID    int64 `json:"student_id"`
 }
 
 type GetSubmissionResponse struct {
@@ -670,9 +716,10 @@ func (store *Store) Listsubmissions(ctx context.Context, params ListsubmissionsP
 
 //CreateTeacherParam contains the input parameters of the creations of the data
 type CreateTeacherParam struct {
+	AdminID 	int64	`json:"admin_id"`
 	FullName       string         `json:"full_name"`
 	Email          string         `json:"email"`
-	UserName       sql.NullString `json:"user_name"`
+	UserName       string `json:"user_name"`
 	HashedPassword string         `json:"hashed_password"`
 	IsActive       bool           `json:"is_active"`
 }
@@ -689,6 +736,7 @@ func (store *Store) CreateTeacher(ctx context.Context, arg CreateTeacherParam) (
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		result.Teacher, err = q.CreateTeacher(ctx, CreateTeacherParams{
+			AdminID : 		arg.AdminID,
 			FullName:       arg.FullName,
 			Email:          arg.Email,
 			UserName:       arg.UserName,
@@ -746,11 +794,12 @@ func (store *Store) ListTeachers(ctx context.Context, params ListTeacherParams) 
 
 //UpdateTeacherParams contains the input parameters of updating data
 type UpdateTeacherParam struct {
-	FullName       string         `json:"full_name"`
-	Email          string         `json:"email"`
-	UserName       sql.NullString `json:"user_name"`
-	HashedPassword string         `json:"hashed_password"`
-	IsActive       bool           `json:"is_active"`
+	TeacherID      int64  `json:"teacher_id"`
+	FullName       string `json:"full_name"`
+	Email          string `json:"email"`
+	UserName       string `json:"user_name"`
+	HashedPassword string `json:"hashed_password"`
+	IsActive       bool   `json:"is_active"`
 }
 
 //UpdateTeachersResponse contains the result of the upating data
@@ -766,6 +815,7 @@ func(store *Store) UpdateTeacher(ctx context.Context, arg UpdateTeacherParam)(Up
 		var err error
 
 		result.Teacher, err = q.UpdateTeacher(ctx, UpdateTeacherParams{
+			TeacherID: arg.TeacherID,
 			FullName: arg.FullName,
 			Email: arg.Email,
 			UserName: arg.UserName,
@@ -786,7 +836,7 @@ func(store *Store) UpdateTeacher(ctx context.Context, arg UpdateTeacherParam)(Up
 //CreateUserParam contains the input parameters of data
 type CreateUserParam struct {
 	UserName       string   `json:"user_name"`
-	Role           UserRole `json:"role"`
+	Role           string `json:"role"`
 	FullName       string   `json:"full_name"`
 	HashedPassword string   `json:"hashed_password"`
 	Email          string   `json:"email"`
@@ -1062,7 +1112,7 @@ func(store *Store) CreateCourse(ctx context.Context, arg CreateCourseParam)(Crea
 //DeleteCourseParam contains the input parameters of the geting the data
 type DeleteCourseParam struct {
 	CourseID  int64         `json:"course_id"`
-	TeacherID sql.NullInt64 `json:"teacher_id"`
+	TeacherID int64 `json:"teacher_id"`
 }
 
 //DeleteCourseResponse contains the result of the geting the data
@@ -1081,7 +1131,7 @@ func (store *Store) DeleteCourse(ctx context.Context, arg DeleteCourseParam) err
 //GetCourseParam contains the input parameters of the geting the data
 type GetCourseParam struct {
 	CourseID  int64         `json:"course_id"`
-	TeacherID sql.NullInt64 `json:"teacher_id"`
+	TeacherID int64 `json:"teacher_id"`
 }
 
 //GetCourseResponse contains the result of the geting the data
@@ -1185,7 +1235,7 @@ func(store *Store) CreateMaterial(ctx context.Context, arg CreateMaterialParam)(
 //DeleteMaterialParam contaisn the input parameters of delete Material data
 type DeleteMaterialParam struct {
 	MaterialID int64         `json:"Material_id"`
-	CourseID   sql.NullInt64 `json:"course_id"`
+	CourseID   int64`json:"course_id"`
 }
 
 //DeleteMatirila db handler for api call to delete Material data in database
@@ -1198,7 +1248,7 @@ func(store *Store) DeleteMaterial(ctx context.Context, arg DeleteMaterialParam)e
 
 //GetMaterialparam contains the input parameters of the get Material data
 type GetMaterialParam struct {
-	CourseID sql.NullInt64 `json:"course_id"`
+	CourseID int64 `json:"course_id"`
 }
 
 //GetMaterialResponse contains the result of the get matrial data
@@ -1230,7 +1280,7 @@ func(store *Store) ListMaterial(ctx context.Context, params ListMaterialParams)(
 //UpdateMaterialParam contains the input parameters of the Update Material data
 type UpdateMaterialParam struct {
 	MaterialID  int64         `json:"Material_id"`
-	CourseID    sql.NullInt64 `json:"course_id"`
+	CourseID    int64 `json:"course_id"`
 	Title       string        `json:"title"`
 	Description string        `json:"description"`
 }

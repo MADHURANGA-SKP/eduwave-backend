@@ -1,10 +1,3 @@
--- name: CreateStudent :one
-INSERT INTO students (
-    user_name
-) VALUES (
-    $1
-) RETURNING *;
-
 -- name: GetStudent :one
 SELECT * FROM students
 WHERE student_id = $1;

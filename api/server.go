@@ -47,38 +47,39 @@ func (server *Server) setupRouter() {
 	router.POST("/users/login", server.loginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
 
-	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker, []string{util.AdminRole, util.TeacherRole, util.StudentRole}))
 
 	//requests
 	authRoutes.POST("create/requests", server.createRequest)
 	authRoutes.GET("get/requests/:id", server.getRequest)
 	authRoutes.GET("list/requests", server.listRequests)
 	authRoutes.DELETE("remove/requests/:id", server.deleteRequest)
-	authRoutes.PUT("update/requests/ :id", server.updateRequest)
+	authRoutes.PUT("update/requests/:id", server.updateRequest)
 
 	//student
-	authRoutes.POST("create/students", server.createStudent)//
+	// authRoutes.POST("create/students", server.createStudent)//
 	authRoutes.GET("list/students", server.listStudents)//
 	authRoutes.PUT("update/students/:id", server.updateStudent)//
 	authRoutes.DELETE("delete/students/:id", server.deleteStudent)//
 
 	//teacher
 	authRoutes.POST("create/teachers", server.createTeacher)
-	authRoutes.GET("get/teachers/:id", server.getTeacher)
+	authRoutes.GET("get/teachers/:teacher_id", server.getTeacher)
 	authRoutes.GET("list/teachers", server.listTeachers)
-	authRoutes.PUT("update/teachers/ :id", server.updateTeacher)
-	authRoutes.DELETE("delete/teachers/ :id", server.deleteTeacher)
+	authRoutes.PUT("/update/teachers/:teacher_id", server.updateTeacher)
+	authRoutes.DELETE("delete/teachers/:teacher_id", server.deleteTeacher)
 
 	//admin
+	authRoutes.POST("create/admins", server.createAdmin)	
 	authRoutes.GET("get/admins/:id", server.getAdmin)
-	authRoutes.PUT("update/admins/ :id", server.updateAdmin)
-	authRoutes.DELETE("delete/admin/ :id", server.deleteAdmin)
+	authRoutes.PUT("update/admins/:id", server.updateAdmin)
+	authRoutes.DELETE("delete/admin/:id", server.deleteAdmin)
 
 	//assignment
 	authRoutes.POST("create/assignments", server.createAssignment)
 	authRoutes.GET("get/assignments/:id", server.getAssignment)
-	authRoutes.PUT("update/assignments/ :id", server.updateAssignment)
-	authRoutes.DELETE("delete/assignments/ :id", server.deleteAssignment)
+	authRoutes.PUT("update/assignments/:id", server.updateAssignment)
+	authRoutes.DELETE("delete/assignments/:id", server.deleteAssignment)
 
 	//course_enrolments
 	authRoutes.GET("list/courseEnrolments", server.listEnrolments)

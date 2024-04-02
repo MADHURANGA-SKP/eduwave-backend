@@ -7,31 +7,33 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createTeacher = `-- name: CreateTeacher :one
 INSERT INTO teachers(
+    admin_id,
     full_name,
     email,
     user_name,
     hashed_password,
     is_active
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6
 ) RETURNING teacher_id, admin_id, full_name, email, user_name, hashed_password, is_active, created_at
 `
 
 type CreateTeacherParams struct {
-	FullName       string         `json:"full_name"`
-	Email          string         `json:"email"`
-	UserName       sql.NullString `json:"user_name"`
-	HashedPassword string         `json:"hashed_password"`
-	IsActive       bool           `json:"is_active"`
+	AdminID        int64  `json:"admin_id"`
+	FullName       string `json:"full_name"`
+	Email          string `json:"email"`
+	UserName       string `json:"user_name"`
+	HashedPassword string `json:"hashed_password"`
+	IsActive       bool   `json:"is_active"`
 }
 
 func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error) {
 	row := q.db.QueryRowContext(ctx, createTeacher,
+		arg.AdminID,
 		arg.FullName,
 		arg.Email,
 		arg.UserName,
@@ -85,20 +87,20 @@ func (q *Queries) GetTeacher(ctx context.Context, teacherID int64) (Teacher, err
 
 const listTeacher = `-- name: ListTeacher :many
 SELECT teacher_id, admin_id, full_name, email, user_name, hashed_password, is_active, created_at FROM teachers
-WHERE admin_id = $1
+WHERE teacher_id = $1
 ORDER BY teacher_id
 LIMIT $2
 OFFSET $3
 `
 
 type ListTeacherParams struct {
-	AdminID sql.NullInt64 `json:"admin_id"`
-	Limit   int32         `json:"limit"`
-	Offset  int32         `json:"offset"`
+	TeacherID int64 `json:"teacher_id"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
 }
 
 func (q *Queries) ListTeacher(ctx context.Context, arg ListTeacherParams) ([]Teacher, error) {
-	rows, err := q.db.QueryContext(ctx, listTeacher, arg.AdminID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listTeacher, arg.TeacherID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -137,12 +139,12 @@ RETURNING teacher_id, admin_id, full_name, email, user_name, hashed_password, is
 `
 
 type UpdateTeacherParams struct {
-	TeacherID      int64          `json:"teacher_id"`
-	FullName       string         `json:"full_name"`
-	Email          string         `json:"email"`
-	UserName       sql.NullString `json:"user_name"`
-	HashedPassword string         `json:"hashed_password"`
-	IsActive       bool           `json:"is_active"`
+	TeacherID      int64  `json:"teacher_id"`
+	FullName       string `json:"full_name"`
+	Email          string `json:"email"`
+	UserName       string `json:"user_name"`
+	HashedPassword string `json:"hashed_password"`
+	IsActive       bool   `json:"is_active"`
 }
 
 func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (Teacher, error) {
