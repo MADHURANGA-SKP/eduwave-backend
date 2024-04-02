@@ -17,6 +17,17 @@ type createResourceRequest struct {
 	ContentUrl string          `json:"content_url" binding:"required"`
 }
 
+// @Summary Create a new resource
+// @Description Creates a new resource
+// @ID create-resource
+// @Accept  json
+// @Produce  json
+// @Param request body createResourceRequest true "Create Resource Request"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /resource [post]
 // createResource creates a new resource
 func (server *Server) createResource(ctx *gin.Context) {
 	var req createResourceRequest
@@ -46,6 +57,17 @@ type deleteResourceRequest struct {
     MaterialID int64 `json:"material_id"`
 }
 
+// @Summary Delete a resource
+// @Description Deletes a resource
+// @ID delete-resource
+// @Produce  json
+// @Param resource_id path int true "Resource ID"
+// @Param material_id path int true "Material ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /resource/{resource_id}/{material_id} [delete]
 // deleteResource deletes a resource
 func (server *Server) deleteResource(ctx *gin.Context) {
 	var req deleteResourceRequest
@@ -74,6 +96,17 @@ type getResourceRequest struct {
     ResourceID int64         `json:"resource_id"`
 }
 
+// @Summary Get a resource
+// @Description Retrieves a resource
+// @ID get-resource
+// @Produce  json
+// @Param material_id path int true "Material ID"
+// @Param resource_id path int true "Resource ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /resource/{resource_id}/{material_id} [get]
 // getResource retrieves a resource
 func (server *Server) getResource(ctx *gin.Context) {
 	var req getResourceRequest
@@ -98,6 +131,17 @@ func (server *Server) getResource(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resource)
 }
 
+// @Summary Update a resource
+// @Description Updates a resource
+// @ID update-resource
+// @Accept  json
+// @Produce  json
+// @Param request body updateResourceRequest true "Update Resource Request"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /resource/{resource_id} [put]
 // updateResourceRequest defines the request body structure for updating a resource
 type updateResourceRequest struct {
 	MaterialID sql.NullInt64 `json:"matirial_id"`

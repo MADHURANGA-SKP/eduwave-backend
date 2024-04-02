@@ -1,4 +1,1231 @@
+definitions:
+  api.CreateAdminRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      hashed_password:
+        type: string
+      user_name:
+        type: string
+    type: object
+  api.CreateCourseRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - description
+    - title
+    - type
+    type: object
+  api.CreateMaterialRequest:
+    properties:
+      course_id:
+        type: integer
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - course_id
+    - description
+    - title
+    type: object
+  api.UpdateCoursesRequest:
+    properties:
+      course_id:
+        type: integer
+      description:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  api.UpdateMaterialRequest:
+    properties:
+      course_id:
+        type: integer
+      description:
+        type: string
+      material_id:
+        minimum: 1
+        type: integer
+      title:
+        type: string
+    required:
+    - course_id
+    - description
+    - material_id
+    - title
+    type: object
+  api.UpdateStudentRequest:
+    properties:
+      student_id:
+        type: integer
+      user_name:
+        type: string
+    type: object
+  api.UpeateTeacherRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      hashed_password:
+        type: string
+      is_active:
+        type: boolean
+      teacher_id:
+        type: integer
+      user_name:
+        type: string
+    type: object
+  api.createCourseProgressRequest:
+    properties:
+      progress:
+        type: string
+    required:
+    - progress
+    type: object
+  api.createRequestRequest:
+    type: object
+  api.createResourceRequest:
+    properties:
+      content_url:
+        type: string
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/db.TypeResource'
+    required:
+    - content_url
+    - title
+    - type
+    type: object
+  api.createTeacherRequest:
+    properties:
+      admin_id:
+        type: integer
+      email:
+        type: string
+      full_name:
+        type: string
+      hashed_password:
+        type: string
+      is_active:
+        type: boolean
+      user_name:
+        type: string
+    type: object
+  api.createUserRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      hashed_password:
+        type: string
+      role:
+        type: string
+      user_name:
+        type: string
+    type: object
+  api.loginUserRequest:
+    properties:
+      hashed_password:
+        type: string
+      user_name:
+        type: string
+    type: object
+  api.updateAdminRequest:
+    properties:
+      admin_id:
+        type: integer
+      email:
+        type: string
+      full_name:
+        type: string
+      hashed_password:
+        type: string
+      user_name:
+        type: string
+    type: object
+  api.updateRequestRequest:
+    properties:
+      id:
+        minimum: 1
+        type: integer
+      is_accepted:
+        type: boolean
+      is_active:
+        type: boolean
+      is_declined:
+        type: boolean
+      is_pending:
+        type: boolean
+    required:
+    - id
+    - is_accepted
+    - is_active
+    - is_declined
+    - is_pending
+    type: object
+  db.TypeResource:
+    enum:
+    - pdf
+    - video
+    - image
+    - doc
+    type: string
+    x-enum-varnames:
+    - TypeResourcePdf
+    - TypeResourceVideo
+    - TypeResourceImage
+    - TypeResourceDoc
 info:
   contact: {}
-paths: {}
+paths:
+  /admin:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new admin
+      operationId: create-admin
+      parameters:
+      - description: Admin data to create
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create an admin
+  /admin/{admin_id}:
+    delete:
+      description: Deletes an admin by ID
+      operationId: delete-admin
+      parameters:
+      - description: Admin ID
+        in: path
+        name: admin_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete an admin
+    get:
+      description: Retrieves an admin by ID
+      operationId: get-admin
+      parameters:
+      - description: Admin ID
+        in: path
+        name: admin_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get admin by ID
+    put:
+      consumes:
+      - application/json
+      description: Updates an admin by ID
+      operationId: update-admin
+      parameters:
+      - description: Admin ID
+        in: path
+        name: admin_id
+        required: true
+        type: integer
+      - description: Admin data to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.updateAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update an admin
+  /assignments/{assignment_id}/{resource_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an assignment by its ID and resource ID
+      operationId: delete-assignment
+      parameters:
+      - description: Assignment ID
+        in: path
+        name: assignment_id
+        required: true
+        type: integer
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete an assignment
+  /course:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new course
+      parameters:
+      - description: Course details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new course
+  /course/{course_id}:
+    delete:
+      description: Deletes a course by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      - description: Teacher ID
+        in: query
+        name: teacher_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a course
+    get:
+      description: Retrieves a course by its ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a course by ID
+    put:
+      consumes:
+      - application/json
+      description: Updates a course with provided details
+      parameters:
+      - description: Updated course details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateCoursesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a course
+  /courseEnrolments:
+    get:
+      consumes:
+      - application/json
+      description: List enrolments for a student in a course
+      operationId: list-enrolments
+      parameters:
+      - description: Student ID
+        in: query
+        name: student_id
+        required: true
+        type: integer
+      - description: Course ID
+        in: query
+        name: course_id
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List enrolments
+  /courseProgress:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of course progress
+      parameters:
+      - description: Enrolment ID
+        in: query
+        name: enrolment_id
+        required: true
+        type: integer
+      - description: Limit the number of results
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for paginated results
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List course progress
+      tags:
+      - CourseProgress
+    post:
+      consumes:
+      - application/json
+      description: Creates course progress
+      parameters:
+      - description: Course progress object
+        in: body
+        name: progress
+        required: true
+        schema:
+          $ref: '#/definitions/api.createCourseProgressRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create course progress
+      tags:
+      - CourseProgress
+  /courseProgress/{courseprogress_id}:
+    get:
+      consumes:
+      - application/json
+      description: Returns course progress by ID
+      parameters:
+      - description: Course progress ID
+        in: path
+        name: courseprogress_id
+        required: true
+        type: integer
+      - description: Enrolment ID
+        in: query
+        name: enrolment_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get course progress by ID
+      tags:
+      - CourseProgress
+  /courses:
+    get:
+      description: Lists courses with pagination
+      parameters:
+      - description: Number of items to return
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Offset for pagination
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List courses
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Log in a user with the provided credentials
+      operationId: login-user
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.loginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Log in user
+  /material:
+    post:
+      consumes:
+      - application/json
+      description: Create a new material
+      operationId: create-material
+      parameters:
+      - description: Create Material Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateMaterialRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new material
+  /material/{course_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get materials for a course
+      operationId: get-materials
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get materials for a course
+  /material/{material_id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a material
+      operationId: update-material
+      parameters:
+      - description: Material ID
+        in: path
+        name: material_id
+        required: true
+        type: integer
+      - description: Update Material Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateMaterialRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a material
+  /material/{material_id}/{course_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a material
+      operationId: delete-material
+      parameters:
+      - description: Material ID
+        in: path
+        name: material_id
+        required: true
+        type: integer
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a material
+  /request/{request_id}:
+    get:
+      description: Get a request by its ID
+      parameters:
+      - description: Request ID
+        in: path
+        name: request_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a request by ID
+  /request/{student_id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a request with the provided parameters
+      parameters:
+      - description: Request data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.updateRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a request
+  /request/{student_id}/{request_id}:
+    delete:
+      description: Delete a request by student and request ID
+      parameters:
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: integer
+      - description: Request ID
+        in: path
+        name: request_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a request
+  /requests:
+    get:
+      description: List requests based on provided parameters
+      parameters:
+      - description: Student ID
+        in: query
+        name: student_id
+        type: integer
+      - description: Teacher ID
+        in: query
+        name: teacher_id
+        type: integer
+      - description: Course ID
+        in: query
+        name: course_id
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List requests
+    post:
+      consumes:
+      - application/json
+      description: Create a new request with the given parameters
+      parameters:
+      - description: Request data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new request
+  /resource:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new resource
+      operationId: create-resource
+      parameters:
+      - description: Create Resource Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new resource
+  /resource/{resource_id}/{material_id}:
+    delete:
+      description: Deletes a resource
+      operationId: delete-resource
+      parameters:
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: integer
+      - description: Material ID
+        in: path
+        name: material_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a resource
+    get:
+      description: Retrieves a resource
+      operationId: get-resource
+      parameters:
+      - description: Material ID
+        in: path
+        name: material_id
+        required: true
+        type: integer
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a resource
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the provided details
+      operationId: create-user
+      parameters:
+      - description: User creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new user
+  /students:
+    get:
+      description: Returns a list of students with pagination
+      operationId: list-students
+      parameters:
+      - description: Page ID
+        in: query
+        minimum: 1
+        name: page_id
+        required: true
+        type: integer
+      - description: Page Size
+        in: query
+        maximum: 10
+        minimum: 5
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List students
+  /students/:student_id:
+    put:
+      consumes:
+      - application/json
+      description: Update a student by their ID
+      operationId: update-student
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Student data
+        in: body
+        name: student
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateStudentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update student
+  /students/{student_id}:
+    delete:
+      description: Deletes a student by their ID
+      operationId: delete-student
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete student by ID
+  /submissions:
+    get:
+      description: Lists submissions for a given assignment ID
+      operationId: listSubmissions
+      parameters:
+      - description: Assignment ID
+        in: path
+        name: assignment_id
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        required: true
+        type: integer
+      - description: Offset
+        in: query
+        minimum: 0
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List submissions
+  /submissions/{assignment_id}/{student_id}:
+    get:
+      description: Retrieves a submission by assignment and student ID
+      operationId: getSubmission
+      parameters:
+      - description: Assignment ID
+        in: path
+        name: assignment_id
+        required: true
+        type: integer
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a submission
+  /teacher:
+    post:
+      consumes:
+      - application/json
+      description: Create a new teacher with the provided details
+      parameters:
+      - description: Teacher details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new teacher
+      tags:
+      - teachers
+  /teacher/{teacher_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a teacher by their ID
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: teacher_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a teacher by ID
+      tags:
+      - teachers
+  /teachers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of teachers
+      parameters:
+      - description: Page ID
+        in: query
+        name: page_id
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List teachers
+      tags:
+      - teachers
+  /teachers/{teacher_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a teacher by their ID
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: teacher_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a teacher
+      tags:
+      - teachers
+    put:
+      consumes:
+      - application/json
+      description: Update an existing teacher with the provided details
+      parameters:
+      - description: Teacher ID
+        in: path
+        name: teacher_id
+        required: true
+        type: integer
+      - description: Updated teacher details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpeateTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a teacher
+      tags:
+      - teachers
+  /tokens/renew_access:
+    post:
+      consumes:
+      - application/json
+      description: Renew access token using refresh token
+      operationId: renew-access-token
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Renew Access Token
 swagger: "2.0"

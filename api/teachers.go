@@ -4,6 +4,7 @@ package api
 import (
 	"database/sql"
 	db "eduwave-back-end/db/sqlc"
+	"eduwave-back-end/token"
 	"eduwave-back-end/util"
 	"net/http"
 	"strconv"
@@ -20,6 +21,17 @@ type createTeacherRequest struct {
     IsActive       bool           `json:"is_active"`
 }
 
+// @Summary Create a new teacher
+// @Description Create a new teacher with the provided details
+// @Tags teachers
+// @Accept json
+// @Produce json
+// @Param request body createTeacherRequest true "Teacher details"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /teacher [post]
 func (server *Server) createTeacher(ctx *gin.Context) {
 	var req createTeacherRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -27,12 +39,19 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 		return
 	}
 
+	hashedPassword, err := util.HashPassword(req.HashedPassword)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateTeacherParam{
 		AdminID: req.AdminID,
 		FullName: req.FullName,
-		UserName: req.UserName,
+		UserName: authPayload.UserName,
 		Email: req.Email,
-		HashedPassword: req.HashedPassword,
+		HashedPassword: hashedPassword,
 		IsActive: req.IsActive,
 	}
 
@@ -46,9 +65,20 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 }
 
 type GetTeacherRequest struct {
-	TeacherID int64 `json:"teacher_id"`
+	TeacherID int64 `uri:"teacher_id,min=1"`
 }
 
+// @Summary Get a teacher by ID
+// @Description Retrieve a teacher by their ID
+// @Tags teachers
+// @Accept json
+// @Produce json
+// @Param teacher_id path int true "Teacher ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /teacher/{teacher_id} [get]
 func (server *Server) getTeacher(ctx *gin.Context) {
 	var req GetTeacherRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -62,9 +92,9 @@ func (server *Server) getTeacher(ctx *gin.Context) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
+		} else {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
-
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -72,10 +102,22 @@ func (server *Server) getTeacher(ctx *gin.Context) {
 }
 
 type ListTeacherParams struct {
-	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageID   int32 `form:"page_id,min=1"`
+	PageSize int32 `form:"page_size,min=5,max=10"`
 }
 
+// @Summary List teachers
+// @Description Retrieve a list of teachers
+// @Tags teachers
+// @Accept json
+// @Produce json
+// @Param page_id query int false "Page ID" default:"1"
+// @Param page_size query int false "Page Size" default:"10"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /teachers [get]
 func (server *Server) listTeachers(ctx *gin.Context) {
 	var req ListTeacherParams
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -97,6 +139,7 @@ func (server *Server) listTeachers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, teachers)
 }
 
+
 type UpeateTeacherRequest struct {
 	TeacherID      int64  `json:"teacher_id"`
     FullName       string `json:"full_name"`
@@ -106,6 +149,18 @@ type UpeateTeacherRequest struct {
     IsActive       bool   `json:"is_active"`
 }
 
+// @Summary Update a teacher
+// @Description Update an existing teacher with the provided details
+// @Tags teachers
+// @Accept json
+// @Produce json
+// @Param teacher_id path int true "Teacher ID"
+// @Param request body UpeateTeacherRequest true "Updated teacher details"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /teachers/{teacher_id} [put]
 func (server *Server) updateTeacher(ctx *gin.Context) {
 	var req UpeateTeacherRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -125,12 +180,12 @@ func (server *Server) updateTeacher(ctx *gin.Context) {
         return
     }
 
-	
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.UpdateTeacherParams{
 		TeacherID: int64(teacherID),
 		FullName: req.FullName,
 		Email: req.Email,
-		UserName: req.UserName,
+		UserName: authPayload.UserName,
 		HashedPassword: hashedPassword,
     }
 
@@ -147,6 +202,17 @@ func (server *Server) updateTeacher(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, teacher)
 }
 
+// @Summary Delete a teacher
+// @Description Delete a teacher by their ID
+// @Tags teachers
+// @Accept json
+// @Produce json
+// @Param teacher_id path int true "Teacher ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /teachers/{teacher_id} [delete]
 func (server *Server) deleteTeacher(ctx *gin.Context) {
 	teacherID, err := strconv.ParseInt(ctx.Param("teacher_id"), 10, 64)
 	if err != nil {

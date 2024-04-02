@@ -12,11 +12,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// deleteAdminRequest defines the request body structure for deleting an admin
 type deleteAdminRequest struct {
 	AdminID int64 `uri:"admin_id" binding:"required,min=1"`
 }
 
+// @Summary Delete an admin
+// @Description Deletes an admin by ID
+// @ID delete-admin
+// @Param admin_id path int true "Admin ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500 
+// @Router /admin/{admin_id} [delete]
+// deleteAdminRequest defines the request body structure for deleting an admin
 // deleteAdmin deletes an admin
 func (server *Server) deleteAdmin(ctx *gin.Context) {
 	var req deleteAdminRequest
@@ -34,12 +43,20 @@ func (server *Server) deleteAdmin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Admin deleted successfully"})
 }
 
-// getAdminRequest defines the request body structure for getting an admin
 type getAdminRequest struct {
-	AdminID int64 `json:"admin_id" binding:"required,min=1"`
+	AdminID int64 `uri:"admin_id,min=1"`
 }
 
-// getAdmin retrieves an admin
+// @Summary Get admin by ID
+// @Description Retrieves an admin by ID
+// @ID get-admin
+// @Param admin_id path int true "Admin ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500 
+// @Router /admin/{admin_id} [get]
+// getAdminRequest defines the request body structure for getting an admin
 func (server *Server) getAdmin(ctx *gin.Context) {
 	var req getAdminRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -64,7 +81,6 @@ func (server *Server) getAdmin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, admin)
 }
 
-// updateAdminRequest defines the request body structure for updating an admin
 type updateAdminRequest struct {
 	AdminID        int64  `json:"admin_id"`
     FullName       string `json:"full_name"`
@@ -73,7 +89,19 @@ type updateAdminRequest struct {
     HashedPassword string `json:"hashed_password"`
 }
 
-// updateAdmin updates an admin
+// @Summary Update an admin
+// @Description Updates an admin by ID
+// @ID update-admin
+// @Param admin_id path int true "Admin ID"
+// @Accept json
+// @Produce json
+// @Param request body updateAdminRequest true "Admin data to update"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500 
+// @Router /admin/{admin_id} [put]
+// updateAdminRequest defines the request body structure for updating an admin
 func (server *Server) updateAdmin(ctx *gin.Context) {
 	var req updateAdminRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -87,16 +115,17 @@ func (server *Server) updateAdmin(ctx *gin.Context) {
 		return
 	}
 
-	adminID, err := strconv.Atoi(ctx.Param("id"))
+	adminID, err := strconv.Atoi(ctx.Param("admin_id"))
     if err != nil {
         ctx.JSON(http.StatusBadRequest, errorResponse(err))
         return
     }
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.UpdateAdminParams{
 		AdminID: int64(adminID),
 		FullName: req.FullName,
-		UserName: req.UserName,
+		UserName: authPayload.UserName,
 		Email: req.Email,
 		HashedPassword: hashedPassword,
 	}
@@ -110,7 +139,6 @@ func (server *Server) updateAdmin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, admin)
 }
 
-// CreateAdminRequest defines the request body structure for updating an admin
 type CreateAdminRequest struct {
 	FullName       string `json:"full_name"`
     UserName       string `json:"user_name"`
@@ -118,6 +146,18 @@ type CreateAdminRequest struct {
     HashedPassword string `json:"hashed_password"`
 }
 
+// @Summary Create an admin
+// @Description Creates a new admin
+// @ID create-admin
+// @Accept json
+// @Produce json
+// @Param request body CreateAdminRequest true "Admin data to create"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /admin [post]
+// CreateAdminRequest defines the request body structure for updating an admin
 // CreateAdmin Creates an admin
 func (server *Server) createAdmin(ctx *gin.Context) {
 	var req CreateAdminRequest
@@ -135,7 +175,7 @@ func (server *Server) createAdmin(ctx *gin.Context) {
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateAdminParams{
 		FullName: req.FullName,
-		UserName: authPayload.Username,
+		UserName: authPayload.UserName,
 		Email: req.Email,
 		HashedPassword: hashedPassword,
 	}
