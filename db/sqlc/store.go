@@ -463,7 +463,7 @@ func (store *Store) DeleteResource(ctx context.Context, params DeleteResourcePar
 
 //GetResourceParam contains the input paramters of the retriving data
 type GetResourceParam struct {
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"Material_id"`
 	ResourceID int64         `json:"resource_id"`
 }
 
@@ -480,7 +480,7 @@ func (store *Store) GetResource(ctx context.Context, arg GetResourceParam) (GetR
 		var err error
 
 		result.Resource, err = q.GetResource(ctx, GetResourceParams{
-			MatirialID: arg.MatirialID,
+			MaterialID: arg.MaterialID,
 			ResourceID: arg.ResourceID,
 		})
 
@@ -1003,7 +1003,7 @@ type UpdateVerifyEmailResponse struct {
 	VerifyEmail VerifyEmail `json:"verify_email"`
 }
 
-//UpdateVeridyEmail db handler fro api all to update verify emaildata in database
+//UpdateVeridyEmail db handler for api call to update verify emaildata in database
 func (store *Store) UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParam) (UpdateVerifyEmailResponse, error) {
 	var result UpdateVerifyEmailResponse
 
@@ -1025,4 +1025,238 @@ func (store *Store) UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmail
 	return result, err
 }
 
-//CreateCourse
+//CreateCourseParam contain the input parameters of creating the course
+type CreateCourseParam struct{
+	Title       string `json:"title"`
+	Type        string `json:"type"`
+	Description string `json:"description"`
+}
+
+//CreateCourseResponse contains the result of the create course data 
+type CreateCourseResponse struct {
+	Course Course `json:"course"`
+}
+
+//CreateCourse db handler for api call to create course in database
+func(store *Store) CreateCourse(ctx context.Context, arg CreateCourseParam)(CreateCourseResponse, error){
+	var result CreateCourseResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Course, err = q.CreateCourses(ctx, CreateCoursesParams{
+			Title: arg.Title,
+			Type: arg.Type,
+			Description: arg.Description,
+		})
+
+		if err != nil {
+			return err
+		}
+		return err
+	})
+
+	return result,err
+}
+
+//DeleteCourseParam contains the input parameters of the geting the data
+type DeleteCourseParam struct {
+	CourseID  int64         `json:"course_id"`
+	TeacherID sql.NullInt64 `json:"teacher_id"`
+}
+
+//DeleteCourseResponse contains the result of the geting the data
+type DeleteCourseResponse struct {
+	Course Course `json:"course"`
+}
+
+//DeleteCourse db handler for api call to delete a course from the database
+func (store *Store) DeleteCourse(ctx context.Context, arg DeleteCourseParam) error {
+	return store.Queries.DeleteCourses(ctx, DeleteCoursesParams{
+		CourseID: arg.CourseID,
+		TeacherID: arg.TeacherID,
+	})
+}
+
+//GetCourseParam contains the input parameters of the geting the data
+type GetCourseParam struct {
+	CourseID  int64         `json:"course_id"`
+	TeacherID sql.NullInt64 `json:"teacher_id"`
+}
+
+//GetCourseResponse contains the result of the geting the data
+type GetCourseResponse struct {
+	Course Course `json:"course"`
+}
+
+//GetUser db handler for api call to retrive a admin data from the database
+func (store *Store) GetCourse(ctx context.Context, arg GetCourseParam) (GetCourseResponse, error) {
+	var result GetCourseResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Course, err = q.GetCourses(ctx, GetCoursesParams{
+			CourseID: arg.CourseID,
+			TeacherID: arg.TeacherID,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	return result, err
+}
+
+
+//ListSubmissions db handler for api call to listcourse data of the database
+func (store *Store) listCourses(ctx context.Context, params ListCoursesParams) ([]Course, error) {
+	return store.Queries.ListCourses(ctx, params)
+}
+
+//UpdateCourseParam contains the input parameters of updating coruse data 
+type UpdateCoursesParam struct {
+	CourseID    int64  `json:"course_id"`
+	Title       string `json:"title"`
+	Type        string `json:"type"`
+	Description string `json:"description"`
+}
+
+//UpdateCourseResponse Contains the result of the creating course data
+type UpdateCoursesResponse struct {
+	Course Course `json:"course"`
+}
+
+//UpdateCourse dn handler for api call to update course data in databse
+func(store *Store) UpdateCourse(ctx context.Context, arg UpdateCoursesParam)(UpdateCoursesResponse, error){
+	var result UpdateCoursesResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error 
+
+		result.Course, err =q.UpdateCourses(ctx, UpdateCoursesParams{
+			CourseID: arg.CourseID,
+			Title: arg.Title,
+			Type: arg.Type,
+			Description: arg.Description,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	return result, err
+}
+
+//CreateMaterialParam contains the input parameters of  creating Material data
+type CreateMaterialParam struct{
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+//CreateMaterialResponse contains the result of the creating Material data 
+type CreateMaterialReponse struct {
+	Material Material `json:"Material"`
+}
+
+//CreateMaterial db handler for api call to create Material data in databse
+func(store *Store) CreateMaterial(ctx context.Context, arg CreateMaterialParam)(CreateMaterialReponse, error){
+	var result CreateMaterialReponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Material, err = q.CreateMaterial(ctx, CreateMaterialParams{
+			Title: arg.Title,
+			Description: arg.Description,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return result, err
+}
+
+//DeleteMaterialParam contaisn the input parameters of delete Material data
+type DeleteMaterialParam struct {
+	MaterialID int64         `json:"Material_id"`
+	CourseID   sql.NullInt64 `json:"course_id"`
+}
+
+//DeleteMatirila db handler for api call to delete Material data in database
+func(store *Store) DeleteMaterial(ctx context.Context, arg DeleteMaterialParam)error {
+	return store.Queries.DeleteMaterial(ctx, DeleteMaterialParams{
+		MaterialID: arg.MaterialID,
+		CourseID: arg.CourseID,
+	})
+}
+
+//GetMaterialparam contains the input parameters of the get Material data
+type GetMaterialParam struct {
+	CourseID sql.NullInt64 `json:"course_id"`
+}
+
+//GetMaterialResponse contains the result of the get matrial data
+type GetMaterialResponse struct {
+	Material Material `json:"Material"`
+}
+
+//GetMaterial db handler for api call to get Material data in database
+func(store *Store) GetMaterial(ctx context.Context, arg GetMaterialParam)(GetMaterialResponse, error){
+	var result GetMaterialResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Material, err = q.GetMaterial(ctx, arg.CourseID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return result, err
+}
+
+//ListMaterial db handler fro api call to list Material data in database
+func(store *Store) ListMaterial(ctx context.Context, params ListMaterialParams)([]Material, error){
+	return store.Queries.ListMaterial(ctx, params)
+}
+
+//UpdateMaterialParam contains the input parameters of the Update Material data
+type UpdateMaterialParam struct {
+	MaterialID  int64         `json:"Material_id"`
+	CourseID    sql.NullInt64 `json:"course_id"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+}
+
+//UpdateMaterialResponse contains the result of the Updated Material data
+type UpdateMaterialResponse struct {
+	Material Material `json:"Material"`
+}
+
+//UpdateMatririal db handler for api call to the update Material data in database
+func(store *Store) UpdateMaterials(ctx context.Context, arg UpdateMaterialParam)(UpdateMaterialResponse, error){
+	var result UpdateMaterialResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Material, err = q.UpdateMaterial(ctx, UpdateMaterialParams{
+			MaterialID: arg.MaterialID,
+			CourseID: arg.CourseID,
+			Title: arg.Title,
+			Description: arg.Description,
+		})
+		if err != nil {
+			return err
+		}
+		return err
+	})
+	return result, err
+}

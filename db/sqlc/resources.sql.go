@@ -17,7 +17,7 @@ INSERT INTO resources (
     content_url
 ) VALUES (
     $1, $2, $3
-) RETURNING resource_id, matirial_id, title, type, content_url, created_at
+) RETURNING resource_id, material_id, title, type, content_url, created_at
 `
 
 type CreateResourceParams struct {
@@ -31,7 +31,7 @@ func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) 
 	var i Resource
 	err := row.Scan(
 		&i.ResourceID,
-		&i.MatirialID,
+		&i.MaterialID,
 		&i.Title,
 		&i.Type,
 		&i.ContentUrl,
@@ -42,35 +42,35 @@ func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) 
 
 const deleteResource = `-- name: DeleteResource :exec
 DELETE FROM resources
-WHERE resource_id = $1 AND matirial_id = $2
+WHERE resource_id = $1 AND material_id = $2
 `
 
 type DeleteResourceParams struct {
 	ResourceID int64         `json:"resource_id"`
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"material_id"`
 }
 
 func (q *Queries) DeleteResource(ctx context.Context, arg DeleteResourceParams) error {
-	_, err := q.db.ExecContext(ctx, deleteResource, arg.ResourceID, arg.MatirialID)
+	_, err := q.db.ExecContext(ctx, deleteResource, arg.ResourceID, arg.MaterialID)
 	return err
 }
 
 const getResource = `-- name: GetResource :one
-SELECT resource_id, matirial_id, title, type, content_url, created_at FROM resources
-WHERE matirial_id = $1 AND resource_id = $2
+SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
+WHERE material_id = $1 AND resource_id = $2
 `
 
 type GetResourceParams struct {
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"material_id"`
 	ResourceID int64         `json:"resource_id"`
 }
 
 func (q *Queries) GetResource(ctx context.Context, arg GetResourceParams) (Resource, error) {
-	row := q.db.QueryRowContext(ctx, getResource, arg.MatirialID, arg.ResourceID)
+	row := q.db.QueryRowContext(ctx, getResource, arg.MaterialID, arg.ResourceID)
 	var i Resource
 	err := row.Scan(
 		&i.ResourceID,
-		&i.MatirialID,
+		&i.MaterialID,
 		&i.Title,
 		&i.Type,
 		&i.ContentUrl,
@@ -80,15 +80,15 @@ func (q *Queries) GetResource(ctx context.Context, arg GetResourceParams) (Resou
 }
 
 const listResource = `-- name: ListResource :many
-SELECT resource_id, matirial_id, title, type, content_url, created_at FROM resources
-WHERE matirial_id = $1 AND resource_id = $2
+SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
+WHERE material_id = $1 AND resource_id = $2
 ORDER BY resource_id
 LIMIT $3
 OFFSET $4
 `
 
 type ListResourceParams struct {
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"material_id"`
 	ResourceID int64         `json:"resource_id"`
 	Limit      int32         `json:"limit"`
 	Offset     int32         `json:"offset"`
@@ -96,7 +96,7 @@ type ListResourceParams struct {
 
 func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]Resource, error) {
 	rows, err := q.db.QueryContext(ctx, listResource,
-		arg.MatirialID,
+		arg.MaterialID,
 		arg.ResourceID,
 		arg.Limit,
 		arg.Offset,
@@ -110,7 +110,7 @@ func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]R
 		var i Resource
 		if err := rows.Scan(
 			&i.ResourceID,
-			&i.MatirialID,
+			&i.MaterialID,
 			&i.Title,
 			&i.Type,
 			&i.ContentUrl,
@@ -132,12 +132,12 @@ func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]R
 const updateResource = `-- name: UpdateResource :one
 UPDATE resources
 SET title = $3, type = $4, content_url = $5
-WHERE matirial_id = $1 AND resource_id = $2
-RETURNING resource_id, matirial_id, title, type, content_url, created_at
+WHERE material_id = $1 AND resource_id = $2
+RETURNING resource_id, material_id, title, type, content_url, created_at
 `
 
 type UpdateResourceParams struct {
-	MatirialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID sql.NullInt64 `json:"material_id"`
 	ResourceID int64         `json:"resource_id"`
 	Title      string        `json:"title"`
 	Type       TypeResource  `json:"type"`
@@ -146,7 +146,7 @@ type UpdateResourceParams struct {
 
 func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) (Resource, error) {
 	row := q.db.QueryRowContext(ctx, updateResource,
-		arg.MatirialID,
+		arg.MaterialID,
 		arg.ResourceID,
 		arg.Title,
 		arg.Type,
@@ -155,7 +155,7 @@ func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) 
 	var i Resource
 	err := row.Scan(
 		&i.ResourceID,
-		&i.MatirialID,
+		&i.MaterialID,
 		&i.Title,
 		&i.Type,
 		&i.ContentUrl,

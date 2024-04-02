@@ -8,10 +8,11 @@ import (
 )
 
 const (
+
 	// smtp server configuration.
 	smtpHost = "smtp.gmail.com"
 	smtpPort = "587"
-)
+
 
 type EmailSender interface {
 	SendEmail(
@@ -61,11 +62,13 @@ func (sender *GmailSender) SendEmail(
 		}
 	}
 
+
 	auth := smtp.PlainAuth("", sender.fromEmailAddress, sender.fromEmailPassword, smtpHost)
 	err := e.Send(smtpHost+":"+smtpPort, auth)
 	if err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
 	}
 
-	return nil
+
+
 }

@@ -9,12 +9,12 @@ INSERT INTO courses (
 
 -- name: GetCourses :one
 SELECT * FROM courses
-WHERE course_id = $1;
+WHERE course_id = $1 AND teacher_id = $2;
 
 -- name: UpdateCourses :one
 UPDATE courses
 SET title = $2, type = $3, description = $4
-WHERE course_id = $1
+WHERE course_id = $1 AND teacher_id = $2
 RETURNING *;
 
 -- name: ListCourses :many
@@ -26,4 +26,4 @@ OFFSET $3;
 
 -- name: DeleteCourses :exec
 DELETE FROM courses
-WHERE course_id = $1;
+WHERE course_id = $1 AND teacher_id = $2;
