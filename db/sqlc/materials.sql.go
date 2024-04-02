@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createMaterial = `-- name: CreateMaterial :one
@@ -43,8 +42,8 @@ WHERE material_id = $1 AND course_id = $2
 `
 
 type DeleteMaterialParams struct {
-	MaterialID int64         `json:"material_id"`
-	CourseID   sql.NullInt64 `json:"course_id"`
+	MaterialID int64 `json:"material_id"`
+	CourseID   int64 `json:"course_id"`
 }
 
 func (q *Queries) DeleteMaterial(ctx context.Context, arg DeleteMaterialParams) error {
@@ -57,7 +56,7 @@ SELECT material_id, course_id, title, description, created_at FROM materials
 WHERE course_id = $1
 `
 
-func (q *Queries) GetMaterial(ctx context.Context, courseID sql.NullInt64) (Material, error) {
+func (q *Queries) GetMaterial(ctx context.Context, courseID int64) (Material, error) {
 	row := q.db.QueryRowContext(ctx, getMaterial, courseID)
 	var i Material
 	err := row.Scan(
@@ -79,9 +78,9 @@ OFFSET $3
 `
 
 type ListMaterialParams struct {
-	CourseID sql.NullInt64 `json:"course_id"`
-	Limit    int32         `json:"limit"`
-	Offset   int32         `json:"offset"`
+	CourseID int64 `json:"course_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
 }
 
 func (q *Queries) ListMaterial(ctx context.Context, arg ListMaterialParams) ([]Material, error) {
@@ -121,10 +120,10 @@ RETURNING material_id, course_id, title, description, created_at
 `
 
 type UpdateMaterialParams struct {
-	MaterialID  int64         `json:"material_id"`
-	CourseID    sql.NullInt64 `json:"course_id"`
-	Title       string        `json:"title"`
-	Description string        `json:"description"`
+	MaterialID  int64  `json:"material_id"`
+	CourseID    int64  `json:"course_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 func (q *Queries) UpdateMaterial(ctx context.Context, arg UpdateMaterialParams) (Material, error) {

@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createResource = `-- name: CreateResource :one
@@ -46,8 +45,8 @@ WHERE resource_id = $1 AND material_id = $2
 `
 
 type DeleteResourceParams struct {
-	ResourceID int64         `json:"resource_id"`
-	MaterialID sql.NullInt64 `json:"material_id"`
+	ResourceID int64 `json:"resource_id"`
+	MaterialID int64 `json:"material_id"`
 }
 
 func (q *Queries) DeleteResource(ctx context.Context, arg DeleteResourceParams) error {
@@ -61,8 +60,8 @@ WHERE material_id = $1 AND resource_id = $2
 `
 
 type GetResourceParams struct {
-	MaterialID sql.NullInt64 `json:"material_id"`
-	ResourceID int64         `json:"resource_id"`
+	MaterialID int64 `json:"material_id"`
+	ResourceID int64 `json:"resource_id"`
 }
 
 func (q *Queries) GetResource(ctx context.Context, arg GetResourceParams) (Resource, error) {
@@ -88,10 +87,10 @@ OFFSET $4
 `
 
 type ListResourceParams struct {
-	MaterialID sql.NullInt64 `json:"material_id"`
-	ResourceID int64         `json:"resource_id"`
-	Limit      int32         `json:"limit"`
-	Offset     int32         `json:"offset"`
+	MaterialID int64 `json:"material_id"`
+	ResourceID int64 `json:"resource_id"`
+	Limit      int32 `json:"limit"`
+	Offset     int32 `json:"offset"`
 }
 
 func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]Resource, error) {
@@ -137,11 +136,11 @@ RETURNING resource_id, material_id, title, type, content_url, created_at
 `
 
 type UpdateResourceParams struct {
-	MaterialID sql.NullInt64 `json:"material_id"`
-	ResourceID int64         `json:"resource_id"`
-	Title      string        `json:"title"`
-	Type       TypeResource  `json:"type"`
-	ContentUrl string        `json:"content_url"`
+	MaterialID int64        `json:"material_id"`
+	ResourceID int64        `json:"resource_id"`
+	Title      string       `json:"title"`
+	Type       TypeResource `json:"type"`
+	ContentUrl string       `json:"content_url"`
 }
 
 func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) (Resource, error) {

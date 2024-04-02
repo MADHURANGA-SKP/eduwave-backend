@@ -97,7 +97,7 @@ func (server *Server) listRequests(ctx *gin.Context) {
 }
 
 type deleteRequestRequest struct {
-	StudentID sql.NullInt64 `json:"student_id"`
+	StudentID int64 `json:"student_id"`
 	RequestID int64         `json:"request_id"`
 }
 
@@ -136,7 +136,7 @@ func (server *Server) updateRequest(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateRequestsParams{
-		StudentID:  sql.NullInt64{Int64: req.ID, Valid: true},
+		StudentID:  req.ID,
 		IsActive:   sql.NullBool{Bool: req.IsActive, Valid: true},
 		IsPending:  sql.NullBool{Bool: req.IsPending, Valid: true},
 		IsAccepted: sql.NullBool{Bool: req.IsAccepted, Valid: true},

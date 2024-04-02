@@ -53,7 +53,9 @@ func (server *Server) GetCourse(ctx *gin.Context) {
 		return
 	}
 
-	course, err := server.store.GetCourses(ctx, req.CourseID)
+	course, err := server.store.GetCourses(ctx, db.GetCoursesParams{
+		CourseID: req.CourseID,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -6,12 +6,12 @@ package db
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/google/uuid"
 )
 
 type Querier interface {
+	CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin, error)
 	CreateAssignment(ctx context.Context, arg CreateAssignmentParams) (Assignment, error)
 	CreateCourseProgress(ctx context.Context, progress string) (CourseProgress, error)
 	CreateCourses(ctx context.Context, arg CreateCoursesParams) (Course, error)
@@ -19,7 +19,6 @@ type Querier interface {
 	CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error)
 	CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
-	CreateStudent(ctx context.Context, userName sql.NullString) (Student, error)
 	CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
@@ -35,7 +34,7 @@ type Querier interface {
 	GetAssignment(ctx context.Context, arg GetAssignmentParams) (Assignment, error)
 	GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error)
 	GetCourses(ctx context.Context, arg GetCoursesParams) (Course, error)
-	GetMaterial(ctx context.Context, courseID sql.NullInt64) (Material, error)
+	GetMaterial(ctx context.Context, courseID int64) (Material, error)
 	GetRequest(ctx context.Context, arg GetRequestParams) (Request, error)
 	GetResource(ctx context.Context, arg GetResourceParams) (Resource, error)
 	GetSession(ctx context.Context, sessionID uuid.UUID) (Session, error)

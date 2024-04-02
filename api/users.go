@@ -14,13 +14,14 @@ import (
 
 type createUserRequest struct {
 	UserName       string `json:"user_name"`
+	Role           string `json:"role"`
 	FullName       string `json:"full_name"`
 	HashedPassword string `json:"hashed_password"`
 	Email          string `json:"email"`
 }
 
 type userResponse struct {
-	Username          string    `json:"username"`
+	Username          string    `json:"user_name"`
 	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
@@ -50,14 +51,13 @@ func (server *Server) createUser(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.CreateUserParams{
-		UserName:       req.UserName,
-		FullName:       req.FullName,
-		HashedPassword: hashedPassword,
-		Email:          req.Email,
-	}
-
-	user, err := server.store.CreateUser(ctx, db.CreateUserParam(arg))
+	user, err := server.store.CreateUser(ctx, db.CreateUserParam{
+		UserName: req.UserName,
+		Role: req.Role,
+		FullName: req.FullName,
+		HashedPassword:hashedPassword,
+		Email: req.Email,
+	})
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolations {
 			ctx.JSON(http.StatusForbidden, errorResponse(err))
@@ -71,9 +71,45 @@ func (server *Server) createUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
+// type UpdateUserRequest struct {
+// 	HashedPassword sql.NullString `json:"hashed_password"`
+// 	FullName       sql.NullString `json:"full_name"`
+// 	Email          sql.NullString `json:"email"`
+// 	UserName       string         `json:"user_name"`
+// }
+
+// // updateStudent updates a student by ID
+// func (server *Server) UpdateUser(ctx *gin.Context){
+// 	var req UpdateUserRequest
+// 	if err := ctx.ShouldBindJSON(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+// 	}
+
+// 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+// 	arg := db.UpdateUserParams{
+// 		HashedPassword: req.HashedPassword,
+// 		FullName: req.FullName,
+// 		Email: req.Email,
+// 		UserName: authPayload.Username,
+// 	}
+
+// 	// Call the database store function to update the student
+// 	updatedStudent, err := server.store.UpdateUser(ctx,)
+// 	if err != nil {
+// 		if err == sql.ErrNoRows{
+// 			ctx.JSON(http.StatusNotFound, errorResponse(err))
+// 		}
+
+// 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+// 		return
+// 	}
+
+// 	ctx.JSON(http.StatusOK, updatedStudent)
+// }
+
 type loginUserRequest struct {
-	Username string `json:"username" binding:"required,alphanum"`
-	Password string `json:"password" binding:"required,min=6"`
+	UserName       string `json:"user_name"`
+	HashedPassword string `json:"hashed_password"`
 }
 
 type loginUserResponse struct {
@@ -87,13 +123,15 @@ type loginUserResponse struct {
 
 func (server *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
+
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	user, err := server.store.GetUser(ctx, db.GetUserParam{
-		UserName: req.Username,
+		UserName: req.UserName,
 	})
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
@@ -104,7 +142,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	err = util.CheckPassword(req.Password, user.User.HashedPassword)
+	err = util.CheckPassword(req.HashedPassword, user.User.HashedPassword)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
@@ -112,7 +150,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
 		user.User.UserName,
-		string(user.User.Role),
+		user.User.Role,
 		server.config.RefreshTokenDuration,
 	)
 	if err != nil {
@@ -122,7 +160,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.User.UserName,
-		string(user.User.Role),
+		user.User.Role,
 		server.config.RefreshTokenDuration,
 	)
 	if err != nil {

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"net/http"
 
 	db "eduwave-back-end/db/sqlc"
@@ -24,12 +23,12 @@ func (server *Server) CreateMaterial(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.CreateMatirialsParams{
+	arg := db.CreateMaterialParams{
 		Title:       req.Title,
 		Description: req.Description,
 	}
 
-	material, err := server.store.CreateMatirials(ctx, arg)
+	material, err := server.store.CreateMaterial(ctx, db.CreateMaterialParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -51,9 +50,13 @@ func (server *Server) GetMaterials(ctx *gin.Context) {
 		return
 	}
 
-	arg := sql.NullInt64{Int64: req.CourseID, Valid: true}
+	arg :=	db.GetMaterialParam{
+		CourseID: req.CourseID,
+	}
 
-	materials, err := server.store.ListMatirials(ctx, db.ListMatirialsParams{CourseID: arg})
+	materials, err := server.store.ListMaterial(ctx, db.ListMaterialParams{
+		CourseID: arg.CourseID,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -78,14 +81,14 @@ func (server *Server) UpdateMaterial(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.UpdateMatirialsParams{
-		MatirialID:  req.MaterialID,
+	arg := db.UpdateMaterialParams{
+		MaterialID: req.MaterialID,
 		Title:       req.Title,
 		Description: req.Description,
-		CourseID:    sql.NullInt64{Int64: req.CourseID, Valid: true},
+		CourseID:    req.CourseID,
 	}
 
-	material, err := server.store.UpdateMatirials(ctx, arg)
+	material, err := server.store.UpdateMaterials(ctx, db.UpdateMaterialParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -108,12 +111,15 @@ func (server *Server) DeleteMaterial(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.DeleteMatirialsParams{
-		MatirialID: req.MaterialID,
-		CourseID:   sql.NullInt64{Int64: req.CourseID, Valid: true},
+	arg := db.DeleteMaterialParams{
+		MaterialID: req.MaterialID,
+		CourseID:   req.CourseID,
 	}
 
-	err := server.store.DeleteMatirials(ctx, arg)
+	err := server.store.DeleteMaterial(ctx, db.DeleteMaterialParam{
+		MaterialID: arg.MaterialID,
+		CourseID: arg.CourseID,
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

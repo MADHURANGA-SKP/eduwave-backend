@@ -56,8 +56,8 @@ WHERE student_id = $1 AND request_id = $2
 `
 
 type DeleteRequestParams struct {
-	StudentID sql.NullInt64 `json:"student_id"`
-	RequestID int64         `json:"request_id"`
+	StudentID int64 `json:"student_id"`
+	RequestID int64 `json:"request_id"`
 }
 
 func (q *Queries) DeleteRequest(ctx context.Context, arg DeleteRequestParams) error {
@@ -71,8 +71,8 @@ WHERE student_id = $1 AND request_id = $2
 `
 
 type GetRequestParams struct {
-	StudentID sql.NullInt64 `json:"student_id"`
-	RequestID int64         `json:"request_id"`
+	StudentID int64 `json:"student_id"`
+	RequestID int64 `json:"request_id"`
 }
 
 func (q *Queries) GetRequest(ctx context.Context, arg GetRequestParams) (Request, error) {
@@ -101,11 +101,11 @@ OFFSET $5
 `
 
 type ListRequestParams struct {
-	StudentID sql.NullInt64 `json:"student_id"`
-	TeacherID sql.NullInt64 `json:"teacher_id"`
-	CourseID  sql.NullInt64 `json:"course_id"`
-	Limit     int32         `json:"limit"`
-	Offset    int32         `json:"offset"`
+	StudentID int64 `json:"student_id"`
+	TeacherID int64 `json:"teacher_id"`
+	CourseID  int64 `json:"course_id"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
 }
 
 func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error) {
@@ -155,13 +155,13 @@ RETURNING request_id, student_id, teacher_id, course_id, is_active, is_pending, 
 `
 
 type UpdateRequestsParams struct {
-	StudentID  sql.NullInt64 `json:"student_id"`
-	TeacherID  sql.NullInt64 `json:"teacher_id"`
-	CourseID   sql.NullInt64 `json:"course_id"`
-	IsActive   sql.NullBool  `json:"is_active"`
-	IsPending  sql.NullBool  `json:"is_pending"`
-	IsAccepted sql.NullBool  `json:"is_accepted"`
-	IsDeclined sql.NullBool  `json:"is_declined"`
+	StudentID  int64        `json:"student_id"`
+	TeacherID  int64        `json:"teacher_id"`
+	CourseID   int64        `json:"course_id"`
+	IsActive   sql.NullBool `json:"is_active"`
+	IsPending  sql.NullBool `json:"is_pending"`
+	IsAccepted sql.NullBool `json:"is_accepted"`
+	IsDeclined sql.NullBool `json:"is_declined"`
 }
 
 func (q *Queries) UpdateRequests(ctx context.Context, arg UpdateRequestsParams) (Request, error) {

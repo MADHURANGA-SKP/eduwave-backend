@@ -2,7 +2,6 @@
 package api
 
 import (
-	"database/sql"
 	db "eduwave-back-end/db/sqlc"
 	"errors"
 	"net/http"
@@ -45,7 +44,7 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 
 type GetAssignmentRequest struct {
 	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   sql.NullInt64 `json:"resource_id"`
+	ResourceID   int64 `json:"resource_id"`
 }
 
 func (server *Server) getAssignment(ctx *gin.Context) {
@@ -85,14 +84,7 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 		return
 	}
 
-	courseID, err := strconv.ParseInt(ctx.Param("course_id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("invalid course_id")))
-		return
-	}
-
 	arg := db.UpdateAssignmentParams{
-		ResourceID:       sql.NullInt64{Int64: courseID, Valid: true},
 		Type:           req.Type,
 		Title:          req.Title,
 		Description:    req.Description,
@@ -100,7 +92,6 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 	}
 
 	assignment, err := server.store.UpdateAssignment(ctx, db.UpdateAssignmentParam{
-		ResourceID: arg.ResourceID,
 		Type: arg.Type,
 		Title: arg.Title,
 		Description: arg.Description,
@@ -116,7 +107,7 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 
 type DeleteAssignmentRequest struct {
 	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   sql.NullInt64 `json:"resource_id"`
+	ResourceID   int64 `json:"resource_id"`
 }
 
 func (server *Server) deleteAssignment(ctx *gin.Context) {
@@ -129,7 +120,7 @@ func (server *Server) deleteAssignment(ctx *gin.Context) {
 
 	err = server.store.DeleteAssignment(ctx, db.DeleteAssignmentParam{
 		AssignmentID: assignmentID,
-		ResourceID : sql.NullInt64{Int64: resourceID, Valid: true},
+		ResourceID : resourceID,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

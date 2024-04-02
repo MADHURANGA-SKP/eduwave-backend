@@ -7,8 +7,44 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
+
+const createAdmin = `-- name: CreateAdmin :one
+INSERT INTO admins (
+    full_name,
+    user_name,
+    email,
+    hashed_password
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING admin_id, user_name, hashed_password, full_name, email, created_at
+`
+
+type CreateAdminParams struct {
+	FullName       string `json:"full_name"`
+	UserName       string `json:"user_name"`
+	Email          string `json:"email"`
+	HashedPassword string `json:"hashed_password"`
+}
+
+func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin, error) {
+	row := q.db.QueryRowContext(ctx, createAdmin,
+		arg.FullName,
+		arg.UserName,
+		arg.Email,
+		arg.HashedPassword,
+	)
+	var i Admin
+	err := row.Scan(
+		&i.AdminID,
+		&i.UserName,
+		&i.HashedPassword,
+		&i.FullName,
+		&i.Email,
+		&i.CreatedAt,
+	)
+	return i, err
+}
 
 const deleteAdmin = `-- name: DeleteAdmin :exec
 DELETE FROM admins
@@ -21,32 +57,55 @@ func (q *Queries) DeleteAdmin(ctx context.Context, adminID int64) error {
 }
 
 const getAdmin = `-- name: GetAdmin :one
-SELECT admin_id, user_name, created_at FROM admins
+SELECT admin_id, user_name, hashed_password, full_name, email, created_at FROM admins
 WHERE admin_id = $1
 `
 
 func (q *Queries) GetAdmin(ctx context.Context, adminID int64) (Admin, error) {
 	row := q.db.QueryRowContext(ctx, getAdmin, adminID)
 	var i Admin
-	err := row.Scan(&i.AdminID, &i.UserName, &i.CreatedAt)
+	err := row.Scan(
+		&i.AdminID,
+		&i.UserName,
+		&i.HashedPassword,
+		&i.FullName,
+		&i.Email,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const updateAdmin = `-- name: UpdateAdmin :one
 UPDATE admins
-SET user_name = $2
+SET full_name = $2, user_name = $3, email = $4, hashed_password = $5
 WHERE admin_id = $1
-RETURNING admin_id, user_name, created_at
+RETURNING admin_id, user_name, hashed_password, full_name, email, created_at
 `
 
 type UpdateAdminParams struct {
-	AdminID  int64          `json:"admin_id"`
-	UserName sql.NullString `json:"user_name"`
+	AdminID        int64  `json:"admin_id"`
+	FullName       string `json:"full_name"`
+	UserName       string `json:"user_name"`
+	Email          string `json:"email"`
+	HashedPassword string `json:"hashed_password"`
 }
 
 func (q *Queries) UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Admin, error) {
-	row := q.db.QueryRowContext(ctx, updateAdmin, arg.AdminID, arg.UserName)
+	row := q.db.QueryRowContext(ctx, updateAdmin,
+		arg.AdminID,
+		arg.FullName,
+		arg.UserName,
+		arg.Email,
+		arg.HashedPassword,
+	)
 	var i Admin
-	err := row.Scan(&i.AdminID, &i.UserName, &i.CreatedAt)
+	err := row.Scan(
+		&i.AdminID,
+		&i.UserName,
+		&i.HashedPassword,
+		&i.FullName,
+		&i.Email,
+		&i.CreatedAt,
+	)
 	return i, err
 }

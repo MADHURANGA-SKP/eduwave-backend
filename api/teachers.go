@@ -12,11 +12,12 @@ import (
 )
 
 type createTeacherRequest struct {
-	FullName       string         `json:"full_name" binding:"required"`
-	Email          string         `json:"email" binding:"required,email"`
-	UserName       sql.NullString `json:"user_name"`
-	HashedPassword string         `json:"hashed_password" binding:"required"`
-	IsActive       bool           `json:"is_active"`
+	AdminID        int64  `json:"admin_id"`
+	FullName       string         `json:"full_name"`
+    Email          string         `json:"email"`
+    UserName       string `json:"user_name"`
+    HashedPassword string         `json:"hashed_password"`
+    IsActive       bool           `json:"is_active"`
 }
 
 func (server *Server) createTeacher(ctx *gin.Context) {
@@ -26,15 +27,16 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.CreateTeacherParams{
-		FullName:       req.FullName,
-		Email:          req.Email,
-		UserName:       req.UserName,
+	arg := db.CreateTeacherParam{
+		AdminID: req.AdminID,
+		FullName: req.FullName,
+		UserName: req.UserName,
+		Email: req.Email,
 		HashedPassword: req.HashedPassword,
-		IsActive:       req.IsActive,
+		IsActive: req.IsActive,
 	}
 
-	teacher, err := server.store.CreateTeacher(ctx, db.CreateTeacherParam(arg))
+	teacher, err := server.store.CreateTeacher(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -95,43 +97,49 @@ func (server *Server) listTeachers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, teachers)
 }
 
+type UpeateTeacherRequest struct {
+	TeacherID      int64  `json:"teacher_id"`
+    FullName       string `json:"full_name"`
+    Email          string `json:"email"`
+    UserName       string `json:"user_name"`
+    HashedPassword string `json:"hashed_password"`
+    IsActive       bool   `json:"is_active"`
+}
+
 func (server *Server) updateTeacher(ctx *gin.Context) {
-	var req createTeacherRequest
+	var req UpeateTeacherRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	
 	hashedPassword, err := util.HashPassword(req.HashedPassword)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	teacherID, err := strconv.ParseInt(ctx.Param("teacher_id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	teacherID, err := strconv.Atoi(ctx.Param("teacher_id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
 
+	
 	arg := db.UpdateTeacherParams{
-		TeacherID:      teacherID,
-		FullName:       req.FullName,
-		Email:          req.Email,
-		UserName:       req.UserName,
-		HashedPassword: req.HashedPassword,
-		IsActive:       req.IsActive,
-	}
+		TeacherID: int64(teacherID),
+		FullName: req.FullName,
+		Email: req.Email,
+		UserName: req.UserName,
+		HashedPassword: hashedPassword,
+    }
 
-	teacher, err := server.store.UpdateTeacher(ctx, db.UpdateTeacherParam{
-		FullName: arg.FullName,
-		Email: arg.Email,
-		UserName: arg.UserName,
-		HashedPassword:hashedPassword,
-		IsActive: arg.IsActive,
-	})
+	teacher, err := server.store.UpdateTeacher(ctx, db.UpdateTeacherParam(arg))
 	if err != nil {
+		if err == sql.ErrNoRows{
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+		}
+
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}

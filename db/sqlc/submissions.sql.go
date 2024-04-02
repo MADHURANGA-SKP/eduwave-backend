@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const getsubmissions = `-- name: Getsubmissions :one
@@ -17,8 +16,8 @@ LIMIT 1
 `
 
 type GetsubmissionsParams struct {
-	AssignmentID sql.NullInt64 `json:"assignment_id"`
-	StudentID    sql.NullInt64 `json:"student_id"`
+	AssignmentID int64 `json:"assignment_id"`
+	StudentID    int64 `json:"student_id"`
 }
 
 func (q *Queries) Getsubmissions(ctx context.Context, arg GetsubmissionsParams) (Submission, error) {
@@ -37,9 +36,9 @@ OFFSET $3
 `
 
 type ListsubmissionsParams struct {
-	AssignmentID sql.NullInt64 `json:"assignment_id"`
-	Limit        int32         `json:"limit"`
-	Offset       int32         `json:"offset"`
+	AssignmentID int64 `json:"assignment_id"`
+	Limit        int32 `json:"limit"`
+	Offset       int32 `json:"offset"`
 }
 
 func (q *Queries) Listsubmissions(ctx context.Context, arg ListsubmissionsParams) ([]Submission, error) {

@@ -42,8 +42,8 @@ func (server *Server) createResource(ctx *gin.Context) {
 
 // deleteResourceRequest defines the request body structure for deleting a resource
 type deleteResourceRequest struct {
-	ResourceID int64         `json:"resource_id"`
-    MaterialID sql.NullInt64 `json:"matirial_id"`
+	ResourceID int64 `json:"resource_id"`
+    MaterialID int64 `json:"material_id"`
 }
 
 // deleteResource deletes a resource
@@ -70,7 +70,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 // getResourceRequest defines the request body structure for getting a resource
 type getResourceRequest struct {
-	MaterialID sql.NullInt64 `json:"matirial_id"`
+	MaterialID int64 `json:"matirial_id"`
     ResourceID int64         `json:"resource_id"`
 }
 
@@ -82,12 +82,10 @@ func (server *Server) getResource(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.GetResourceParams{
+	resource, err := server.store.GetResource(ctx, db.GetResourceParam{
 		MaterialID: req.MaterialID,
 		ResourceID: req.ResourceID,
-	}
-
-	resource, err := server.store.GetResource(ctx, db.GetResourceParam(arg))
+	})
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -117,18 +115,11 @@ func (server *Server) updateResource(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.UpdateResourceParams{
-		MaterialID: req.MaterialID,
-		ResourceID: req.ResourceID,
-		Title:      req.Title,
-		Type:       req.Type,
-		ContentUrl: req.ContentUrl,
-	}
-
 	resource, err := server.store.UpdateResource(ctx, db.UpdateResourceParam{
-		Title: arg.Title,
-		Type: arg.Type,
-		ContentUrl:arg.ContentUrl,
+		MaterialID: req.ResourceID,
+		Title: req.Title,
+		Type: req.Type,
+		ContentUrl: req.ContentUrl,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

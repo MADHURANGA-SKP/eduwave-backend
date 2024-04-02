@@ -16,16 +16,16 @@ migrateup:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "$(DB_URL)" -verbose up" -verbose down
+	migrate -path db/migration -database "$(DB_URL)" -verbose down
 
 sqlc:
 	sqlc generate
 
 dbdocs:
-	dbdocs build doc/db.dbml
+	dbdocs build docs/db.dbml
 
 dbschema:
-	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
+	dbml2sql --postgres -o docs/schema.sql docs/db.dbml
 
 server:
 	go run main.go

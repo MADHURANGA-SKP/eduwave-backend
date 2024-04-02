@@ -57,114 +57,74 @@ func (ns NullTypeResource) Value() (driver.Value, error) {
 	return string(ns.TypeResource), nil
 }
 
-type UserRole string
-
-const (
-	UserRoleAdmin   UserRole = "admin"
-	UserRoleStudent UserRole = "student"
-	UserRoleTeacher UserRole = "teacher"
-)
-
-func (e *UserRole) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = UserRole(s)
-	case string:
-		*e = UserRole(s)
-	default:
-		return fmt.Errorf("unsupported scan type for UserRole: %T", src)
-	}
-	return nil
-}
-
-type NullUserRole struct {
-	UserRole UserRole `json:"user_role"`
-	Valid    bool     `json:"valid"` // Valid is true if UserRole is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullUserRole) Scan(value interface{}) error {
-	if value == nil {
-		ns.UserRole, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.UserRole.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullUserRole) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.UserRole), nil
-}
-
 type Admin struct {
-	AdminID   int64          `json:"admin_id"`
-	UserName  sql.NullString `json:"user_name"`
-	CreatedAt time.Time      `json:"created_at"`
+	AdminID        int64     `json:"admin_id"`
+	UserName       string    `json:"user_name"`
+	HashedPassword string    `json:"hashed_password"`
+	FullName       string    `json:"full_name"`
+	Email          string    `json:"email"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type Assignment struct {
-	AssignmentID   int64         `json:"assignment_id"`
-	ResourceID     sql.NullInt64 `json:"resource_id"`
-	Type           string        `json:"type"`
-	Title          string        `json:"title"`
-	Description    string        `json:"description"`
-	SubmissionDate time.Time     `json:"submission_date"`
-	CreatedAt      time.Time     `json:"created_at"`
+	AssignmentID   int64     `json:"assignment_id"`
+	ResourceID     int64     `json:"resource_id"`
+	Type           string    `json:"type"`
+	Title          string    `json:"title"`
+	Description    string    `json:"description"`
+	SubmissionDate time.Time `json:"submission_date"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type Course struct {
-	CourseID    int64         `json:"course_id"`
-	TeacherID   sql.NullInt64 `json:"teacher_id"`
-	Title       string        `json:"title"`
-	Type        string        `json:"type"`
-	Description string        `json:"description"`
-	CreatedAt   time.Time     `json:"created_at"`
+	CourseID    int64     `json:"course_id"`
+	TeacherID   int64     `json:"teacher_id"`
+	Title       string    `json:"title"`
+	Type        string    `json:"type"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type CourseEnrolment struct {
-	EnrolmentID int64         `json:"enrolment_id"`
-	CourseID    sql.NullInt64 `json:"course_id"`
-	RequestID   sql.NullInt64 `json:"request_id"`
-	StudentID   sql.NullInt64 `json:"student_id"`
+	EnrolmentID int64 `json:"enrolment_id"`
+	CourseID    int64 `json:"course_id"`
+	RequestID   int64 `json:"request_id"`
+	StudentID   int64 `json:"student_id"`
 }
 
 type CourseProgress struct {
-	CourseprogressID int64         `json:"courseprogress_id"`
-	EnrolmentID      sql.NullInt64 `json:"enrolment_id"`
-	Progress         string        `json:"progress"`
+	CourseprogressID int64  `json:"courseprogress_id"`
+	EnrolmentID      int64  `json:"enrolment_id"`
+	Progress         string `json:"progress"`
 }
 
 type Material struct {
-	MaterialID  int64         `json:"material_id"`
-	CourseID    sql.NullInt64 `json:"course_id"`
-	Title       string        `json:"title"`
-	Description string        `json:"description"`
-	CreatedAt   time.Time     `json:"created_at"`
+	MaterialID  int64     `json:"material_id"`
+	CourseID    int64     `json:"course_id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type Request struct {
-	RequestID  int64         `json:"request_id"`
-	StudentID  sql.NullInt64 `json:"student_id"`
-	TeacherID  sql.NullInt64 `json:"teacher_id"`
-	CourseID   sql.NullInt64 `json:"course_id"`
-	IsActive   sql.NullBool  `json:"is_active"`
-	IsPending  sql.NullBool  `json:"is_pending"`
-	IsAccepted sql.NullBool  `json:"is_accepted"`
-	IsDeclined sql.NullBool  `json:"is_declined"`
-	CreatedAt  time.Time     `json:"created_at"`
+	RequestID  int64        `json:"request_id"`
+	StudentID  int64        `json:"student_id"`
+	TeacherID  int64        `json:"teacher_id"`
+	CourseID   int64        `json:"course_id"`
+	IsActive   sql.NullBool `json:"is_active"`
+	IsPending  sql.NullBool `json:"is_pending"`
+	IsAccepted sql.NullBool `json:"is_accepted"`
+	IsDeclined sql.NullBool `json:"is_declined"`
+	CreatedAt  time.Time    `json:"created_at"`
 }
 
 type Resource struct {
-	ResourceID int64         `json:"resource_id"`
-	MaterialID sql.NullInt64 `json:"material_id"`
-	Title      string        `json:"title"`
-	Type       TypeResource  `json:"type"`
-	ContentUrl string        `json:"content_url"`
-	CreatedAt  time.Time     `json:"created_at"`
+	ResourceID int64        `json:"resource_id"`
+	MaterialID int64        `json:"material_id"`
+	Title      string       `json:"title"`
+	Type       TypeResource `json:"type"`
+	ContentUrl string       `json:"content_url"`
+	CreatedAt  time.Time    `json:"created_at"`
 }
 
 type Session struct {
@@ -179,31 +139,31 @@ type Session struct {
 }
 
 type Student struct {
-	StudentID int64          `json:"student_id"`
-	UserName  sql.NullString `json:"user_name"`
-	CreatedAt time.Time      `json:"created_at"`
+	StudentID int64     `json:"student_id"`
+	UserName  string    `json:"user_name"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Submission struct {
-	SubmissionID int64         `json:"submission_id"`
-	AssignmentID sql.NullInt64 `json:"assignment_id"`
-	StudentID    sql.NullInt64 `json:"student_id"`
+	SubmissionID int64 `json:"submission_id"`
+	AssignmentID int64 `json:"assignment_id"`
+	StudentID    int64 `json:"student_id"`
 }
 
 type Teacher struct {
-	TeacherID      int64          `json:"teacher_id"`
-	AdminID        sql.NullInt64  `json:"admin_id"`
-	FullName       string         `json:"full_name"`
-	Email          string         `json:"email"`
-	UserName       sql.NullString `json:"user_name"`
-	HashedPassword string         `json:"hashed_password"`
-	IsActive       bool           `json:"is_active"`
-	CreatedAt      time.Time      `json:"created_at"`
+	TeacherID      int64     `json:"teacher_id"`
+	AdminID        int64     `json:"admin_id"`
+	FullName       string    `json:"full_name"`
+	Email          string    `json:"email"`
+	UserName       string    `json:"user_name"`
+	HashedPassword string    `json:"hashed_password"`
+	IsActive       bool      `json:"is_active"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type User struct {
 	UserName          string    `json:"user_name"`
-	Role              UserRole  `json:"role"`
+	Role              string    `json:"role"`
 	HashedPassword    string    `json:"hashed_password"`
 	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`

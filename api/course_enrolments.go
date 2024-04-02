@@ -2,7 +2,6 @@
 package api
 
 import (
-	"database/sql"
 	"net/http"
 
 	db "eduwave-back-end/db/sqlc"
@@ -25,8 +24,8 @@ func (server *Server) listEnrolments(ctx *gin.Context) {
 	}
 
 	enrolments, err := server.store.ListEnrolments(ctx, db.ListEnrolmentsParams{
-		StudentID: sql.NullInt64{Int64: req.StudentID, Valid: true},
-		CourseID:  sql.NullInt64{Int64: req.CourseID, Valid: true},
+		StudentID: req.StudentID,
+		CourseID:  req.CourseID,
 		Limit:     req.Limit,
 		Offset:    req.Offset,
 	})

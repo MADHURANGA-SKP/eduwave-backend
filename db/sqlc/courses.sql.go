@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createCourses = `-- name: CreateCourses :one
@@ -46,8 +45,8 @@ WHERE course_id = $1 AND teacher_id = $2
 `
 
 type DeleteCoursesParams struct {
-	CourseID  int64         `json:"course_id"`
-	TeacherID sql.NullInt64 `json:"teacher_id"`
+	CourseID  int64 `json:"course_id"`
+	TeacherID int64 `json:"teacher_id"`
 }
 
 func (q *Queries) DeleteCourses(ctx context.Context, arg DeleteCoursesParams) error {
@@ -61,8 +60,8 @@ WHERE course_id = $1 AND teacher_id = $2
 `
 
 type GetCoursesParams struct {
-	CourseID  int64         `json:"course_id"`
-	TeacherID sql.NullInt64 `json:"teacher_id"`
+	CourseID  int64 `json:"course_id"`
+	TeacherID int64 `json:"teacher_id"`
 }
 
 func (q *Queries) GetCourses(ctx context.Context, arg GetCoursesParams) (Course, error) {

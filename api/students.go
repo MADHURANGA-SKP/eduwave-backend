@@ -11,36 +11,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// createUserRequest defines the request body structure for creating a new student
-type createStudentRequest struct {
-	UserName sql.NullString `json:"user_name" binding:"required"`
-}
+// // createUserRequest defines the request body structure for creating a new student
+// type createStudentRequest struct {
+// 	UserName string `json:"user_name" binding:"required"`
+// }
 
-// createStudent creates a new student
-func (server *Server) createStudent(ctx *gin.Context) {
-	var req createStudentRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+// // createStudent creates a new student
+// func (server *Server) createStudent(ctx *gin.Context) {
+// 	var req createStudentRequest
+// 	if err := ctx.ShouldBindJSON(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+// 		return
+// 	}
 
-	arg := db.CreateStudentParam{
-		UserName: req.UserName,
-	}
+// 	arg := db.CreateStudentParam{
+// 		UserName: req.UserName,
+// 	}
 
-	student, err := server.store.CreateStudent(ctx, arg)
-	if err != nil {
-		errCode := db.ErrorCode(err)
-		if errCode == db.ForeignKeyViolation || errCode == db.UniqueViolations {
-			ctx.JSON(http.StatusForbidden, errorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
+// 	student, err := server.store.CreateStudent(ctx, arg)
+// 	if err != nil {
+// 		errCode := db.ErrorCode(err)
+// 		if errCode == db.ForeignKeyViolation || errCode == db.UniqueViolations {
+// 			ctx.JSON(http.StatusForbidden, errorResponse(err))
+// 			return
+// 		}
+// 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+// 		return
+// 	}
 
-	ctx.JSON(http.StatusOK, student)
-}
+// 	ctx.JSON(http.StatusOK, student)
+// }
 
 type ListStudentRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
@@ -90,8 +90,8 @@ func (server *Server) deleteStudent(ctx *gin.Context) {
 }
 
 type UpdateStudentRequest struct {
-	StudentID int64          `json:"student_id"`
-	UserName  sql.NullString `json:"user_name"`
+	StudentID int64  `json:"student_id"`
+    UserName  string `json:"user_name"`
 }
 
 // updateStudent updates a student by ID
@@ -102,14 +102,8 @@ func (server *Server) updateStudent(ctx *gin.Context) {
 		return
 	}
 
-	ID, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
 	arg := db.UpdateStudentParams{
-		StudentID: int64(ID),
+		StudentID: req.StudentID,
 		UserName:  req.UserName,
 	}
 
