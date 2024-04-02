@@ -158,7 +158,11 @@ func verifyEmailHandler(c *gin.Context) {
 	}
 }
 
-const emailTemplate = `<!DOCTYPE html>
+const emailTemplate = `Subject: Registartion in Eduwave"
+MIME-version: 1.0;
+Content-Type: text/html; charset="UTF-8";
+
+<!DOCTYPE html>
 <html>
 <head>
     <title>Email Verification</title>
