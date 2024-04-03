@@ -153,15 +153,18 @@ type Submission struct {
 type Teacher struct {
 	TeacherID      int64     `json:"teacher_id"`
 	AdminID        int64     `json:"admin_id"`
+	UserID         int64     `json:"user_id"`
 	FullName       string    `json:"full_name"`
 	Email          string    `json:"email"`
 	UserName       string    `json:"user_name"`
 	HashedPassword string    `json:"hashed_password"`
 	IsActive       bool      `json:"is_active"`
 	CreatedAt      time.Time `json:"created_at"`
+	Qualification  string    `json:"qualification"`
 }
 
 type User struct {
+	UserID            int64     `json:"user_id"`
 	UserName          string    `json:"user_name"`
 	Role              string    `json:"role"`
 	HashedPassword    string    `json:"hashed_password"`

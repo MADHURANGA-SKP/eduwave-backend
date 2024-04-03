@@ -19,7 +19,7 @@ INSERT INTO users (
     email
 ) VALUES (
     $1, $2, $3, $4, $5
-) RETURNING user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at
+) RETURNING user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at
 `
 
 type CreateUserParams struct {
@@ -40,6 +40,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	)
 	var i User
 	err := row.Scan(
+		&i.UserID,
 		&i.UserName,
 		&i.Role,
 		&i.HashedPassword,
@@ -53,7 +54,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at FROM users
+SELECT user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at FROM users
 WHERE user_name = $1 LIMIT 1
 `
 
@@ -61,6 +62,7 @@ func (q *Queries) GetUser(ctx context.Context, userName string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, userName)
 	var i User
 	err := row.Scan(
+		&i.UserID,
 		&i.UserName,
 		&i.Role,
 		&i.HashedPassword,
@@ -83,7 +85,7 @@ SET
     is_email_verified = COALESCE($5, is_email_verified)
 WHERE
     user_name = $6
-RETURNING user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at
+RETURNING user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at
 `
 
 type UpdateUserParams struct {
@@ -106,6 +108,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	)
 	var i User
 	err := row.Scan(
+		&i.UserID,
 		&i.UserName,
 		&i.Role,
 		&i.HashedPassword,

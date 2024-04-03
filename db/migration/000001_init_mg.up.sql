@@ -6,6 +6,7 @@ CREATE TYPE "type_resource" AS ENUM (
 );
 
 CREATE TABLE "users" (
+  "user_id" bigserial NOT NULL UNIQUE,
   "user_name" varchar PRIMARY KEY,
   "role" varchar NOT NULL DEFAULT 'student',
   "hashed_password" varchar NOT NULL,
@@ -28,6 +29,7 @@ CREATE TABLE "admins" (
 CREATE TABLE "teachers" (
   "teacher_id" bigserial PRIMARY KEY,
   "admin_id" bigint NOT NULL,
+  "user_id" bigint NOT NULL,
   "full_name" varchar NOT NULL,
   "email" varchar NOT NULL,
   "user_name" varchar NOT NULL,
@@ -142,6 +144,8 @@ CREATE INDEX ON "resources" ("material_id");
 CREATE INDEX ON "resources" ("material_id");
 
 ALTER TABLE "teachers" ADD FOREIGN KEY ("admin_id") REFERENCES "admins" ("admin_id");
+
+ALTER TABLE "teachers" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "students" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
 
