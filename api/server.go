@@ -49,75 +49,75 @@ func (server *Server) setupRouter() {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST("user/signup", server.createUser)
-	router.POST("user/login", server.loginUser)
+	router.POST("/signup", server.createUser)
+	router.POST("/login", server.loginUser)
 	router.POST("tokens/renew_access", server.renewAccessToken)
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker, []string{util.AdminRole, util.TeacherRole, util.StudentRole}))
 
 	//requests
-	authRoutes.POST("create/requests", server.createRequest)
-	authRoutes.GET("get/request/:request_id", server.getRequest)
-	authRoutes.GET("list/requests", server.listRequests)
-	authRoutes.DELETE("delete/request/:request_id", server.deleteRequest)
-	authRoutes.PUT("update/request/:student_id", server.updateRequest)
+	authRoutes.POST("/requests", server.createRequest)
+	authRoutes.GET("/request/:request_id", server.getRequest)
+	authRoutes.GET("/requests", server.listRequests)
+	authRoutes.DELETE("/request/:student_id/:request_id", server.deleteRequest)
+	authRoutes.PUT("/request/:student_id", server.updateRequest)
 
 	//student
 	// authRoutes.POST("create/students", server.createStudent)//
-	authRoutes.GET("list/students", server.listStudents)//
-	authRoutes.PUT("update/students/:student_id", server.updateStudent)//
-	authRoutes.DELETE("delete/students/:student_id", server.deleteStudent)//
+	authRoutes.GET("/students", server.listStudents)//
+	authRoutes.PUT("/students/:student_id", server.updateStudent)//
+	authRoutes.DELETE("/students/:student_id", server.deleteStudent)//
 
 	//teacher
-	authRoutes.POST("create/teacher", server.createTeacher)
-	authRoutes.GET("get/teacher/:teacher_id", server.getTeacher)
-	authRoutes.GET("list/teachers", server.listTeachers)
-	authRoutes.PUT("update/teachers/:teacher_id", server.updateTeacher)
-	authRoutes.DELETE("delete/teachers/:teacher_id", server.deleteTeacher)
+	authRoutes.POST("/teacher", server.createTeacher)
+	authRoutes.GET("/teacher/:teacher_id", server.getTeacher)
+	authRoutes.GET("/teachers", server.listTeachers)
+	authRoutes.PUT("/teachers/:teacher_id", server.updateTeacher)
+	authRoutes.DELETE("/teachers/:teacher_id", server.deleteTeacher)
 
 	//admin
-	authRoutes.POST("create/admins", server.createAdmin)	
-	authRoutes.GET("get/admins/:admin_id", server.getAdmin)
-	authRoutes.PUT("update/admins/:admin_id", server.updateAdmin)
-	authRoutes.DELETE("delete/admins/:admin_id", server.deleteAdmin)
+	authRoutes.POST("/admins", server.createAdmin)	
+	authRoutes.GET("/admins/:admin_id", server.getAdmin)
+	authRoutes.PUT("/admins/:admin_id", server.updateAdmin)
+	authRoutes.DELETE("/admins/:admin_id", server.deleteAdmin)
 
 	//material
-	authRoutes.POST("create/material", server.CreateMaterial)	
-	authRoutes.GET("get/material/:material_id", server.GetMaterials)
-	authRoutes.PUT("update/material/:material_id", server.UpdateMaterial)
-	authRoutes.DELETE("delete/material/:material_id", server.DeleteMaterial)
+	authRoutes.POST("/material", server.CreateMaterial)	
+	authRoutes.GET("/material/:material_id", server.GetMaterials)
+	authRoutes.PUT("/material/:material_id", server.UpdateMaterial)
+	authRoutes.DELETE("/material/:material_id", server.DeleteMaterial)
 
 	//resource
-	authRoutes.POST("create/resource", server.createResource)	
-	authRoutes.GET("get/resource/:resource_id", server.getResource)
-	authRoutes.PUT("update/resource/:resource_id", server.updateResource)
-	authRoutes.DELETE("delete/resource/:resource_id", server.deleteResource)
+	authRoutes.POST("/resource", server.createResource)	
+	authRoutes.GET("/resource/:resource_id", server.getResource)
+	authRoutes.PUT("/resource/:resource_id", server.updateResource)
+	authRoutes.DELETE("/resource/:resource_id", server.deleteResource)
 
 	//createcourse
-	authRoutes.POST("create/course", server.CreateCourse)	
-	authRoutes.GET("get/course/:course_id", server.GetCourse)
-	authRoutes.PUT("list/courses", server.ListCourses)
-	authRoutes.PUT("update/course/:course_id", server.UpdateCourse)
-	authRoutes.DELETE("delete/course/:course_id", server.DeleteCourse)
+	authRoutes.POST("/course", server.CreateCourse)	
+	authRoutes.GET("/course/:course_id", server.GetCourse)
+	authRoutes.PUT("/courses", server.ListCourses)
+	authRoutes.PUT("/course/:course_id", server.UpdateCourse)
+	authRoutes.DELETE("/course/:course_id", server.DeleteCourse)
 
 	//assignment
-	authRoutes.POST("create/assignments", server.createAssignment)
-	authRoutes.GET("get/assignments/:assignment_id", server.getAssignment)
-	authRoutes.PUT("update/assignments/:assignment_id", server.updateAssignment)
-	authRoutes.DELETE("delete/assignments/:assignment_id", server.deleteAssignment)
+	authRoutes.POST("/assignments", server.createAssignment)
+	authRoutes.GET("/assignments/:assignment_id", server.getAssignment)
+	authRoutes.PUT("/assignments/:assignment_id", server.updateAssignment)
+	authRoutes.DELETE("/assignments/:assignment_id/:resource_id", server.deleteAssignment)
 
 	//course_enrolments
-	authRoutes.GET("list/courseEnrolments", server.listEnrolments)
+	authRoutes.GET("/courseEnrolments", server.listEnrolments)
 
 	//course_progress
-	authRoutes.POST("create/courseProgress", server.createCourseProgress)
-	authRoutes.GET("list/courseProgress", server.listCourseProgress)
-	authRoutes.GET("get/courseProgress/:courseProgress_id", server.getCourseProgress)
+	authRoutes.POST("/courseProgress", server.createCourseProgress)
+	authRoutes.GET("/courseProgress", server.listCourseProgress)
+	authRoutes.GET("/courseProgress/:courseProgress_id", server.getCourseProgress)
 
 	//submissions
 	// authRoutes.POST("create/submissions/", server.createsubmission)
-	authRoutes.GET("get/submissions/:submission_id", server.getSubmission)
-	authRoutes.GET("list/submissions", server.listSubmissions)
+	authRoutes.GET("/submissions/:submission_id", server.getSubmission)
+	authRoutes.GET("/submissions", server.listSubmissions)
 
 	server.router = router
 }

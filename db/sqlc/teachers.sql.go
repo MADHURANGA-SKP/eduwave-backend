@@ -19,7 +19,7 @@ INSERT INTO teachers(
     is_active
 ) VALUES (
     $1, $2, $3, $4, $5, $6
-) RETURNING teacher_id, admin_id, full_name, email, user_name, hashed_password, is_active, created_at
+) RETURNING teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification
 `
 
 type CreateTeacherParams struct {
@@ -44,12 +44,14 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 	err := row.Scan(
 		&i.TeacherID,
 		&i.AdminID,
+		&i.UserID,
 		&i.FullName,
 		&i.Email,
 		&i.UserName,
 		&i.HashedPassword,
 		&i.IsActive,
 		&i.CreatedAt,
+		&i.Qualification,
 	)
 	return i, err
 }
@@ -65,7 +67,7 @@ func (q *Queries) DeleteTeacher(ctx context.Context, teacherID int64) error {
 }
 
 const getTeacher = `-- name: GetTeacher :one
-SELECT teacher_id, admin_id, full_name, email, user_name, hashed_password, is_active, created_at FROM teachers
+SELECT teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification FROM teachers
 WHERE teacher_id = $1
 `
 
@@ -75,18 +77,20 @@ func (q *Queries) GetTeacher(ctx context.Context, teacherID int64) (Teacher, err
 	err := row.Scan(
 		&i.TeacherID,
 		&i.AdminID,
+		&i.UserID,
 		&i.FullName,
 		&i.Email,
 		&i.UserName,
 		&i.HashedPassword,
 		&i.IsActive,
 		&i.CreatedAt,
+		&i.Qualification,
 	)
 	return i, err
 }
 
 const listTeacher = `-- name: ListTeacher :many
-SELECT teacher_id, admin_id, full_name, email, user_name, hashed_password, is_active, created_at FROM teachers
+SELECT teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification FROM teachers
 WHERE teacher_id = $1
 ORDER BY teacher_id
 LIMIT $2
@@ -111,12 +115,14 @@ func (q *Queries) ListTeacher(ctx context.Context, arg ListTeacherParams) ([]Tea
 		if err := rows.Scan(
 			&i.TeacherID,
 			&i.AdminID,
+			&i.UserID,
 			&i.FullName,
 			&i.Email,
 			&i.UserName,
 			&i.HashedPassword,
 			&i.IsActive,
 			&i.CreatedAt,
+			&i.Qualification,
 		); err != nil {
 			return nil, err
 		}
@@ -135,7 +141,7 @@ const updateTeacher = `-- name: UpdateTeacher :one
 UPDATE teachers
 SET full_name = $2, email = $3, user_name = $4, hashed_password = $5, is_active = $6
 WHERE teacher_id = $1
-RETURNING teacher_id, admin_id, full_name, email, user_name, hashed_password, is_active, created_at
+RETURNING teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification
 `
 
 type UpdateTeacherParams struct {
@@ -160,12 +166,14 @@ func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (T
 	err := row.Scan(
 		&i.TeacherID,
 		&i.AdminID,
+		&i.UserID,
 		&i.FullName,
 		&i.Email,
 		&i.UserName,
 		&i.HashedPassword,
 		&i.IsActive,
 		&i.CreatedAt,
+		&i.Qualification,
 	)
 	return i, err
 }
