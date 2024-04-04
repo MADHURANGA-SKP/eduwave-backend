@@ -41,6 +41,7 @@ type Querier interface {
 	GetStudent(ctx context.Context, studentID int64) (Student, error)
 	GetTeacher(ctx context.Context, teacherID int64) (Teacher, error)
 	GetUser(ctx context.Context, userName string) (User, error)
+	GetVerifyEmail(ctx context.Context, secretCode string) (VerifyEmail, error)
 	Getsubmissions(ctx context.Context, arg GetsubmissionsParams) (Submission, error)
 	ListCourseProgress(ctx context.Context, arg ListCourseProgressParams) ([]CourseProgress, error)
 	ListCourses(ctx context.Context, arg ListCoursesParams) ([]Course, error)

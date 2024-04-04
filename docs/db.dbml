@@ -6,6 +6,7 @@ Project eduWave_back_end {
 }
 
 Table users {
+  user_id bigserial [not null]
   user_name varchar [pk]
   role varchar [not null, default: 'student'] 
   hashed_password varchar [not null]
@@ -20,20 +21,16 @@ Table users {
 Table admins {
   admin_id bigserial [pk]
   user_name varchar  [not null]
-  user_fk varchar [ref: > users.user_name, not null]
   hashed_password varchar [not null]
   full_name varchar [not null]
   email varchar [not null]
   created_at timestamptz [not null, default: `now()`]
-
-  Indexes {
-    user_name
-}
 }
 
 Table teachers {
 teacher_id bigserial [pk]
 admin_id varchar [ref: > admins.admin_id, not null]
+user_id bigint [ref: > users.user_id, not null]
 full_name varchar [not null]
 email varchar [not null]
 user_name varchar [not null]

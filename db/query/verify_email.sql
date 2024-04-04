@@ -1,11 +1,14 @@
 -- name: CreateVerifyEmail :one
 INSERT INTO verify_emails (
-    user_name,
     email,
     secret_code
 ) VALUES (
-    $1, $2, $3
+    $1, $2
 ) RETURNING *;
+
+-- name: GetVerifyEmail :one
+SELECT * FROM verify_emails
+WHERE secret_code = $1 LIMIT 1;
 
 -- name: UpdateVerifyEmail :one
 UPDATE verify_emails

@@ -5,9 +5,11 @@ import (
 	"eduwave-back-end/token"
 	"eduwave-back-end/util"
 	"fmt"
+	"time"
 
 	_ "eduwave-back-end/docs"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -46,6 +48,17 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 
 func (server *Server) setupRouter() {
 	router := gin.Default()
+
+	
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:   []string{"http://localhost:3001", "https://testnet.bethelnet.io", "http://*", "https://*", "*"},
+		AllowMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:   []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

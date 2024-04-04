@@ -14,6 +14,7 @@ type Config struct {
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	MigrationURL         string        `mapstructure:"MIGRATION_URL"`
 	HTTPServerAddress    string        `mapstructure:"HTTP_SERVER_ADDRESS"`
+	FrontEndOrigin    	 string        `mapstructure:"FRONT_END_ORIGIN"`
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
