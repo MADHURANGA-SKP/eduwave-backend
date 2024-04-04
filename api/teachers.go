@@ -13,12 +13,14 @@ import (
 )
 
 type createTeacherRequest struct {
-	AdminID        int64  `json:"admin_id"`
-	FullName       string         `json:"full_name"`
-    Email          string         `json:"email"`
+    UserID         int64  `json:"user_id"`
+    AdminID        int64  `json:"admin_id"`
+    FullName       string `json:"full_name"`
+    Email          string `json:"email"`
+    Qualification  string `json:"qualification"`
     UserName       string `json:"user_name"`
-    HashedPassword string         `json:"hashed_password"`
-    IsActive       bool           `json:"is_active"`
+    HashedPassword string `json:"hashed_password"`
+    IsActive       bool   `json:"is_active"`
 }
 
 // @Summary Create a new teacher
@@ -47,10 +49,12 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateTeacherParam{
+		UserID: req.UserID,
 		AdminID: req.AdminID,
 		FullName: req.FullName,
 		UserName: authPayload.UserName,
 		Email: req.Email,
+		Qualification: req.Qualification,
 		HashedPassword: hashedPassword,
 		IsActive: req.IsActive,
 	}
@@ -126,9 +130,9 @@ func (server *Server) listTeachers(ctx *gin.Context) {
 	}
 
 	arg := db.ListTeacherParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
-	}
+        Limit:  req.PageSize,
+        Offset: (req.PageID - 1) * req.PageSize,
+    }
 
 	teachers, err := server.store.ListTeacher(ctx, arg)
 	if err != nil {

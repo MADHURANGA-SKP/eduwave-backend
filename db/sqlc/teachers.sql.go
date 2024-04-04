@@ -11,21 +11,25 @@ import (
 
 const createTeacher = `-- name: CreateTeacher :one
 INSERT INTO teachers(
+    user_id,
     admin_id,
     full_name,
     email,
+    qualification,
     user_name,
     hashed_password,
     is_active
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7, $8
 ) RETURNING teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification
 `
 
 type CreateTeacherParams struct {
+	UserID         int64  `json:"user_id"`
 	AdminID        int64  `json:"admin_id"`
 	FullName       string `json:"full_name"`
 	Email          string `json:"email"`
+	Qualification  string `json:"qualification"`
 	UserName       string `json:"user_name"`
 	HashedPassword string `json:"hashed_password"`
 	IsActive       bool   `json:"is_active"`
@@ -33,9 +37,11 @@ type CreateTeacherParams struct {
 
 func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error) {
 	row := q.db.QueryRowContext(ctx, createTeacher,
+		arg.UserID,
 		arg.AdminID,
 		arg.FullName,
 		arg.Email,
+		arg.Qualification,
 		arg.UserName,
 		arg.HashedPassword,
 		arg.IsActive,

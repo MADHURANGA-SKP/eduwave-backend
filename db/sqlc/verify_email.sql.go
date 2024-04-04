@@ -11,22 +11,40 @@ import (
 
 const createVerifyEmail = `-- name: CreateVerifyEmail :one
 INSERT INTO verify_emails (
-    user_name,
     email,
     secret_code
 ) VALUES (
-    $1, $2, $3
+    $1, $2
 ) RETURNING email_id, user_name, email, secret_code, is_used, created_at, expired_at
 `
 
 type CreateVerifyEmailParams struct {
-	UserName   string `json:"user_name"`
 	Email      string `json:"email"`
 	SecretCode string `json:"secret_code"`
 }
 
 func (q *Queries) CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error) {
-	row := q.db.QueryRowContext(ctx, createVerifyEmail, arg.UserName, arg.Email, arg.SecretCode)
+	row := q.db.QueryRowContext(ctx, createVerifyEmail, arg.Email, arg.SecretCode)
+	var i VerifyEmail
+	err := row.Scan(
+		&i.EmailID,
+		&i.UserName,
+		&i.Email,
+		&i.SecretCode,
+		&i.IsUsed,
+		&i.CreatedAt,
+		&i.ExpiredAt,
+	)
+	return i, err
+}
+
+const getVerifyEmail = `-- name: GetVerifyEmail :one
+SELECT email_id, user_name, email, secret_code, is_used, created_at, expired_at FROM verify_emails
+WHERE secret_code = $1 LIMIT 1
+`
+
+func (q *Queries) GetVerifyEmail(ctx context.Context, secretCode string) (VerifyEmail, error) {
+	row := q.db.QueryRowContext(ctx, getVerifyEmail, secretCode)
 	var i VerifyEmail
 	err := row.Scan(
 		&i.EmailID,

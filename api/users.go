@@ -24,6 +24,7 @@ type userResponse struct {
 	Username          string    `json:"user_name"`
 	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`
+	Role           	string `json:"role"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 }
@@ -33,6 +34,7 @@ func newUserResponse(user db.User) userResponse {
 		Username:          user.UserName,
 		FullName:          user.FullName,
 		Email:             user.Email,
+		Role: 				user.Role,	
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
@@ -91,18 +93,16 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 // // updateStudent updates a student by ID
 // func (server *Server) UpdateUser(ctx *gin.Context){
+// 	authPyalod, err := server.authMiddleware(ctx)
+// 	if err != nil {
+// 		return nil, unauthenticatedError(err) 
+// 	}
+	
 // 	var req UpdateUserRequest
 // 	if err := ctx.ShouldBindJSON(&req); err != nil {
 // 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 // 	}
-
-// 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-// 	arg := db.UpdateUserParams{
-// 		HashedPassword: req.HashedPassword,
-// 		FullName: req.FullName,
-// 		Email: req.Email,
-// 		UserName: authPayload.Username,
-// 	}
+	
 
 // 	// Call the database store function to update the student
 // 	updatedStudent, err := server.store.UpdateUser(ctx,)
@@ -154,7 +154,9 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	user, err := server.store.GetUser(ctx, db.GetUserParam{
 		UserName: req.UserName,
-	})
+	},
+
+	)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

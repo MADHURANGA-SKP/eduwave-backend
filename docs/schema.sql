@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml.dbdiagram.io)
 -- Database: PostgreSQL
--- Generated at: 2024-04-02T12:20:18.078Z
+-- Generated at: 2024-04-03T06:25:27.153Z
 
 CREATE TYPE "type_resource" AS ENUM (
   'pdf',
@@ -10,6 +10,7 @@ CREATE TYPE "type_resource" AS ENUM (
 );
 
 CREATE TABLE "users" (
+  "user_id" bigserial NOT NULL,
   "user_name" varchar PRIMARY KEY,
   "role" varchar NOT NULL DEFAULT 'student',
   "hashed_password" varchar NOT NULL,
@@ -23,7 +24,6 @@ CREATE TABLE "users" (
 CREATE TABLE "admins" (
   "admin_id" bigserial PRIMARY KEY,
   "user_name" varchar NOT NULL,
-  "user_fk" varchar NOT NULL,
   "hashed_password" varchar NOT NULL,
   "full_name" varchar NOT NULL,
   "email" varchar NOT NULL,
@@ -33,6 +33,7 @@ CREATE TABLE "admins" (
 CREATE TABLE "teachers" (
   "teacher_id" bigserial PRIMARY KEY,
   "admin_id" varchar NOT NULL,
+  "user_id" bigint NOT NULL,
   "full_name" varchar NOT NULL,
   "email" varchar NOT NULL,
   "user_name" varchar NOT NULL,
@@ -135,8 +136,6 @@ CREATE TABLE "verify_emails" (
   "expired_at" timestamptz NOT NULL DEFAULT (now() + interval '15 minutes')
 );
 
-CREATE INDEX ON "admins" ("user_name");
-
 CREATE INDEX ON "teachers" ("admin_id");
 
 CREATE INDEX ON "courses" ("teacher_id");
@@ -167,9 +166,9 @@ CREATE INDEX ON "resources" ("matirial_id");
 
 CREATE INDEX ON "resources" ("matirial_id");
 
-ALTER TABLE "admins" ADD FOREIGN KEY ("user_fk") REFERENCES "users" ("user_name");
-
 ALTER TABLE "teachers" ADD FOREIGN KEY ("admin_id") REFERENCES "admins" ("admin_id");
+
+ALTER TABLE "teachers" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "students" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
 
