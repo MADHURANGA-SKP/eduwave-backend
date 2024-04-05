@@ -1,11 +1,12 @@
 -- name: CreateAdmin :one
 INSERT INTO admins (
+    user_id,
     full_name,
     user_name,
     email,
     hashed_password
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 ) RETURNING *;
 
 

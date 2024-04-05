@@ -7,6 +7,7 @@ import (
 
 //CreateAssignmentParam contains the input parameters of the creations of the data
 type CreateAssignmentParam struct {
+	ResourceID     int64     `json:"resource_id"`
 	Type           string    `json:"type"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
@@ -25,6 +26,7 @@ func (store *Store) CreateAssignment(ctx context.Context, arg CreateAssignmentPa
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		result.Assignment, err = q.CreateAssignment(ctx, CreateAssignmentParams{
+			ResourceID: arg.ResourceID,
 			Type:           arg.Type,
 			Title:          arg.Title,
 			Description:    arg.Description,
@@ -89,7 +91,7 @@ func (store *Store) GetAssignment(ctx context.Context, arg GetAssignmentParam)(G
 
 //UpdateAssignmentParam contains the input parameters of the updating of the data
 type UpdateAssignmentParam struct {
-	ResourceID     int64 `json:"resource_id"`
+	AssignmentID   int64     `json:"assignment_id"`
 	Type           string        `json:"type"`
 	Title          string        `json:"title"`
 	Description    string        `json:"description"`
@@ -108,8 +110,8 @@ func (store *Store) UpdateAssignment(ctx context.Context, arg UpdateAssignmentPa
 	err := store.execTx(ctx, func (q *Queries) error {
 		var err error
 
-		updateAssignment, err := q.UpdateAssignment(ctx, UpdateAssignmentParams{
-			ResourceID: arg.ResourceID,
+		result.Assignment, err = q.UpdateAssignment(ctx, UpdateAssignmentParams{
+			AssignmentID: arg.AssignmentID,
 			Type: arg.Type,
 			Title: arg.Title,
 			Description: arg.Description,
@@ -120,7 +122,7 @@ func (store *Store) UpdateAssignment(ctx context.Context, arg UpdateAssignmentPa
 			return err
 		}
 
-		result.Assignment = updateAssignment
+	
 		return nil
 
 	})

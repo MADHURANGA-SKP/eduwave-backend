@@ -12,7 +12,6 @@ import (
 const createTeacher = `-- name: CreateTeacher :one
 INSERT INTO teachers(
     user_id,
-    admin_id,
     full_name,
     email,
     qualification,
@@ -20,13 +19,12 @@ INSERT INTO teachers(
     hashed_password,
     is_active
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
-) RETURNING teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification
+    $1, $2, $3, $4, $5, $6, $7
+) RETURNING teacher_id, user_id, role, full_name, email, user_name, hashed_password, is_active, created_at, qualification
 `
 
 type CreateTeacherParams struct {
 	UserID         int64  `json:"user_id"`
-	AdminID        int64  `json:"admin_id"`
 	FullName       string `json:"full_name"`
 	Email          string `json:"email"`
 	Qualification  string `json:"qualification"`
@@ -38,7 +36,6 @@ type CreateTeacherParams struct {
 func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error) {
 	row := q.db.QueryRowContext(ctx, createTeacher,
 		arg.UserID,
-		arg.AdminID,
 		arg.FullName,
 		arg.Email,
 		arg.Qualification,
@@ -49,8 +46,8 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 	var i Teacher
 	err := row.Scan(
 		&i.TeacherID,
-		&i.AdminID,
 		&i.UserID,
+		&i.Role,
 		&i.FullName,
 		&i.Email,
 		&i.UserName,
@@ -73,7 +70,7 @@ func (q *Queries) DeleteTeacher(ctx context.Context, teacherID int64) error {
 }
 
 const getTeacher = `-- name: GetTeacher :one
-SELECT teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification FROM teachers
+SELECT teacher_id, user_id, role, full_name, email, user_name, hashed_password, is_active, created_at, qualification FROM teachers
 WHERE teacher_id = $1
 `
 
@@ -82,8 +79,8 @@ func (q *Queries) GetTeacher(ctx context.Context, teacherID int64) (Teacher, err
 	var i Teacher
 	err := row.Scan(
 		&i.TeacherID,
-		&i.AdminID,
 		&i.UserID,
+		&i.Role,
 		&i.FullName,
 		&i.Email,
 		&i.UserName,
@@ -96,7 +93,7 @@ func (q *Queries) GetTeacher(ctx context.Context, teacherID int64) (Teacher, err
 }
 
 const listTeacher = `-- name: ListTeacher :many
-SELECT teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification FROM teachers
+SELECT teacher_id, user_id, role, full_name, email, user_name, hashed_password, is_active, created_at, qualification FROM teachers
 WHERE teacher_id = $1
 ORDER BY teacher_id
 LIMIT $2
@@ -120,8 +117,8 @@ func (q *Queries) ListTeacher(ctx context.Context, arg ListTeacherParams) ([]Tea
 		var i Teacher
 		if err := rows.Scan(
 			&i.TeacherID,
-			&i.AdminID,
 			&i.UserID,
+			&i.Role,
 			&i.FullName,
 			&i.Email,
 			&i.UserName,
@@ -147,7 +144,7 @@ const updateTeacher = `-- name: UpdateTeacher :one
 UPDATE teachers
 SET full_name = $2, email = $3, user_name = $4, hashed_password = $5, is_active = $6
 WHERE teacher_id = $1
-RETURNING teacher_id, admin_id, user_id, full_name, email, user_name, hashed_password, is_active, created_at, qualification
+RETURNING teacher_id, user_id, role, full_name, email, user_name, hashed_password, is_active, created_at, qualification
 `
 
 type UpdateTeacherParams struct {
@@ -171,8 +168,8 @@ func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (T
 	var i Teacher
 	err := row.Scan(
 		&i.TeacherID,
-		&i.AdminID,
 		&i.UserID,
+		&i.Role,
 		&i.FullName,
 		&i.Email,
 		&i.UserName,

@@ -11,20 +11,22 @@ import (
 
 const createMaterial = `-- name: CreateMaterial :one
 INSERT INTO materials (
+    course_id,
     title,
     description
 ) VALUES (
-    $1, $2
+    $1, $2, $3
 ) RETURNING material_id, course_id, title, description, created_at
 `
 
 type CreateMaterialParams struct {
+	CourseID    int64  `json:"course_id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
 func (q *Queries) CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error) {
-	row := q.db.QueryRowContext(ctx, createMaterial, arg.Title, arg.Description)
+	row := q.db.QueryRowContext(ctx, createMaterial, arg.CourseID, arg.Title, arg.Description)
 	var i Material
 	err := row.Scan(
 		&i.MaterialID,
@@ -53,11 +55,11 @@ func (q *Queries) DeleteMaterial(ctx context.Context, arg DeleteMaterialParams) 
 
 const getMaterial = `-- name: GetMaterial :one
 SELECT material_id, course_id, title, description, created_at FROM materials
-WHERE course_id = $1
+WHERE material_id = $1
 `
 
-func (q *Queries) GetMaterial(ctx context.Context, courseID int64) (Material, error) {
-	row := q.db.QueryRowContext(ctx, getMaterial, courseID)
+func (q *Queries) GetMaterial(ctx context.Context, materialID int64) (Material, error) {
+	row := q.db.QueryRowContext(ctx, getMaterial, materialID)
 	var i Material
 	err := row.Scan(
 		&i.MaterialID,

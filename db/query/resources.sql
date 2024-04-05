@@ -1,15 +1,16 @@
 -- name: CreateResource :one
 INSERT INTO resources (
+    material_id,
     title,
     type,
     content_url
 ) VALUES (
-    $1, $2, $3
+    $1, $2, $3, $4
 ) RETURNING *;
 
 -- name: GetResource :one
 SELECT * FROM resources
-WHERE material_id = $1 AND resource_id = $2;
+WHERE resource_id = $1;
 
 -- name: UpdateResource :one
 UPDATE resources

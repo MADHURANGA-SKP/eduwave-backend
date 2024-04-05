@@ -1,14 +1,15 @@
 -- name: CreateMaterial :one
 INSERT INTO materials (
+    course_id,
     title,
     description
 ) VALUES (
-    $1, $2
+    $1, $2, $3
 ) RETURNING *;
 
 -- name: GetMaterial :one
 SELECT * FROM materials
-WHERE course_id = $1;
+WHERE material_id = $1;
 
 -- name: UpdateMaterial :one
 UPDATE materials

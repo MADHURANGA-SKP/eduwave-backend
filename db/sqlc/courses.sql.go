@@ -11,22 +11,32 @@ import (
 
 const createCourses = `-- name: CreateCourses :one
 INSERT INTO courses (
+    teacher_id,
     title,
     type,
-    description
+    description,
+    image
 ) VALUES (
-    $1, $2, $3
-) RETURNING course_id, teacher_id, title, type, description, created_at
+    $1, $2, $3, $4, $5
+) RETURNING course_id, teacher_id, title, type, description, created_at, image
 `
 
 type CreateCoursesParams struct {
+	TeacherID   int64  `json:"teacher_id"`
 	Title       string `json:"title"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
+	Image       []byte `json:"image"`
 }
 
 func (q *Queries) CreateCourses(ctx context.Context, arg CreateCoursesParams) (Course, error) {
-	row := q.db.QueryRowContext(ctx, createCourses, arg.Title, arg.Type, arg.Description)
+	row := q.db.QueryRowContext(ctx, createCourses,
+		arg.TeacherID,
+		arg.Title,
+		arg.Type,
+		arg.Description,
+		arg.Image,
+	)
 	var i Course
 	err := row.Scan(
 		&i.CourseID,
@@ -35,37 +45,28 @@ func (q *Queries) CreateCourses(ctx context.Context, arg CreateCoursesParams) (C
 		&i.Type,
 		&i.Description,
 		&i.CreatedAt,
+		&i.Image,
 	)
 	return i, err
 }
 
 const deleteCourses = `-- name: DeleteCourses :exec
 DELETE FROM courses
-WHERE course_id = $1 AND teacher_id = $2
+WHERE course_id = $1
 `
 
-type DeleteCoursesParams struct {
-	CourseID  int64 `json:"course_id"`
-	TeacherID int64 `json:"teacher_id"`
-}
-
-func (q *Queries) DeleteCourses(ctx context.Context, arg DeleteCoursesParams) error {
-	_, err := q.db.ExecContext(ctx, deleteCourses, arg.CourseID, arg.TeacherID)
+func (q *Queries) DeleteCourses(ctx context.Context, courseID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteCourses, courseID)
 	return err
 }
 
 const getCourses = `-- name: GetCourses :one
-SELECT course_id, teacher_id, title, type, description, created_at FROM courses
-WHERE course_id = $1 AND teacher_id = $2
+SELECT course_id, teacher_id, title, type, description, created_at, image FROM courses
+WHERE course_id = $1
 `
 
-type GetCoursesParams struct {
-	CourseID  int64 `json:"course_id"`
-	TeacherID int64 `json:"teacher_id"`
-}
-
-func (q *Queries) GetCourses(ctx context.Context, arg GetCoursesParams) (Course, error) {
-	row := q.db.QueryRowContext(ctx, getCourses, arg.CourseID, arg.TeacherID)
+func (q *Queries) GetCourses(ctx context.Context, courseID int64) (Course, error) {
+	row := q.db.QueryRowContext(ctx, getCourses, courseID)
 	var i Course
 	err := row.Scan(
 		&i.CourseID,
@@ -74,12 +75,13 @@ func (q *Queries) GetCourses(ctx context.Context, arg GetCoursesParams) (Course,
 		&i.Type,
 		&i.Description,
 		&i.CreatedAt,
+		&i.Image,
 	)
 	return i, err
 }
 
 const listCourses = `-- name: ListCourses :many
-SELECT course_id, teacher_id, title, type, description, created_at FROM courses
+SELECT course_id, teacher_id, title, type, description, created_at, image FROM courses
 WHERE course_id = $1
 ORDER BY course_id
 LIMIT $2
@@ -108,6 +110,7 @@ func (q *Queries) ListCourses(ctx context.Context, arg ListCoursesParams) ([]Cou
 			&i.Type,
 			&i.Description,
 			&i.CreatedAt,
+			&i.Image,
 		); err != nil {
 			return nil, err
 		}
@@ -124,9 +127,9 @@ func (q *Queries) ListCourses(ctx context.Context, arg ListCoursesParams) ([]Cou
 
 const updateCourses = `-- name: UpdateCourses :one
 UPDATE courses
-SET title = $2, type = $3, description = $4
-WHERE course_id = $1 AND teacher_id = $2
-RETURNING course_id, teacher_id, title, type, description, created_at
+SET title = $2, type = $3, description = $4, image = $5
+WHERE course_id = $1
+RETURNING course_id, teacher_id, title, type, description, created_at, image
 `
 
 type UpdateCoursesParams struct {
@@ -134,6 +137,7 @@ type UpdateCoursesParams struct {
 	Title       string `json:"title"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
+	Image       []byte `json:"image"`
 }
 
 func (q *Queries) UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (Course, error) {
@@ -142,6 +146,7 @@ func (q *Queries) UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (C
 		arg.Title,
 		arg.Type,
 		arg.Description,
+		arg.Image,
 	)
 	var i Course
 	err := row.Scan(
@@ -151,6 +156,7 @@ func (q *Queries) UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (C
 		&i.Type,
 		&i.Description,
 		&i.CreatedAt,
+		&i.Image,
 	)
 	return i, err
 }

@@ -4,6 +4,7 @@ import "context"
 
 //CreateResourceParam contains the input parameters of data
 type CreateResourceParam struct {
+	MaterialID int64        `json:"material_id"`
 	Title      string       `json:"title"`
 	Type       TypeResource `json:"type"`
 	ContentUrl string       `json:"content_url"`
@@ -21,6 +22,7 @@ func (store *Store) CreateResource(ctx context.Context, arg CreateResourceParam)
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		result.Resource, err = q.CreateResource(ctx, CreateResourceParams{
+			MaterialID: arg.MaterialID,
 			Title:      arg.Title,
 			Type:       arg.Type,
 			ContentUrl: arg.ContentUrl,
@@ -43,8 +45,7 @@ func (store *Store) DeleteResource(ctx context.Context, params DeleteResourcePar
 
 //GetResourceParam contains the input paramters of the retriving data
 type GetResourceParam struct {
-	MaterialID int64 `json:"Material_id"`
-	ResourceID int64         `json:"resource_id"`
+    ResourceID int64         `uri:"resource_id,min=1"`
 }
 
 //GetResourceResponse contains the result of the retriving data
@@ -59,10 +60,7 @@ func (store *Store) GetResource(ctx context.Context, arg GetResourceParam) (GetR
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		result.Resource, err = q.GetResource(ctx, GetResourceParams{
-			MaterialID: arg.MaterialID,
-			ResourceID: arg.ResourceID,
-		})
+		result.Resource, err = q.GetResource(ctx, arg.ResourceID)
 
 		if err != nil {
 			return err

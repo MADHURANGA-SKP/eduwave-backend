@@ -140,6 +140,7 @@ func (server *Server) updateAdmin(ctx *gin.Context) {
 }
 
 type CreateAdminRequest struct {
+	UserID         int64  `json:"user_id"`
 	FullName       string `json:"full_name"`
     UserName       string `json:"user_name"`
     Email          string `json:"email"`
@@ -172,10 +173,11 @@ func (server *Server) createAdmin(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	
 	arg := db.CreateAdminParams{
+		UserID: req.UserID,
 		FullName: req.FullName,
-		UserName: authPayload.UserName,
+		UserName: req.UserName,
 		Email: req.Email,
 		HashedPassword: hashedPassword,
 	}
@@ -185,6 +187,7 @@ func (server *Server) createAdmin(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	
 
 	ctx.JSON(http.StatusOK, admin )
 }

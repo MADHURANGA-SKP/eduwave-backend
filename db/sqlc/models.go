@@ -59,6 +59,8 @@ func (ns NullTypeResource) Value() (driver.Value, error) {
 
 type Admin struct {
 	AdminID        int64     `json:"admin_id"`
+	UserID         int64     `json:"user_id"`
+	Role           string    `json:"role"`
 	UserName       string    `json:"user_name"`
 	HashedPassword string    `json:"hashed_password"`
 	FullName       string    `json:"full_name"`
@@ -83,6 +85,7 @@ type Course struct {
 	Type        string    `json:"type"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
+	Image       []byte    `json:"image"`
 }
 
 type CourseEnrolment struct {
@@ -106,6 +109,11 @@ type Material struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type Permission struct {
+	PermissionID   int64  `json:"permission_id"`
+	PermissionName string `json:"permission_name"`
+}
+
 type Request struct {
 	RequestID  int64        `json:"request_id"`
 	StudentID  int64        `json:"student_id"`
@@ -125,6 +133,16 @@ type Resource struct {
 	Type       TypeResource `json:"type"`
 	ContentUrl string       `json:"content_url"`
 	CreatedAt  time.Time    `json:"created_at"`
+}
+
+type Role struct {
+	RoleID   int64  `json:"role_id"`
+	RoleName string `json:"role_name"`
+}
+
+type RolePermission struct {
+	RoleID       int64 `json:"role_id"`
+	PermissionID int64 `json:"permission_id"`
 }
 
 type Session struct {
@@ -152,8 +170,8 @@ type Submission struct {
 
 type Teacher struct {
 	TeacherID      int64     `json:"teacher_id"`
-	AdminID        int64     `json:"admin_id"`
 	UserID         int64     `json:"user_id"`
+	Role           string    `json:"role"`
 	FullName       string    `json:"full_name"`
 	Email          string    `json:"email"`
 	UserName       string    `json:"user_name"`
@@ -161,6 +179,11 @@ type Teacher struct {
 	IsActive       bool      `json:"is_active"`
 	CreatedAt      time.Time `json:"created_at"`
 	Qualification  string    `json:"qualification"`
+}
+
+type TeachersUser struct {
+	TeachersTeacherID int64 `json:"teachers_teacher_id"`
+	UsersUserID       int64 `json:"users_user_id"`
 }
 
 type User struct {
@@ -173,6 +196,11 @@ type User struct {
 	IsEmailVerified   bool      `json:"is_email_verified"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
+}
+
+type UserRole struct {
+	UserID int64 `json:"user_id"`
+	RoleID int64 `json:"role_id"`
 }
 
 type VerifyEmail struct {

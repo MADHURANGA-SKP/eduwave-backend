@@ -5,7 +5,6 @@ import "context"
 //CreateTeacherParam contains the input parameters of the creations of the data
 type CreateTeacherParam struct {
 	UserID         int64  `json:"user_id"`
-    AdminID        int64  `json:"admin_id"`
     FullName       string `json:"full_name"`
     Email          string `json:"email"`
     Qualification  string `json:"qualification"`
@@ -26,8 +25,7 @@ func (store *Store) CreateTeacher(ctx context.Context, arg CreateTeacherParam) (
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		result.Teacher, err = q.CreateTeacher(ctx, CreateTeacherParams{
-			UserID: arg.AdminID,
-			AdminID : 		arg.AdminID,
+			UserID: arg.UserID,
 			FullName:       arg.FullName,
 			Email:          arg.Email,
 			Qualification: arg.Qualification,
