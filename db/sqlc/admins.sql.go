@@ -11,16 +11,18 @@ import (
 
 const createAdmin = `-- name: CreateAdmin :one
 INSERT INTO admins (
+    user_id,
     full_name,
     user_name,
     email,
     hashed_password
 ) VALUES (
-    $1, $2, $3, $4
-) RETURNING admin_id, user_name, hashed_password, full_name, email, created_at
+    $1, $2, $3, $4, $5
+) RETURNING admin_id, user_id, role, user_name, hashed_password, full_name, email, created_at
 `
 
 type CreateAdminParams struct {
+	UserID         int64  `json:"user_id"`
 	FullName       string `json:"full_name"`
 	UserName       string `json:"user_name"`
 	Email          string `json:"email"`
@@ -29,6 +31,7 @@ type CreateAdminParams struct {
 
 func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin, error) {
 	row := q.db.QueryRowContext(ctx, createAdmin,
+		arg.UserID,
 		arg.FullName,
 		arg.UserName,
 		arg.Email,
@@ -37,6 +40,8 @@ func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin
 	var i Admin
 	err := row.Scan(
 		&i.AdminID,
+		&i.UserID,
+		&i.Role,
 		&i.UserName,
 		&i.HashedPassword,
 		&i.FullName,
@@ -57,7 +62,7 @@ func (q *Queries) DeleteAdmin(ctx context.Context, adminID int64) error {
 }
 
 const getAdmin = `-- name: GetAdmin :one
-SELECT admin_id, user_name, hashed_password, full_name, email, created_at FROM admins
+SELECT admin_id, user_id, role, user_name, hashed_password, full_name, email, created_at FROM admins
 WHERE admin_id = $1
 `
 
@@ -66,6 +71,8 @@ func (q *Queries) GetAdmin(ctx context.Context, adminID int64) (Admin, error) {
 	var i Admin
 	err := row.Scan(
 		&i.AdminID,
+		&i.UserID,
+		&i.Role,
 		&i.UserName,
 		&i.HashedPassword,
 		&i.FullName,
@@ -79,7 +86,7 @@ const updateAdmin = `-- name: UpdateAdmin :one
 UPDATE admins
 SET full_name = $2, user_name = $3, email = $4, hashed_password = $5
 WHERE admin_id = $1
-RETURNING admin_id, user_name, hashed_password, full_name, email, created_at
+RETURNING admin_id, user_id, role, user_name, hashed_password, full_name, email, created_at
 `
 
 type UpdateAdminParams struct {
@@ -101,6 +108,8 @@ func (q *Queries) UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Admin
 	var i Admin
 	err := row.Scan(
 		&i.AdminID,
+		&i.UserID,
+		&i.Role,
 		&i.UserName,
 		&i.HashedPassword,
 		&i.FullName,

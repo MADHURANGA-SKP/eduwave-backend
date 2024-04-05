@@ -10,9 +10,9 @@ import (
 
 // CreateMaterialRequest defines the request body structure for creating a material
 type CreateMaterialRequest struct {
+	CourseID    int64  `json:"course_id" binding:"required"`
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
-	CourseID    int64  `json:"course_id" binding:"required"`
 }
 
 // @Summary Create a new material
@@ -35,13 +35,14 @@ func (server *Server) CreateMaterial(ctx *gin.Context) {
 	}
 
 	arg := db.CreateMaterialParams{
+		CourseID: req.CourseID,
 		Title:       req.Title,
 		Description: req.Description,
 	}
 
 	material, err := server.store.CreateMaterial(ctx, db.CreateMaterialParam(arg))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -50,7 +51,7 @@ func (server *Server) CreateMaterial(ctx *gin.Context) {
 
 // GetMaterialsRequest defines the request body structure for getting materials
 type GetMaterialsRequest struct {
-	CourseID int64 `uri:"course_id" binding:"required,min=1"`
+	MaterialID int64 `uri:"material_id,min=1"`
 }
 
 // @Summary Get materials for a course
@@ -72,15 +73,11 @@ func (server *Server) GetMaterials(ctx *gin.Context) {
 		return
 	}
 
-	arg :=	db.GetMaterialParam{
-		CourseID: req.CourseID,
-	}
+	arg :=	db.GetMaterialParam{MaterialID: req.MaterialID}
 
-	materials, err := server.store.ListMaterial(ctx, db.ListMaterialParams{
-		CourseID: arg.CourseID,
-	})
+	materials, err := server.store.GetMaterial(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 

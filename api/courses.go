@@ -4,6 +4,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 
 	db "eduwave-back-end/db/sqlc"
 
@@ -12,9 +13,11 @@ import (
 
 // CreateCourseRequest defines the request body structure for creating a course
 type CreateCourseRequest struct {
+	TeacherID   int64  `json:"teacher_id"`
 	Title       string `json:"title" binding:"required"`
 	Type        string `json:"type" binding:"required"`
 	Description string `json:"description" binding:"required"`
+	Image       []byte `json:"image"`
 }
 
 // @Summary Create a new course
@@ -36,9 +39,11 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 	}
 
 	arg := db.CreateCoursesParams{
+		TeacherID: req.TeacherID,
 		Title:       req.Title,
 		Type:        req.Type,
 		Description: req.Description,
+		Image: req.Image,
 	}
 
 	course, err := server.store.CreateCourses(ctx, arg)
@@ -52,7 +57,8 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 
 // GetCourseRequest defines the request body structure for getting a course
 type GetCourseRequest struct {
-	CourseID int64 `uri:"course_id" binding:"required,min=1"`
+	CourseID  int64    `uri:"course_id,min=1"`
+    // TeacherID int64 `json:"teacher_id"`
 }
 
 // @Summary Get a course by ID
@@ -72,9 +78,9 @@ func (server *Server) GetCourse(ctx *gin.Context) {
 		return
 	}
 
-	course, err := server.store.GetCourses(ctx, db.GetCoursesParams{
-		CourseID: req.CourseID,
-	})
+	arg := db.GetCourseParam{CourseID: req.CourseID}
+
+	course, err := server.store.GetCourse(ctx, db.GetCourseParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -84,8 +90,8 @@ func (server *Server) GetCourse(ctx *gin.Context) {
 }
 
 type ListCoursesRequest struct {
-	Limit  int32 `form:"limit" binding:"required,min=1,max=100"`
-	Offset int32 `form:"offset" binding:"required,min=0"`
+	PageID   int32 `form:"page_id,min=1"`
+	PageSize int32 `form:"page_size,min=5,max=10"`
 }
 
 // @Summary List courses
@@ -108,8 +114,8 @@ func (server *Server) ListCourses(ctx *gin.Context) {
 	}
 
 	arg := db.ListCoursesParams{
-		Limit:  req.Limit,
-		Offset: req.Offset,
+		Limit:  req.PageSize,
+        Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	courses, err := server.store.ListCourses(ctx, arg)
@@ -127,6 +133,7 @@ type UpdateCoursesRequest struct {
 	Title       string `json:"title"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
+	Image       []byte `json:"image"`
 }
 
 // @Summary Update a course
@@ -147,11 +154,17 @@ func (server *Server) UpdateCourse(ctx *gin.Context) {
 		return
 	}
 
+	courseID, err := strconv.Atoi(ctx.Param("course_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
 	arg := db.UpdateCoursesParams{
-		CourseID: req.CourseID,
+		CourseID: int64(courseID),
 		Title: req.Title,
 		Type: req.Type,
 		Description: req.Description,
+		Image: req.Image,
 	}
 
 	courses, err := server.store.UpdateCourses(ctx, arg)
@@ -166,7 +179,6 @@ func (server *Server) UpdateCourse(ctx *gin.Context) {
 // deleteCourseRequest defines the request body structure for deleting an Course
 type deleteCourseRequest struct {
 	CourseID  int64 `json:"course_id"`
-    TeacherID int64 `json:"teacher_id"`
 }
 
 // @Summary Delete a course
@@ -189,7 +201,6 @@ func (server *Server) DeleteCourse(ctx *gin.Context) {
 
 	err := server.store.DeleteCourse(ctx, db.DeleteCourseParam{
 		CourseID: req.CourseID,
-		TeacherID: req.TeacherID,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

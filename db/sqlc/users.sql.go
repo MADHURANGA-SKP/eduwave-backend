@@ -13,18 +13,16 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     user_name,
-    role,
     full_name,
     hashed_password,
     email
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4
 ) RETURNING user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at
 `
 
 type CreateUserParams struct {
 	UserName       string `json:"user_name"`
-	Role           string `json:"role"`
 	FullName       string `json:"full_name"`
 	HashedPassword string `json:"hashed_password"`
 	Email          string `json:"email"`
@@ -33,7 +31,6 @@ type CreateUserParams struct {
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.UserName,
-		arg.Role,
 		arg.FullName,
 		arg.HashedPassword,
 		arg.Email,
@@ -54,10 +51,20 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
+
+
 SELECT user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at FROM users
 WHERE user_name = $1 LIMIT 1
 `
 
+// -- name: GetUser :one
+// SELECT users.user_name AS user_username, teachers.user_name AS teacher_username, admins.user_name AS admin_username
+// FROM users
+// LEFT JOIN teachers ON users.user_id = teachers.user_id
+// LEFT JOIN admins ON users.user_id = admins.user_id
+// WHERE
+//
+//	users.user_name = $1 OR teachers.user_name = $1 OR admins.user_name = $1;
 func (q *Queries) GetUser(ctx context.Context, userName string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, userName)
 	var i User

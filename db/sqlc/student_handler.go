@@ -103,12 +103,3 @@ func (store *Store) UpdateStudent(ctx context.Context, arg UpdateStudentParams) 
 	return result, err
 }
 
-//GetSubmissionParam contains the input parameters of getting the data
-type GetSubmissionsParam struct {
-	AssignmentID int64 `json:"assignment_id"`
-    StudentID    int64 `json:"student_id"`
-}
-
-type GetSubmissionResponse struct {
-	Submission Submission `json:"submission"`
-}

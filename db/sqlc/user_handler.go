@@ -8,7 +8,6 @@ import (
 //CreateUserParam contains the input parameters of data
 type CreateUserParam struct {
 	UserName       string   `json:"user_name"`
-	Role           string `json:"role"`
 	FullName       string   `json:"full_name"`
 	HashedPassword string   `json:"hashed_password"`
 	Email          string   `json:"email"`
@@ -17,8 +16,6 @@ type CreateUserParam struct {
 //CreateUserResponse contains the result of the creation
 type CreateUserResponse struct {
 	User User `json:"user"`
-	// Admin Admin `json:"admin"`
-	// Student Student `json:"student"`
 }
 
 //CreateUser db handler fro api call to create a user in database
@@ -30,7 +27,6 @@ func (store *Store) CreateUser(ctx context.Context, arg CreateUserParam) (Create
 
 		result.User, err = q.CreateUser(ctx, CreateUserParams{
 			UserName:       arg.UserName,
-			Role:           arg.Role,
 			FullName:       arg.FullName,
 			HashedPassword: arg.HashedPassword,
 			Email:          arg.Email,
@@ -48,7 +44,7 @@ func (store *Store) CreateUser(ctx context.Context, arg CreateUserParam) (Create
 
 //GetUserParam contains the input parameters of the geting the data
 type GetUserParam struct {
-	UserName string `json:"user_name"`
+	UserName       string `json:"user_name"`
 }
 
 //GetUserResponse contains the result of the geting the data
@@ -64,12 +60,11 @@ func (store *Store) GetUser(ctx context.Context, arg GetUserParam) (GetUserRespo
 		var err error
 
 		result.User, err = q.GetUser(ctx, arg.UserName)
-
 		if err != nil {
 			return err
 		}
-
 		return nil
+		
 	})
 	return result, err
 }

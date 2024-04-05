@@ -11,22 +11,29 @@ import (
 
 const createResource = `-- name: CreateResource :one
 INSERT INTO resources (
+    material_id,
     title,
     type,
     content_url
 ) VALUES (
-    $1, $2, $3
+    $1, $2, $3, $4
 ) RETURNING resource_id, material_id, title, type, content_url, created_at
 `
 
 type CreateResourceParams struct {
+	MaterialID int64        `json:"material_id"`
 	Title      string       `json:"title"`
 	Type       TypeResource `json:"type"`
 	ContentUrl string       `json:"content_url"`
 }
 
 func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error) {
-	row := q.db.QueryRowContext(ctx, createResource, arg.Title, arg.Type, arg.ContentUrl)
+	row := q.db.QueryRowContext(ctx, createResource,
+		arg.MaterialID,
+		arg.Title,
+		arg.Type,
+		arg.ContentUrl,
+	)
 	var i Resource
 	err := row.Scan(
 		&i.ResourceID,
@@ -56,16 +63,11 @@ func (q *Queries) DeleteResource(ctx context.Context, arg DeleteResourceParams) 
 
 const getResource = `-- name: GetResource :one
 SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
-WHERE material_id = $1 AND resource_id = $2
+WHERE resource_id = $1
 `
 
-type GetResourceParams struct {
-	MaterialID int64 `json:"material_id"`
-	ResourceID int64 `json:"resource_id"`
-}
-
-func (q *Queries) GetResource(ctx context.Context, arg GetResourceParams) (Resource, error) {
-	row := q.db.QueryRowContext(ctx, getResource, arg.MaterialID, arg.ResourceID)
+func (q *Queries) GetResource(ctx context.Context, resourceID int64) (Resource, error) {
+	row := q.db.QueryRowContext(ctx, getResource, resourceID)
 	var i Resource
 	err := row.Scan(
 		&i.ResourceID,

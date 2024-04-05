@@ -10,11 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type TypeResource string
+
 // createResourceRequest defines the request body structure for creating a new resource
 type createResourceRequest struct {
-	Title      string          `json:"title" binding:"required"`
-	Type       db.TypeResource `json:"type" binding:"required"`
-	ContentUrl string          `json:"content_url" binding:"required"`
+	MaterialID int64        `json:"material_id"`
+	Title      string       `json:"title"`
+	Type       TypeResource `json:"type"`
+	ContentUrl string       `json:"content_url"`
 }
 
 // @Summary Create a new resource
@@ -37,8 +40,9 @@ func (server *Server) createResource(ctx *gin.Context) {
 	}
 
 	arg := db.CreateResourceParams{
+		MaterialID: req.MaterialID,
 		Title:      req.Title,
-		Type:       req.Type,
+		Type:       db.TypeResource(req.Type),
 		ContentUrl: req.ContentUrl,
 	}
 
@@ -92,8 +96,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 // getResourceRequest defines the request body structure for getting a resource
 type getResourceRequest struct {
-	MaterialID int64 `json:"matirial_id"`
-    ResourceID int64         `json:"resource_id"`
+    ResourceID int64         `uri:"resource_id,min=1"`
 }
 
 // @Summary Get a resource
@@ -116,7 +119,6 @@ func (server *Server) getResource(ctx *gin.Context) {
 	}
 
 	resource, err := server.store.GetResource(ctx, db.GetResourceParam{
-		MaterialID: req.MaterialID,
 		ResourceID: req.ResourceID,
 	})
 	if err != nil {

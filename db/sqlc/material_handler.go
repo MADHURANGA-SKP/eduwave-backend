@@ -4,6 +4,7 @@ import "context"
 
 //CreateMaterialParam contains the input parameters of  creating Material data
 type CreateMaterialParam struct{
+	CourseID    int64  `json:"course_id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
@@ -21,6 +22,7 @@ func(store *Store) CreateMaterial(ctx context.Context, arg CreateMaterialParam)(
 		var err error
 
 		result.Material, err = q.CreateMaterial(ctx, CreateMaterialParams{
+			CourseID: arg.CourseID,
 			Title: arg.Title,
 			Description: arg.Description,
 		})
@@ -48,7 +50,7 @@ func(store *Store) DeleteMaterial(ctx context.Context, arg DeleteMaterialParam)e
 
 //GetMaterialparam contains the input parameters of the get Material data
 type GetMaterialParam struct {
-	CourseID int64 `json:"course_id"`
+	MaterialID int64 `json:"material_id"`
 }
 
 //GetMaterialResponse contains the result of the get matrial data
@@ -63,7 +65,7 @@ func(store *Store) GetMaterial(ctx context.Context, arg GetMaterialParam)(GetMat
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		result.Material, err = q.GetMaterial(ctx, arg.CourseID)
+		result.Material, err = q.GetMaterial(ctx, arg.MaterialID)
 		if err != nil {
 			return err
 		}

@@ -75,4 +75,3 @@ func hasPermission(userRole string, accessbileRoles []string) bool {
 	}
 	return false
 }
-

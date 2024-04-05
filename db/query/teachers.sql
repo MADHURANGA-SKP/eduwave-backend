@@ -1,7 +1,6 @@
 -- name: CreateTeacher :one
 INSERT INTO teachers(
     user_id,
-    admin_id,
     full_name,
     email,
     qualification,
@@ -9,7 +8,7 @@ INSERT INTO teachers(
     hashed_password,
     is_active
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7
 ) RETURNING *;
 
 -- name: GetTeacher :one

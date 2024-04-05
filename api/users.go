@@ -6,6 +6,7 @@ import (
 	"time"
 
 	db "eduwave-back-end/db/sqlc"
+
 	"eduwave-back-end/util"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,6 @@ import (
 
 type createUserRequest struct {
 	UserName       string `json:"user_name"`
-	Role           string `json:"role"`
 	FullName       string `json:"full_name"`
 	HashedPassword string `json:"hashed_password"`
 	Email          string `json:"email"`
@@ -24,8 +24,7 @@ type userResponse struct {
 	Username          string    `json:"user_name"`
 	FullName          string    `json:"full_name"`
 	Email             string    `json:"email"`
-	Role           	string `json:"role"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
+	Role           	  string 	`json:"role"`
 	CreatedAt         time.Time `json:"created_at"`
 }
 
@@ -34,8 +33,7 @@ func newUserResponse(user db.User) userResponse {
 		Username:          user.UserName,
 		FullName:          user.FullName,
 		Email:             user.Email,
-		Role: 				user.Role,	
-		PasswordChangedAt: user.PasswordChangedAt,
+		Role:              user.Role,
 		CreatedAt:         user.CreatedAt,
 	}
 }
@@ -66,7 +64,6 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 	user, err := server.store.CreateUser(ctx, db.CreateUserParam{
 		UserName: req.UserName,
-		Role: req.Role,
 		FullName: req.FullName,
 		HashedPassword:hashedPassword,
 		Email: req.Email,

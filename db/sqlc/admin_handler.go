@@ -4,6 +4,7 @@ import "context"
 
 //CreateAdminParam contains the input parameters of the Createing the data
 type CreateAdminParam struct {
+	UserID         int64  `json:"user_id"`
 	FullName       string `json:"full_name"`
     UserName       string `json:"user_name"`
     Email          string `json:"email"`
@@ -23,6 +24,7 @@ func (store *Store) CreateAdmin(ctx context.Context, arg CreateAdminParam) (Crea
 		var err error
 
 		result.Admin, err = q.CreateAdmin(ctx, CreateAdminParams{
+			UserID: arg.UserID,
 			FullName: arg.FullName,
 			UserName: arg.UserName,
 			Email: arg.Email,

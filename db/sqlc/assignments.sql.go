@@ -12,16 +12,18 @@ import (
 
 const createAssignment = `-- name: CreateAssignment :one
 INSERT INTO assignments (
+    resource_id,
     type,
     title,
     description,
     submission_date
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 )  RETURNING assignment_id, resource_id, type, title, description, submission_date, created_at
 `
 
 type CreateAssignmentParams struct {
+	ResourceID     int64     `json:"resource_id"`
 	Type           string    `json:"type"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
@@ -30,6 +32,7 @@ type CreateAssignmentParams struct {
 
 func (q *Queries) CreateAssignment(ctx context.Context, arg CreateAssignmentParams) (Assignment, error) {
 	row := q.db.QueryRowContext(ctx, createAssignment,
+		arg.ResourceID,
 		arg.Type,
 		arg.Title,
 		arg.Description,
@@ -91,12 +94,12 @@ func (q *Queries) GetAssignment(ctx context.Context, arg GetAssignmentParams) (A
 const updateAssignment = `-- name: UpdateAssignment :one
 UPDATE assignments
 SET type = $2, title = $3, description = $4, submission_date = $5
-WHERE resource_id = $1
+WHERE assignment_id = $1
 RETURNING assignment_id, resource_id, type, title, description, submission_date, created_at
 `
 
 type UpdateAssignmentParams struct {
-	ResourceID     int64     `json:"resource_id"`
+	AssignmentID   int64     `json:"assignment_id"`
 	Type           string    `json:"type"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
@@ -105,7 +108,7 @@ type UpdateAssignmentParams struct {
 
 func (q *Queries) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) (Assignment, error) {
 	row := q.db.QueryRowContext(ctx, updateAssignment,
-		arg.ResourceID,
+		arg.AssignmentID,
 		arg.Type,
 		arg.Title,
 		arg.Description,

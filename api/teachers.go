@@ -13,8 +13,7 @@ import (
 )
 
 type createTeacherRequest struct {
-    UserID         int64  `json:"user_id"`
-    AdminID        int64  `json:"admin_id"`
+    RoleID         int64  `json:"user_id"`
     FullName       string `json:"full_name"`
     Email          string `json:"email"`
     Qualification  string `json:"qualification"`
@@ -49,8 +48,7 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.CreateTeacherParam{
-		UserID: req.UserID,
-		AdminID: req.AdminID,
+		UserID: req.RoleID,
 		FullName: req.FullName,
 		UserName: authPayload.UserName,
 		Email: req.Email,

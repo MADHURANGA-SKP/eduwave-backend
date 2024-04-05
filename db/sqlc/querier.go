@@ -24,7 +24,7 @@ type Querier interface {
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
 	DeleteAdmin(ctx context.Context, adminID int64) error
 	DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error
-	DeleteCourses(ctx context.Context, arg DeleteCoursesParams) error
+	DeleteCourses(ctx context.Context, courseID int64) error
 	DeleteMaterial(ctx context.Context, arg DeleteMaterialParams) error
 	DeleteRequest(ctx context.Context, arg DeleteRequestParams) error
 	DeleteResource(ctx context.Context, arg DeleteResourceParams) error
@@ -33,13 +33,21 @@ type Querier interface {
 	GetAdmin(ctx context.Context, adminID int64) (Admin, error)
 	GetAssignment(ctx context.Context, arg GetAssignmentParams) (Assignment, error)
 	GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error)
-	GetCourses(ctx context.Context, arg GetCoursesParams) (Course, error)
-	GetMaterial(ctx context.Context, courseID int64) (Material, error)
+	GetCourses(ctx context.Context, courseID int64) (Course, error)
+	GetMaterial(ctx context.Context, materialID int64) (Material, error)
 	GetRequest(ctx context.Context, arg GetRequestParams) (Request, error)
-	GetResource(ctx context.Context, arg GetResourceParams) (Resource, error)
+	GetResource(ctx context.Context, resourceID int64) (Resource, error)
+	GetRole(ctx context.Context, roleID int64) (Role, error)
 	GetSession(ctx context.Context, sessionID uuid.UUID) (Session, error)
 	GetStudent(ctx context.Context, studentID int64) (Student, error)
 	GetTeacher(ctx context.Context, teacherID int64) (Teacher, error)
+	// -- name: GetUser :one
+	// SELECT users.user_name AS user_username, teachers.user_name AS teacher_username, admins.user_name AS admin_username
+	// FROM users
+	// LEFT JOIN teachers ON users.user_id = teachers.user_id
+	// LEFT JOIN admins ON users.user_id = admins.user_id
+	// WHERE
+	//     users.user_name = $1 OR teachers.user_name = $1 OR admins.user_name = $1;
 	GetUser(ctx context.Context, userName string) (User, error)
 	GetVerifyEmail(ctx context.Context, secretCode string) (VerifyEmail, error)
 	Getsubmissions(ctx context.Context, arg GetsubmissionsParams) (Submission, error)

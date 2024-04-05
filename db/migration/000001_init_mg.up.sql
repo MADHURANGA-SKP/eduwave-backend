@@ -19,6 +19,8 @@ CREATE TABLE "users" (
 
 CREATE TABLE "admins" (
   "admin_id" bigserial PRIMARY KEY,
+  "user_id" bigint not null,
+  "role" varchar NOT NULL DEFAULT 'admin',
   "user_name" varchar NOT NULL,
   "hashed_password" varchar NOT NULL,
   "full_name" varchar NOT NULL,
@@ -28,8 +30,8 @@ CREATE TABLE "admins" (
 
 CREATE TABLE "teachers" (
   "teacher_id" bigserial PRIMARY KEY,
-  "admin_id" bigint NOT NULL,
   "user_id" bigint NOT NULL,
+  "role" varchar NOT NULL DEFAULT 'teacher',
   "full_name" varchar NOT NULL,
   "email" varchar NOT NULL,
   "user_name" varchar NOT NULL,
@@ -113,8 +115,6 @@ CREATE TABLE "resources" (
 
 CREATE INDEX ON "admins" ("user_name");
 
-CREATE INDEX ON "teachers" ("admin_id");
-
 CREATE INDEX ON "courses" ("teacher_id");
 
 CREATE INDEX ON "materials" ("course_id");
@@ -143,9 +143,7 @@ CREATE INDEX ON "resources" ("material_id");
 
 CREATE INDEX ON "resources" ("material_id");
 
-ALTER TABLE "teachers" ADD FOREIGN KEY ("admin_id") REFERENCES "admins" ("admin_id");
-
-ALTER TABLE "teachers" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+ALTER TABLE "admins" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "students" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
 
