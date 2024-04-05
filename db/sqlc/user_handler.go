@@ -7,10 +7,12 @@ import (
 
 //CreateUserParam contains the input parameters of data
 type CreateUserParam struct {
-	UserName       string   `json:"user_name"`
-	FullName       string   `json:"full_name"`
-	HashedPassword string   `json:"hashed_password"`
-	Email          string   `json:"email"`
+	UserName       string `json:"user_name"`
+	FullName       string `json:"full_name"`
+	HashedPassword string `json:"hashed_password"`
+	Email          string `json:"email"`
+	Role           string `json:"role"`
+	Qualification  string `json:"qualification"`
 }
 
 //CreateUserResponse contains the result of the creation
@@ -30,6 +32,8 @@ func (store *Store) CreateUser(ctx context.Context, arg CreateUserParam) (Create
 			FullName:       arg.FullName,
 			HashedPassword: arg.HashedPassword,
 			Email:          arg.Email,
+			Role: arg.Role,
+			Qualification: arg.Qualification,
 		})
 
 		if err != nil {

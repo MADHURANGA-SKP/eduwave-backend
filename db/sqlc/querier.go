@@ -11,36 +11,28 @@ import (
 )
 
 type Querier interface {
-	CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin, error)
 	CreateAssignment(ctx context.Context, arg CreateAssignmentParams) (Assignment, error)
-	CreateCourseProgress(ctx context.Context, progress string) (CourseProgress, error)
+	CreateCourseProgress(ctx context.Context, arg CreateCourseProgressParams) (CourseProgress, error)
 	CreateCourses(ctx context.Context, arg CreateCoursesParams) (Course, error)
+	CreateEnrolments(ctx context.Context, arg CreateEnrolmentsParams) (CourseEnrolment, error)
 	CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error)
 	CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error)
 	CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
-	CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
-	DeleteAdmin(ctx context.Context, adminID int64) error
 	DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error
 	DeleteCourses(ctx context.Context, courseID int64) error
 	DeleteMaterial(ctx context.Context, arg DeleteMaterialParams) error
 	DeleteRequest(ctx context.Context, arg DeleteRequestParams) error
 	DeleteResource(ctx context.Context, arg DeleteResourceParams) error
-	DeleteStudent(ctx context.Context, studentID int64) error
-	DeleteTeacher(ctx context.Context, teacherID int64) error
-	GetAdmin(ctx context.Context, adminID int64) (Admin, error)
-	GetAssignment(ctx context.Context, arg GetAssignmentParams) (Assignment, error)
+	GetAssignment(ctx context.Context, assignmentID int64) (Assignment, error)
 	GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error)
 	GetCourses(ctx context.Context, courseID int64) (Course, error)
 	GetMaterial(ctx context.Context, materialID int64) (Material, error)
-	GetRequest(ctx context.Context, arg GetRequestParams) (Request, error)
+	GetRequest(ctx context.Context, requestID int64) (Request, error)
 	GetResource(ctx context.Context, resourceID int64) (Resource, error)
-	GetRole(ctx context.Context, roleID int64) (Role, error)
 	GetSession(ctx context.Context, sessionID uuid.UUID) (Session, error)
-	GetStudent(ctx context.Context, studentID int64) (Student, error)
-	GetTeacher(ctx context.Context, teacherID int64) (Teacher, error)
 	// -- name: GetUser :one
 	// SELECT users.user_name AS user_username, teachers.user_name AS teacher_username, admins.user_name AS admin_username
 	// FROM users
@@ -57,17 +49,12 @@ type Querier interface {
 	ListMaterial(ctx context.Context, arg ListMaterialParams) ([]Material, error)
 	ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error)
 	ListResource(ctx context.Context, arg ListResourceParams) ([]Resource, error)
-	ListStudents(ctx context.Context, arg ListStudentsParams) ([]Student, error)
-	ListTeacher(ctx context.Context, arg ListTeacherParams) ([]Teacher, error)
 	Listsubmissions(ctx context.Context, arg ListsubmissionsParams) ([]Submission, error)
-	UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Admin, error)
 	UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) (Assignment, error)
 	UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (Course, error)
 	UpdateMaterial(ctx context.Context, arg UpdateMaterialParams) (Material, error)
 	UpdateRequests(ctx context.Context, arg UpdateRequestsParams) (Request, error)
 	UpdateResource(ctx context.Context, arg UpdateResourceParams) (Resource, error)
-	UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error)
-	UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (Teacher, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (VerifyEmail, error)
 }

@@ -13,7 +13,7 @@ import (
 
 // CreateCourseRequest defines the request body structure for creating a course
 type CreateCourseRequest struct {
-	TeacherID   int64  `json:"teacher_id"`
+	UserID      int64  `json:"user_id"`
 	Title       string `json:"title" binding:"required"`
 	Type        string `json:"type" binding:"required"`
 	Description string `json:"description" binding:"required"`
@@ -39,7 +39,7 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 	}
 
 	arg := db.CreateCoursesParams{
-		TeacherID: req.TeacherID,
+		UserID: req.UserID,
 		Title:       req.Title,
 		Type:        req.Type,
 		Description: req.Description,

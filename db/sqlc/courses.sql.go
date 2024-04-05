@@ -11,18 +11,18 @@ import (
 
 const createCourses = `-- name: CreateCourses :one
 INSERT INTO courses (
-    teacher_id,
+    user_id,
     title,
     type,
     description,
     image
 ) VALUES (
     $1, $2, $3, $4, $5
-) RETURNING course_id, teacher_id, title, type, description, created_at, image
+) RETURNING course_id, user_id, title, type, image, description, created_at
 `
 
 type CreateCoursesParams struct {
-	TeacherID   int64  `json:"teacher_id"`
+	UserID      int64  `json:"user_id"`
 	Title       string `json:"title"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
@@ -31,7 +31,7 @@ type CreateCoursesParams struct {
 
 func (q *Queries) CreateCourses(ctx context.Context, arg CreateCoursesParams) (Course, error) {
 	row := q.db.QueryRowContext(ctx, createCourses,
-		arg.TeacherID,
+		arg.UserID,
 		arg.Title,
 		arg.Type,
 		arg.Description,
@@ -40,12 +40,12 @@ func (q *Queries) CreateCourses(ctx context.Context, arg CreateCoursesParams) (C
 	var i Course
 	err := row.Scan(
 		&i.CourseID,
-		&i.TeacherID,
+		&i.UserID,
 		&i.Title,
 		&i.Type,
+		&i.Image,
 		&i.Description,
 		&i.CreatedAt,
-		&i.Image,
 	)
 	return i, err
 }
@@ -61,7 +61,7 @@ func (q *Queries) DeleteCourses(ctx context.Context, courseID int64) error {
 }
 
 const getCourses = `-- name: GetCourses :one
-SELECT course_id, teacher_id, title, type, description, created_at, image FROM courses
+SELECT course_id, user_id, title, type, image, description, created_at FROM courses
 WHERE course_id = $1
 `
 
@@ -70,18 +70,18 @@ func (q *Queries) GetCourses(ctx context.Context, courseID int64) (Course, error
 	var i Course
 	err := row.Scan(
 		&i.CourseID,
-		&i.TeacherID,
+		&i.UserID,
 		&i.Title,
 		&i.Type,
+		&i.Image,
 		&i.Description,
 		&i.CreatedAt,
-		&i.Image,
 	)
 	return i, err
 }
 
 const listCourses = `-- name: ListCourses :many
-SELECT course_id, teacher_id, title, type, description, created_at, image FROM courses
+SELECT course_id, user_id, title, type, image, description, created_at FROM courses
 WHERE course_id = $1
 ORDER BY course_id
 LIMIT $2
@@ -105,12 +105,12 @@ func (q *Queries) ListCourses(ctx context.Context, arg ListCoursesParams) ([]Cou
 		var i Course
 		if err := rows.Scan(
 			&i.CourseID,
-			&i.TeacherID,
+			&i.UserID,
 			&i.Title,
 			&i.Type,
+			&i.Image,
 			&i.Description,
 			&i.CreatedAt,
-			&i.Image,
 		); err != nil {
 			return nil, err
 		}
@@ -129,7 +129,7 @@ const updateCourses = `-- name: UpdateCourses :one
 UPDATE courses
 SET title = $2, type = $3, description = $4, image = $5
 WHERE course_id = $1
-RETURNING course_id, teacher_id, title, type, description, created_at, image
+RETURNING course_id, user_id, title, type, image, description, created_at
 `
 
 type UpdateCoursesParams struct {
@@ -151,12 +151,12 @@ func (q *Queries) UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (C
 	var i Course
 	err := row.Scan(
 		&i.CourseID,
-		&i.TeacherID,
+		&i.UserID,
 		&i.Title,
 		&i.Type,
+		&i.Image,
 		&i.Description,
 		&i.CreatedAt,
-		&i.Image,
 	)
 	return i, err
 }

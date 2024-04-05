@@ -11,7 +11,7 @@ INSERT INTO assignments (
 
 -- name: GetAssignment :one
 SELECT * FROM assignments
-WHERE assignment_id = $1 AND resource_id =$2;
+WHERE assignment_id = $1;
 
 -- name: UpdateAssignment :one
 UPDATE assignments

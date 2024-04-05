@@ -59,8 +59,7 @@ func (store *Store) DeleteAssignment(ctx context.Context, arg DeleteAssignmentPa
 
 //GetAssignmentParam contains the input parameters of the geting  the data
 type GetAssignmentParam struct {
-	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   int64 `json:"resource_id"`
+	AssignmentID int64         `uri:"assignment_id"`
 }
 
 //GetAssignmentResponse contains the result of the geting the data
@@ -75,10 +74,7 @@ func (store *Store) GetAssignment(ctx context.Context, arg GetAssignmentParam)(G
 	err := store.execTx(ctx, func (q *Queries) error {
 		var err error
 
-		result.Assignment, err = q.GetAssignment(ctx, GetAssignmentParams{
-			AssignmentID: arg.AssignmentID,
-			ResourceID: arg.ResourceID,
-		})
+		result.Assignment, err = q.GetAssignment(ctx, arg.AssignmentID)
 
 		if err != nil {
 			return err

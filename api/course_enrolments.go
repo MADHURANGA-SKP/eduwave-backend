@@ -10,10 +10,10 @@ import (
 )
 
 type listEnrolmentsRequest struct {
-	StudentID int64 `form:"student_id" binding:"required"`
-	CourseID  int64 `form:"course_id" binding:"required"`
-	Limit     int32 `form:"limit" binding:"required"`
-	Offset    int32 `form:"offset" binding:"required"`
+	UserID   int64 `json:"user_id"`
+	CourseID int64 `json:"course_id"`
+    Limit    int32 `json:"limit"`
+    Offset   int32 `json:"offset"`
 }
 
 // @Summary List enrolments
@@ -38,7 +38,7 @@ func (server *Server) listEnrolments(ctx *gin.Context) {
 	}
 
 	enrolments, err := server.store.ListEnrolments(ctx, db.ListEnrolmentsParams{
-		StudentID: req.StudentID,
+		UserID: req.UserID,
 		CourseID:  req.CourseID,
 		Limit:     req.Limit,
 		Offset:    req.Offset,
@@ -49,4 +49,43 @@ func (server *Server) listEnrolments(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, enrolments)
+}
+
+type CreateEnrolmentsRequest struct {
+	CourseID  int64 `json:"course_id"`
+	RequestID int64 `json:"request_id"`
+	UserID    int64 `json:"user_id"`
+}
+
+// @Summary Create a new enrolment
+// @Description Create a new enrolment with the provided details
+// @ID create-enrolment
+// @Accept json
+// @Produce json
+// @Param request body CreateCourseEnrolments true "enrolment details"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /enrolments [post]
+func (server *Server) CreateCourseEnrolment(ctx *gin.Context) {
+	var req CreateEnrolmentsRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.CreateEnrolmentsParams{
+		CourseID: req.CourseID,
+		RequestID: req.RequestID,
+		UserID: req.UserID,
+	}
+
+	assignment, err := server.store.CreateCourseEnrolments(ctx, db.CreateEnrolmentsParam(arg))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, assignment)
 }

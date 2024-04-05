@@ -54,6 +54,9 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
+type GetAssignmentRequest struct {
+	AssignmentID int64         `uri:"assignment_id"`
+}
 // @Summary Get an assignment by ID
 // @Description Get an assignment by its ID and resource ID
 // @ID get-assignment
@@ -66,21 +69,15 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 // @Failure 404 
 // @Failure 500
 // @Router /assignments/{assignment_id}/{resource_id} [get]
-type GetAssignmentRequest struct {
-	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   int64 `json:"resource_id"`
-}
-
 func (server *Server) getAssignment(ctx *gin.Context) {
 	var req GetAssignmentRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
-	assignment, err := server.store.GetAssignment(ctx, db.GetAssignmentParam{
-		AssignmentID: req.AssignmentID,
-		ResourceID: req.ResourceID,
-	})
+	arg := db.GetAssignmentParam{AssignmentID: req.AssignmentID}
+
+	assignment, err := server.store.GetAssignment(ctx, arg)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

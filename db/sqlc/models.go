@@ -57,17 +57,6 @@ func (ns NullTypeResource) Value() (driver.Value, error) {
 	return string(ns.TypeResource), nil
 }
 
-type Admin struct {
-	AdminID        int64     `json:"admin_id"`
-	UserID         int64     `json:"user_id"`
-	Role           string    `json:"role"`
-	UserName       string    `json:"user_name"`
-	HashedPassword string    `json:"hashed_password"`
-	FullName       string    `json:"full_name"`
-	Email          string    `json:"email"`
-	CreatedAt      time.Time `json:"created_at"`
-}
-
 type Assignment struct {
 	AssignmentID   int64     `json:"assignment_id"`
 	ResourceID     int64     `json:"resource_id"`
@@ -80,19 +69,19 @@ type Assignment struct {
 
 type Course struct {
 	CourseID    int64     `json:"course_id"`
-	TeacherID   int64     `json:"teacher_id"`
+	UserID      int64     `json:"user_id"`
 	Title       string    `json:"title"`
 	Type        string    `json:"type"`
+	Image       []byte    `json:"image"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
-	Image       []byte    `json:"image"`
 }
 
 type CourseEnrolment struct {
 	EnrolmentID int64 `json:"enrolment_id"`
 	CourseID    int64 `json:"course_id"`
 	RequestID   int64 `json:"request_id"`
-	StudentID   int64 `json:"student_id"`
+	UserID      int64 `json:"user_id"`
 }
 
 type CourseProgress struct {
@@ -109,15 +98,9 @@ type Material struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-type Permission struct {
-	PermissionID   int64  `json:"permission_id"`
-	PermissionName string `json:"permission_name"`
-}
-
 type Request struct {
 	RequestID  int64        `json:"request_id"`
-	StudentID  int64        `json:"student_id"`
-	TeacherID  int64        `json:"teacher_id"`
+	UserID     int64        `json:"user_id"`
 	CourseID   int64        `json:"course_id"`
 	IsActive   sql.NullBool `json:"is_active"`
 	IsPending  sql.NullBool `json:"is_pending"`
@@ -135,16 +118,6 @@ type Resource struct {
 	CreatedAt  time.Time    `json:"created_at"`
 }
 
-type Role struct {
-	RoleID   int64  `json:"role_id"`
-	RoleName string `json:"role_name"`
-}
-
-type RolePermission struct {
-	RoleID       int64 `json:"role_id"`
-	PermissionID int64 `json:"permission_id"`
-}
-
 type Session struct {
 	SessionID    uuid.UUID `json:"session_id"`
 	UserName     string    `json:"user_name"`
@@ -156,34 +129,10 @@ type Session struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-type Student struct {
-	StudentID int64     `json:"student_id"`
-	UserName  string    `json:"user_name"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
 type Submission struct {
 	SubmissionID int64 `json:"submission_id"`
 	AssignmentID int64 `json:"assignment_id"`
-	StudentID    int64 `json:"student_id"`
-}
-
-type Teacher struct {
-	TeacherID      int64     `json:"teacher_id"`
-	UserID         int64     `json:"user_id"`
-	Role           string    `json:"role"`
-	FullName       string    `json:"full_name"`
-	Email          string    `json:"email"`
-	UserName       string    `json:"user_name"`
-	HashedPassword string    `json:"hashed_password"`
-	IsActive       bool      `json:"is_active"`
-	CreatedAt      time.Time `json:"created_at"`
-	Qualification  string    `json:"qualification"`
-}
-
-type TeachersUser struct {
-	TeachersTeacherID int64 `json:"teachers_teacher_id"`
-	UsersUserID       int64 `json:"users_user_id"`
+	UserID       int64 `json:"user_id"`
 }
 
 type User struct {
@@ -196,11 +145,7 @@ type User struct {
 	IsEmailVerified   bool      `json:"is_email_verified"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
-}
-
-type UserRole struct {
-	UserID int64 `json:"user_id"`
-	RoleID int64 `json:"role_id"`
+	Qualification     string    `json:"qualification"`
 }
 
 type VerifyEmail struct {
