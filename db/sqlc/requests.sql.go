@@ -12,16 +12,20 @@ import (
 
 const createRequest = `-- name: CreateRequest :one
 INSERT INTO requests (
+    user_id,
+    course_id,
     is_active,
     is_pending,
     is_accepted,
     is_declined
 ) VALUES (
-    $1, $2, $3, $4
-) RETURNING request_id, student_id, teacher_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at
+    $1, $2, $3, $4, $5, $6
+) RETURNING request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at
 `
 
 type CreateRequestParams struct {
+	UserID     int64        `json:"user_id"`
+	CourseID   int64        `json:"course_id"`
 	IsActive   sql.NullBool `json:"is_active"`
 	IsPending  sql.NullBool `json:"is_pending"`
 	IsAccepted sql.NullBool `json:"is_accepted"`
@@ -30,6 +34,8 @@ type CreateRequestParams struct {
 
 func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error) {
 	row := q.db.QueryRowContext(ctx, createRequest,
+		arg.UserID,
+		arg.CourseID,
 		arg.IsActive,
 		arg.IsPending,
 		arg.IsAccepted,
@@ -38,8 +44,7 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 	var i Request
 	err := row.Scan(
 		&i.RequestID,
-		&i.StudentID,
-		&i.TeacherID,
+		&i.UserID,
 		&i.CourseID,
 		&i.IsActive,
 		&i.IsPending,
@@ -52,36 +57,30 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 
 const deleteRequest = `-- name: DeleteRequest :exec
 DELETE FROM requests
-WHERE student_id = $1 AND request_id = $2
+WHERE user_id = $1 AND request_id = $2
 `
 
 type DeleteRequestParams struct {
-	StudentID int64 `json:"student_id"`
+	UserID    int64 `json:"user_id"`
 	RequestID int64 `json:"request_id"`
 }
 
 func (q *Queries) DeleteRequest(ctx context.Context, arg DeleteRequestParams) error {
-	_, err := q.db.ExecContext(ctx, deleteRequest, arg.StudentID, arg.RequestID)
+	_, err := q.db.ExecContext(ctx, deleteRequest, arg.UserID, arg.RequestID)
 	return err
 }
 
 const getRequest = `-- name: GetRequest :one
-SELECT request_id, student_id, teacher_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
-WHERE student_id = $1 AND request_id = $2
+SELECT request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
+WHERE request_id = $1
 `
 
-type GetRequestParams struct {
-	StudentID int64 `json:"student_id"`
-	RequestID int64 `json:"request_id"`
-}
-
-func (q *Queries) GetRequest(ctx context.Context, arg GetRequestParams) (Request, error) {
-	row := q.db.QueryRowContext(ctx, getRequest, arg.StudentID, arg.RequestID)
+func (q *Queries) GetRequest(ctx context.Context, requestID int64) (Request, error) {
+	row := q.db.QueryRowContext(ctx, getRequest, requestID)
 	var i Request
 	err := row.Scan(
 		&i.RequestID,
-		&i.StudentID,
-		&i.TeacherID,
+		&i.UserID,
 		&i.CourseID,
 		&i.IsActive,
 		&i.IsPending,
@@ -93,25 +92,23 @@ func (q *Queries) GetRequest(ctx context.Context, arg GetRequestParams) (Request
 }
 
 const listRequest = `-- name: ListRequest :many
-SELECT request_id, student_id, teacher_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
-WHERE student_id = $1 AND teacher_id = $2 AND course_id =$3
+SELECT request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
+WHERE user_id = $1 AND course_id =$2
 ORDER BY request_id
-LIMIT $4
-OFFSET $5
+LIMIT $3
+OFFSET $4
 `
 
 type ListRequestParams struct {
-	StudentID int64 `json:"student_id"`
-	TeacherID int64 `json:"teacher_id"`
-	CourseID  int64 `json:"course_id"`
-	Limit     int32 `json:"limit"`
-	Offset    int32 `json:"offset"`
+	UserID   int64 `json:"user_id"`
+	CourseID int64 `json:"course_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
 }
 
 func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error) {
 	rows, err := q.db.QueryContext(ctx, listRequest,
-		arg.StudentID,
-		arg.TeacherID,
+		arg.UserID,
 		arg.CourseID,
 		arg.Limit,
 		arg.Offset,
@@ -125,8 +122,7 @@ func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Req
 		var i Request
 		if err := rows.Scan(
 			&i.RequestID,
-			&i.StudentID,
-			&i.TeacherID,
+			&i.UserID,
 			&i.CourseID,
 			&i.IsActive,
 			&i.IsPending,
@@ -149,15 +145,13 @@ func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Req
 
 const updateRequests = `-- name: UpdateRequests :one
 UPDATE requests
-SET is_active = $4, is_pending = $5, is_accepted = $6, is_declined = $7 
-WHERE student_id = $1 AND teacher_id = $2 AND course_id =$3
-RETURNING request_id, student_id, teacher_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at
+SET is_active = $2, is_pending = $3, is_accepted = $4, is_declined = $5 
+WHERE user_id = $1
+RETURNING request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at
 `
 
 type UpdateRequestsParams struct {
-	StudentID  int64        `json:"student_id"`
-	TeacherID  int64        `json:"teacher_id"`
-	CourseID   int64        `json:"course_id"`
+	UserID     int64        `json:"user_id"`
 	IsActive   sql.NullBool `json:"is_active"`
 	IsPending  sql.NullBool `json:"is_pending"`
 	IsAccepted sql.NullBool `json:"is_accepted"`
@@ -166,9 +160,7 @@ type UpdateRequestsParams struct {
 
 func (q *Queries) UpdateRequests(ctx context.Context, arg UpdateRequestsParams) (Request, error) {
 	row := q.db.QueryRowContext(ctx, updateRequests,
-		arg.StudentID,
-		arg.TeacherID,
-		arg.CourseID,
+		arg.UserID,
 		arg.IsActive,
 		arg.IsPending,
 		arg.IsAccepted,
@@ -177,8 +169,7 @@ func (q *Queries) UpdateRequests(ctx context.Context, arg UpdateRequestsParams) 
 	var i Request
 	err := row.Scan(
 		&i.RequestID,
-		&i.StudentID,
-		&i.TeacherID,
+		&i.UserID,
 		&i.CourseID,
 		&i.IsActive,
 		&i.IsPending,

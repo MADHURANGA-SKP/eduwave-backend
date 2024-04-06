@@ -1,6 +1,6 @@
 -- name: CreateCourses :one
 INSERT INTO courses (
-    teacher_id,
+    user_id,
     title,
     type,
     description,

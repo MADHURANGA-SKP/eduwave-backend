@@ -7,6 +7,8 @@ import (
 
 //CreateRequestParam contains the input parameters of the creation of data
 type CreateRequestParam struct {
+	UserID     int64        `json:"user_id"`
+    CourseID   int64        `json:"course_id"`
 	IsActive   sql.NullBool `json:"is_active"`
 	IsPending  sql.NullBool `json:"is_pending"`
 	IsAccepted sql.NullBool `json:"is_accepted"`
@@ -26,9 +28,11 @@ func (store *Store) CreateRequest(ctx context.Context, arg CreateRequestParam) (
 		var err error
 
 		result.Request, err = q.CreateRequest(ctx, CreateRequestParams{
-			IsActive:   arg.IsActive,
+			UserID: arg.UserID,
+			CourseID: arg.CourseID,
+			IsActive:   arg.IsAccepted,
 			IsPending:  arg.IsPending,
-			IsAccepted: arg.IsPending,
+			IsAccepted: arg.IsAccepted,
 			IsDeclined: arg.IsDeclined,
 		})
 
@@ -44,22 +48,21 @@ func (store *Store) CreateRequest(ctx context.Context, arg CreateRequestParam) (
 
 //GetRequestParam contains the input parameters of the retriving  data
 type DeleteRequestParam struct {
-	StudentID int64 `json:"student_id"`
-	RequestID int64         `json:"request_id"`
+	UserID    int64 `json:"user_id"`
+    RequestID int64 `json:"request_id"`
 }
 
 //DeleteRequest db handler for api call to delete a request from the database
 func (store *Store) DeleteRequest(ctx context.Context, arg DeleteRequestParam) error {
 	return store.Queries.DeleteRequest(ctx, DeleteRequestParams{
-		StudentID: arg.StudentID,
+		UserID: arg.UserID,
 		RequestID: arg.RequestID,
 	})
 }
 
 //GetRequestParam contains the input parameters of the retriving  data
 type GetRequestParam struct {
-	StudentID int64 `json:"student_id"`
-	RequestID int64         `json:"request_id"`
+    RequestID int64 `uri:"request_id"`
 }
 
 //GetRequestResponse contains the result of the updating of the data
@@ -74,10 +77,7 @@ func (store *Store) GetRequest(ctx context.Context, arg GetRequestParam) (GetReq
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		result.Request, err = q.GetRequest(ctx, GetRequestParams{
-			StudentID: arg.StudentID,
-			RequestID: arg.RequestID,
-		})
+		result.Request, err = q.GetRequest(ctx, arg.RequestID)
 
 		if err != nil {
 			return err

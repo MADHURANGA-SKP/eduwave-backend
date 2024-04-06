@@ -11,7 +11,8 @@ import (
 )
 
 type createCourseProgressRequest struct {
-	Progress string `json:"progress" binding:"required"`
+	EnrolmentID int64  `json:"enrolment_id"`
+    Progress    string `json:"progress"`
 }
 
 // @Summary Create course progress
@@ -34,6 +35,7 @@ func (server *Server) createCourseProgress(ctx *gin.Context) {
 	}
 
 	arg := db.CreateCourseProgressPram{
+		EnrolmentID: req.EnrolmentID,
 		Progress: req.Progress,
 	}
 

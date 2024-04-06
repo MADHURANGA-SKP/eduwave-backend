@@ -13,7 +13,7 @@ import (
 // getSubmissionRequest defines the request body structure for getting a submission
 type getSubmissionRequest struct {
 	AssignmentID int64 `json:"assignment_id"`
-    StudentID    int64 `json:"student_id"`
+    UserID       int64 `json:"user_id"`
 }
 
 // @Summary Get a submission
@@ -37,7 +37,7 @@ func (server *Server) getSubmission(ctx *gin.Context) {
 
 	arg := db.GetsubmissionsParams{
 		AssignmentID: req.AssignmentID,
-		StudentID: req.StudentID,
+		UserID: req.UserID,
 	}
 
 	submission, err := server.store.Getsubmissions(ctx, arg)

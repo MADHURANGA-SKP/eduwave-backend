@@ -27,7 +27,7 @@ type Server struct {
 
 // NewServer creates a http server and setup routing
 func NewServer(config util.Config, store db.Store) (*Server, error) {
-	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
@@ -61,76 +61,54 @@ func (server *Server) setupRouter() {
 
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
+	//public routes
 	router.POST("/signup", server.createUser)
 	router.POST("/login", server.loginUser)
 	router.POST("tokens/renew_access", server.renewAccessToken)
 
-	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker, []string{util.AdminRole, util.TeacherRole, util.StudentRole}))
 
-	//requests
-	authRoutes.POST("/requests", server.createRequest)
-	authRoutes.GET("/request/:request_id", server.getRequest)
-	authRoutes.GET("/requests", server.listRequests)
-	authRoutes.DELETE("/request/:student_id/:request_id", server.deleteRequest)
-	authRoutes.PUT("/request/:student_id", server.updateRequest)
-
-	//student
-	// authRoutes.POST("create/students", server.createStudent)//
-	authRoutes.GET("/students", server.listStudents)//
-	authRoutes.PUT("/students/:student_id", server.updateStudent)//
-	authRoutes.DELETE("/students/:student_id", server.deleteStudent)//
-
-	//teacher
-	authRoutes.POST("/teacher", server.createTeacher)
-	authRoutes.GET("/teacher/:teacher_id", server.getTeacher)
-	authRoutes.GET("/teachers", server.listTeachers)
-	authRoutes.PUT("/teachers/:teacher_id", server.updateTeacher)
-	authRoutes.DELETE("/teachers/:teacher_id", server.deleteTeacher)
-
-	//admin
-	authRoutes.POST("/admins", server.createAdmin)	
-	authRoutes.GET("/admins/:admin_id", server.getAdmin)
-	authRoutes.PUT("/admins/:admin_id", server.updateAdmin)
-	authRoutes.DELETE("/admins/:admin_id", server.deleteAdmin)
-
-	//material
-	authRoutes.POST("/material", server.CreateMaterial)	
-	authRoutes.GET("/material/:material_id", server.GetMaterials)
-	authRoutes.PUT("/material/:material_id", server.UpdateMaterial)
-	authRoutes.DELETE("/material/:material_id", server.DeleteMaterial)
-
-	//resource
-	authRoutes.POST("/resource", server.createResource)	
-	authRoutes.GET("/resource/:resource_id", server.getResource)
-	authRoutes.PUT("/resource/:resource_id", server.updateResource)
-	authRoutes.DELETE("/resource/:resource_id", server.deleteResource)
-
-	//createcourse
-	authRoutes.POST("/course", server.CreateCourse)	
-	authRoutes.GET("/course/:course_id", server.GetCourse)
-	authRoutes.PUT("/courses", server.ListCourses)
-	authRoutes.PUT("/course/:course_id", server.UpdateCourse)
-	authRoutes.DELETE("/course/:course_id", server.DeleteCourse)
-
-	//assignment
-	authRoutes.POST("/assignments", server.createAssignment)
-	authRoutes.GET("/assignments/:assignment_id", server.getAssignment)
-	authRoutes.PUT("/assignments/:assignment_id", server.updateAssignment)
-	authRoutes.DELETE("/assignments/:assignment_id/:resource_id", server.deleteAssignment)
-
-	//course_enrolments
-	authRoutes.GET("/courseEnrolments", server.listEnrolments)
-
-	//course_progress
-	authRoutes.POST("/courseProgress", server.createCourseProgress)
-	authRoutes.GET("/courseProgress", server.listCourseProgress)
-	authRoutes.GET("/courseProgress/:courseProgress_id", server.getCourseProgress)
-
-	//submissions
-	// authRoutes.POST("create/submissions/", server.createsubmission)
-	authRoutes.GET("/submissions/:submission_id", server.getSubmission)
-	authRoutes.GET("/submissions", server.listSubmissions)
+	//ADMIN - RBAC
+		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker, []string{util.AdminRole, util.TeacherRole, util.StudentRole}))
+		
+		router.POST("/admin/signup", server.createAdminUser)
+		//requests
+			authroute.POST("/requests", server.createRequest)//
+			authroute.GET("/request/:request_id", server.getRequest)
+			authroute.GET("/requests", server.listRequests)
+			authroute.DELETE("/request/:student_id/:request_id", server.deleteRequest)
+			authroute.PUT("/request/:student_id", server.updateRequest)
+		//material
+			authroute.POST("/material", server.CreateMaterial)	
+			authroute.GET("/material/:material_id", server.GetMaterials)
+			authroute.PUT("/material/:material_id", server.UpdateMaterial)
+			authroute.DELETE("/material/:material_id", server.DeleteMaterial)
+		//resource
+			authroute.POST("/resource", server.createResource)	
+			authroute.GET("/resource/:resource_id", server.getResource)
+			authroute.PUT("/resource/:resource_id", server.updateResource)
+			authroute.DELETE("/resource/:resource_id", server.deleteResource)
+		//createcourse
+			authroute.POST("/course", server.CreateCourse)	
+			authroute.GET("/course/:course_id", server.GetCourse)
+			authroute.PUT("/courses", server.ListCourses)
+			authroute.PUT("/course/:course_id", server.UpdateCourse)
+			authroute.DELETE("/course/:course_id", server.DeleteCourse)
+		//assignment
+			authroute.POST("/assignments", server.createAssignment)
+			authroute.GET("/assignments/:assignment_id", server.getAssignment)
+			authroute.PUT("/assignments/:assignment_id", server.updateAssignment)
+			authroute.DELETE("/assignments/:assignment_id/:resource_id", server.deleteAssignment)
+		//submissions
+			// authRoutes.POST("create/submissions/", server.createsubmission)
+			authroute.GET("/submissions/:submission_id", server.getSubmission)
+			authroute.GET("/submissions", server.listSubmissions)
+		//course_enrolments
+			authroute.POST("/enrolments", server.CreateCourseEnrolment)
+			authroute.GET("/enrolments", server.listEnrolments)
+		//course_progress
+			authroute.POST("/courseProgress", server.createCourseProgress)
+			authroute.GET("/courseProgress", server.listCourseProgress)
+			authroute.GET("/courseProgress/:courseProgress_id", server.getCourseProgress)
 
 	server.router = router
 }
@@ -143,3 +121,27 @@ func (server *Server) Start(address string) error {
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
+
+
+// func main() {
+// 	r := gin.Default()
+
+// 	// Public route
+// 	r.GET("/public", func(c *gin.Context) {
+// 		c.JSON(http.StatusOK, gin.H{"message": "This is a public route"})
+// 	})
+
+// 	// Protected route for admins
+// 	adminRoutes := r.Group("/admin").Use(AuthorizeRole("admin"))
+// 	adminRoutes.GET("/dashboard", func(c *gin.Context) {
+// 		c.JSON(http.StatusOK, gin.H{"message": "Welcome, Admin!"})
+// 	})
+
+// 	// Protected route for users
+// 	userRoutes := r.Group("/user").Use(AuthorizeRole("user"))
+// 	userRoutes.GET("/profile", func(c *gin.Context) {
+// 		c.JSON(http.StatusOK, gin.H{"message": "Welcome, User!"})
+// 	})
+
+// 	r.Run(":8080")
+// }

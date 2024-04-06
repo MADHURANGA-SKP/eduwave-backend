@@ -9,24 +9,52 @@ import (
 	"context"
 )
 
+const createEnrolments = `-- name: CreateEnrolments :one
+INSERT INTO course_enrolments (
+    course_id,
+    request_id,
+    user_id
+) VALUES (
+    $1, $2, $3
+) RETURNING enrolment_id, course_id, request_id, user_id
+`
+
+type CreateEnrolmentsParams struct {
+	CourseID  int64 `json:"course_id"`
+	RequestID int64 `json:"request_id"`
+	UserID    int64 `json:"user_id"`
+}
+
+func (q *Queries) CreateEnrolments(ctx context.Context, arg CreateEnrolmentsParams) (CourseEnrolment, error) {
+	row := q.db.QueryRowContext(ctx, createEnrolments, arg.CourseID, arg.RequestID, arg.UserID)
+	var i CourseEnrolment
+	err := row.Scan(
+		&i.EnrolmentID,
+		&i.CourseID,
+		&i.RequestID,
+		&i.UserID,
+	)
+	return i, err
+}
+
 const listEnrolments = `-- name: ListEnrolments :many
-SELECT enrolment_id, course_id, request_id, student_id FROM course_enrolments
-WHERE student_id = $1 AND course_id = $2
+SELECT enrolment_id, course_id, request_id, user_id FROM course_enrolments
+WHERE user_id = $1 AND course_id = $2
 ORDER BY enrolment_id
 LIMIT $3
 OFFSET $4
 `
 
 type ListEnrolmentsParams struct {
-	StudentID int64 `json:"student_id"`
-	CourseID  int64 `json:"course_id"`
-	Limit     int32 `json:"limit"`
-	Offset    int32 `json:"offset"`
+	UserID   int64 `json:"user_id"`
+	CourseID int64 `json:"course_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
 }
 
 func (q *Queries) ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error) {
 	rows, err := q.db.QueryContext(ctx, listEnrolments,
-		arg.StudentID,
+		arg.UserID,
 		arg.CourseID,
 		arg.Limit,
 		arg.Offset,
@@ -42,7 +70,7 @@ func (q *Queries) ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) 
 			&i.EnrolmentID,
 			&i.CourseID,
 			&i.RequestID,
-			&i.StudentID,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}

@@ -1,8 +1,9 @@
 -- name: CreateCourseProgress :one
 INSERT INTO course_progress (
+    enrolment_id,
     progress
 ) VALUES (
-    $1
+    $1, $2
 ) RETURNING *;
 
 -- name: GetCourseProgress :one

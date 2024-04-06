@@ -1,1 +1,1 @@
-ALTER TABLE "teachers" ADD COLUMN "qualification" varchar NOT NULL ;
+ALTER TABLE "users" ADD COLUMN "qualification" varchar NOT NULL ;

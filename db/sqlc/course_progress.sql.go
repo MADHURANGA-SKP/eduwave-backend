@@ -11,14 +11,20 @@ import (
 
 const createCourseProgress = `-- name: CreateCourseProgress :one
 INSERT INTO course_progress (
+    enrolment_id,
     progress
 ) VALUES (
-    $1
+    $1, $2
 ) RETURNING courseprogress_id, enrolment_id, progress
 `
 
-func (q *Queries) CreateCourseProgress(ctx context.Context, progress string) (CourseProgress, error) {
-	row := q.db.QueryRowContext(ctx, createCourseProgress, progress)
+type CreateCourseProgressParams struct {
+	EnrolmentID int64  `json:"enrolment_id"`
+	Progress    string `json:"progress"`
+}
+
+func (q *Queries) CreateCourseProgress(ctx context.Context, arg CreateCourseProgressParams) (CourseProgress, error) {
+	row := q.db.QueryRowContext(ctx, createCourseProgress, arg.EnrolmentID, arg.Progress)
 	var i CourseProgress
 	err := row.Scan(&i.CourseprogressID, &i.EnrolmentID, &i.Progress)
 	return i, err

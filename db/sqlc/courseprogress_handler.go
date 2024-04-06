@@ -4,7 +4,8 @@ import "context"
 
 //CreateCourseProgresParam contains input paramters of create Progress
 type CreateCourseProgressPram struct {
-	Progress string `Json:"progress"`
+	EnrolmentID int64  `json:"enrolment_id"`
+    Progress    string `json:"progress"`
 }
 
 //CreateCoureseProgresresponse contains the result of the Progress data
@@ -19,7 +20,10 @@ func (store *Store) CreateCourseProgress(ctx context.Context, arg CreateCoursePr
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		result.CourseProgress, err = q.CreateCourseProgress(ctx, arg.Progress)
+		result.CourseProgress, err = q.CreateCourseProgress(ctx, CreateCourseProgressParams{
+			EnrolmentID: arg.EnrolmentID,
+			Progress: arg.Progress,
+		})
 		if err != nil {
 			return err
 		}
