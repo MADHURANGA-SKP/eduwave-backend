@@ -35,3 +35,14 @@ SET
 WHERE
     user_name = sqlc.arg(user_name)
 RETURNING *;
+
+-- name: ListUser :many
+SELECT * FROM users
+WHERE role = $1
+ORDER BY user_id
+LIMIT $2
+OFFSET $3;
+
+-- name: DeleteUsers :exec
+DELETE FROM users
+WHERE user_id = $1;

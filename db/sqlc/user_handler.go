@@ -108,3 +108,8 @@ func (store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam) (Update
 	})
 	return result, err
 }
+
+// ListUserParams contains the input parameters for list users
+func (store *Store) ListUsers(ctx context.Context, params ListUserParams) ([]User, error) {
+    return store.Queries.ListUser(ctx, params)
+}

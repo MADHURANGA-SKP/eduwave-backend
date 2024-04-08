@@ -26,6 +26,7 @@ type Querier interface {
 	DeleteMaterial(ctx context.Context, arg DeleteMaterialParams) error
 	DeleteRequest(ctx context.Context, arg DeleteRequestParams) error
 	DeleteResource(ctx context.Context, arg DeleteResourceParams) error
+	DeleteUsers(ctx context.Context, userID int64) error
 	GetAssignment(ctx context.Context, assignmentID int64) (Assignment, error)
 	GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error)
 	GetCourses(ctx context.Context, courseID int64) (Course, error)
@@ -49,6 +50,7 @@ type Querier interface {
 	ListMaterial(ctx context.Context, arg ListMaterialParams) ([]Material, error)
 	ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error)
 	ListResource(ctx context.Context, arg ListResourceParams) ([]Resource, error)
+	ListUser(ctx context.Context, arg ListUserParams) ([]User, error)
 	Listsubmissions(ctx context.Context, arg ListsubmissionsParams) ([]Submission, error)
 	UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) (Assignment, error)
 	UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (Course, error)

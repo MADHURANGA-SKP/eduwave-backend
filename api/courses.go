@@ -178,7 +178,7 @@ func (server *Server) UpdateCourse(ctx *gin.Context) {
 
 // deleteCourseRequest defines the request body structure for deleting an Course
 type deleteCourseRequest struct {
-	CourseID  int64 `json:"course_id"`
+	CourseID  int64 `uri:"course_id"`
 }
 
 // @Summary Delete a course

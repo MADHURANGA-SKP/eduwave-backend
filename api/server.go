@@ -67,10 +67,14 @@ func (server *Server) setupRouter() {
 	router.POST("tokens/renew_access", server.renewAccessToken)
 
 
-	//ADMIN - RBAC
-		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker, []string{util.AdminRole, util.TeacherRole, util.StudentRole}))
+	//RBAC auth routes
+		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
 		
-		router.POST("/admin/signup", server.createAdminUser)
+		authroute.POST("/admin/signup", server.createAdminUser)
+		authroute.PUT("/admin/edit", server.UpdateUser)
+		authroute.GET("/listadmin", server.ListUser)
+		authroute.GET("/liststudent", server.ListUserStudent)
+		authroute.GET("/listteacher", server.ListUserTeacher)
 		//requests
 			authroute.POST("/requests", server.createRequest)//
 			authroute.GET("/request/:request_id", server.getRequest)
@@ -103,7 +107,7 @@ func (server *Server) setupRouter() {
 			authroute.GET("/submissions/:submission_id", server.getSubmission)
 			authroute.GET("/submissions", server.listSubmissions)
 		//course_enrolments
-			authroute.POST("/enrolments", server.CreateCourseEnrolment)
+			authroute.POST("/courseEnrolments", server.CreateCourseEnrolment)
 			authroute.GET("/enrolments", server.listEnrolments)
 		//course_progress
 			authroute.POST("/courseProgress", server.createCourseProgress)
