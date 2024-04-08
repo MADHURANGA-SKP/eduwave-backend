@@ -15,25 +15,25 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/admin": {
+        "/assignments": {
             "post": {
-                "description": "Creates a new admin",
+                "description": "Create a new assignment with the provided details",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Create an admin",
-                "operationId": "create-admin",
+                "summary": "Create a new assignment",
+                "operationId": "create-assignment",
                 "parameters": [
                     {
-                        "description": "Admin data to create",
+                        "description": "Assignment details",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.CreateAdminRequest"
+                            "$ref": "#/definitions/api.createAssignmentRequest"
                         }
                     }
                 ],
@@ -53,89 +53,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/{admin_id}": {
-            "get": {
-                "description": "Retrieves an admin by ID",
-                "summary": "Get admin by ID",
-                "operationId": "get-admin",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Admin ID",
-                        "name": "admin_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
+        "/assignments/{assignment_id}": {
             "put": {
-                "description": "Updates an admin by ID",
+                "description": "Update an assignment with the provided details",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Update an admin",
-                "operationId": "update-admin",
+                "summary": "Update an assignment",
+                "operationId": "update-assignment",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Admin ID",
-                        "name": "admin_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Admin data to update",
+                        "description": "Updated assignment details",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.updateAdminRequest"
+                            "$ref": "#/definitions/api.UpdateAssignmentRequest"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes an admin by ID",
-                "summary": "Delete an admin",
-                "operationId": "delete-admin",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Admin ID",
-                        "name": "admin_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -155,6 +92,47 @@ const docTemplate = `{
             }
         },
         "/assignments/{assignment_id}/{resource_id}": {
+            "get": {
+                "description": "Get an assignment by its ID and resource ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get an assignment by ID",
+                "operationId": "get-assignment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Assignment ID",
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete an assignment by its ID and resource ID",
                 "consumes": [
@@ -549,6 +527,44 @@ const docTemplate = `{
                         "name": "offset",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/enrolments": {
+            "post": {
+                "description": "Create a new enrolment with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a new enrolment",
+                "operationId": "create-enrolment",
+                "parameters": [
+                    {
+                        "description": "enrolment details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateEnrolmentsRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -1119,127 +1135,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/students": {
-            "get": {
-                "description": "Returns a list of students with pagination",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "List students",
-                "operationId": "list-students",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "description": "Page ID",
-                        "name": "page_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "maximum": 10,
-                        "minimum": 5,
-                        "type": "integer",
-                        "description": "Page Size",
-                        "name": "page_size",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/students/:student_id": {
-            "put": {
-                "description": "Update a student by their ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update student",
-                "operationId": "update-student",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Student ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Student data",
-                        "name": "student",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.UpdateStudentRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/students/{student_id}": {
-            "delete": {
-                "description": "Deletes a student by their ID",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Delete student by ID",
-                "operationId": "delete-student",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Student ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
         "/submissions": {
             "get": {
                 "description": "Lists submissions for a given assignment ID",
@@ -1330,210 +1225,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/teacher": {
-            "post": {
-                "description": "Create a new teacher with the provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "teachers"
-                ],
-                "summary": "Create a new teacher",
-                "parameters": [
-                    {
-                        "description": "Teacher details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.createTeacherRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/teacher/{teacher_id}": {
-            "get": {
-                "description": "Retrieve a teacher by their ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "teachers"
-                ],
-                "summary": "Get a teacher by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Teacher ID",
-                        "name": "teacher_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/teachers": {
-            "get": {
-                "description": "Retrieve a list of teachers",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "teachers"
-                ],
-                "summary": "List teachers",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page ID",
-                        "name": "page_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page Size",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/teachers/{teacher_id}": {
-            "put": {
-                "description": "Update an existing teacher with the provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "teachers"
-                ],
-                "summary": "Update a teacher",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Teacher ID",
-                        "name": "teacher_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated teacher details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.UpeateTeacherRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a teacher by their ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "teachers"
-                ],
-                "summary": "Delete a teacher",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Teacher ID",
-                        "name": "teacher_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
         "/tokens/renew_access": {
             "post": {
                 "description": "Renew access token using refresh token",
@@ -1574,23 +1265,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.CreateAdminRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "hashed_password": {
-                    "type": "string"
-                },
-                "user_name": {
-                    "type": "string"
-                }
-            }
-        },
         "api.CreateCourseRequest": {
             "type": "object",
             "required": [
@@ -1602,11 +1276,34 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "image": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "title": {
                     "type": "string"
                 },
                 "type": {
                     "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.CreateEnrolmentsRequest": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer"
+                },
+                "request_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1629,6 +1326,26 @@ const docTemplate = `{
                 }
             }
         },
+        "api.UpdateAssignmentRequest": {
+            "type": "object",
+            "properties": {
+                "assignment_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "submission_date": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "api.UpdateCoursesRequest": {
             "type": "object",
             "properties": {
@@ -1637,6 +1354,12 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "image": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -1670,92 +1393,73 @@ const docTemplate = `{
                 }
             }
         },
-        "api.UpdateStudentRequest": {
+        "api.createAssignmentRequest": {
             "type": "object",
             "properties": {
-                "student_id": {
+                "description": {
+                    "type": "string"
+                },
+                "resource_id": {
                     "type": "integer"
                 },
-                "user_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.UpeateTeacherRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "hashed_password": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "teacher_id": {
-                    "type": "integer"
-                },
-                "user_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.createCourseProgressRequest": {
-            "type": "object",
-            "required": [
-                "progress"
-            ],
-            "properties": {
-                "progress": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.createRequestRequest": {
-            "type": "object"
-        },
-        "api.createResourceRequest": {
-            "type": "object",
-            "required": [
-                "content_url",
-                "title",
-                "type"
-            ],
-            "properties": {
-                "content_url": {
+                "submission_date": {
                     "type": "string"
                 },
                 "title": {
                     "type": "string"
                 },
                 "type": {
-                    "$ref": "#/definitions/db.TypeResource"
+                    "type": "string"
                 }
             }
         },
-        "api.createTeacherRequest": {
+        "api.createCourseProgressRequest": {
             "type": "object",
             "properties": {
-                "admin_id": {
+                "enrolment_id": {
                     "type": "integer"
                 },
-                "email": {
+                "progress": {
                     "type": "string"
+                }
+            }
+        },
+        "api.createRequestRequest": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer"
                 },
-                "full_name": {
-                    "type": "string"
-                },
-                "hashed_password": {
-                    "type": "string"
+                "is_accepted": {
+                    "type": "boolean"
                 },
                 "is_active": {
                     "type": "boolean"
                 },
-                "user_name": {
+                "is_declined": {
+                    "type": "boolean"
+                },
+                "is_pending": {
+                    "type": "boolean"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.createResourceRequest": {
+            "type": "object",
+            "properties": {
+                "content_url": {
+                    "type": "string"
+                },
+                "material_id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -1770,6 +1474,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "hashed_password": {
+                    "type": "string"
+                },
+                "qualification": {
                     "type": "string"
                 },
                 "role": {
@@ -1791,68 +1498,8 @@ const docTemplate = `{
                 }
             }
         },
-        "api.updateAdminRequest": {
-            "type": "object",
-            "properties": {
-                "admin_id": {
-                    "type": "integer"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "hashed_password": {
-                    "type": "string"
-                },
-                "user_name": {
-                    "type": "string"
-                }
-            }
-        },
         "api.updateRequestRequest": {
-            "type": "object",
-            "required": [
-                "id",
-                "is_accepted",
-                "is_active",
-                "is_declined",
-                "is_pending"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "is_accepted": {
-                    "type": "boolean"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "is_declined": {
-                    "type": "boolean"
-                },
-                "is_pending": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "db.TypeResource": {
-            "type": "string",
-            "enum": [
-                "pdf",
-                "video",
-                "image",
-                "doc"
-            ],
-            "x-enum-varnames": [
-                "TypeResourcePdf",
-                "TypeResourceVideo",
-                "TypeResourceImage",
-                "TypeResourceDoc"
-            ]
+            "type": "object"
         }
     }
 }`

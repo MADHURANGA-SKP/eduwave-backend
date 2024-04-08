@@ -11,6 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type createAssignmentRequest struct {
+	ResourceID     int64     `json:"resource_id"`
+	Type           string    `json:"type"`
+    Title          string    `json:"title"`
+    Description    string    `json:"description"`
+    SubmissionDate time.Time `json:"submission_date"`
+}
+
 // @Summary Create a new assignment
 // @Description Create a new assignment with the provided details
 // @ID create-assignment
@@ -22,14 +30,6 @@ import (
 // @Failure 404
 // @Failure 500
 // @Router /assignments [post]
-type createAssignmentRequest struct {
-	ResourceID     int64     `json:"resource_id"`
-	Type           string    `json:"type"`
-    Title          string    `json:"title"`
-    Description    string    `json:"description"`
-    SubmissionDate time.Time `json:"submission_date"`
-}
-
 func (server *Server) createAssignment(ctx *gin.Context) {
 	var req createAssignmentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -91,6 +91,14 @@ func (server *Server) getAssignment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
+type UpdateAssignmentRequest struct {
+	AssignmentID   int64     `json:"assignment_id"`
+	Type           string    `json:"type"`
+	Title          string    `json:"title"`
+	Description    string    `json:"description"`
+	SubmissionDate time.Time `json:"submission_date"`
+}
+
 // @Summary Update an assignment
 // @Description Update an assignment with the provided details
 // @ID update-assignment
@@ -102,14 +110,6 @@ func (server *Server) getAssignment(ctx *gin.Context) {
 // @Failure 404 
 // @Failure 500
 // @Router /assignments/{assignment_id} [put]
-type UpdateAssignmentRequest struct {
-	AssignmentID   int64     `json:"assignment_id"`
-	Type           string    `json:"type"`
-	Title          string    `json:"title"`
-	Description    string    `json:"description"`
-	SubmissionDate time.Time `json:"submission_date"`
-}
-
 func (server *Server) updateAssignment(ctx *gin.Context) {
 	var req UpdateAssignmentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

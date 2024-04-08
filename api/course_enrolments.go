@@ -62,7 +62,7 @@ type CreateEnrolmentsRequest struct {
 // @ID create-enrolment
 // @Accept json
 // @Produce json
-// @Param request body CreateCourseEnrolments true "enrolment details"
+// @Param request body CreateEnrolmentsRequest true "enrolment details"
 // @Success 200
 // @Failure 400
 // @Failure 404

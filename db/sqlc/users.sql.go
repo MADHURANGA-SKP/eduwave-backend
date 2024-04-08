@@ -57,6 +57,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteUsers = `-- name: DeleteUsers :exec
+DELETE FROM users
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUsers(ctx context.Context, userID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteUsers, userID)
+	return err
+}
+
 const getUser = `-- name: GetUser :one
 
 
@@ -88,6 +98,54 @@ func (q *Queries) GetUser(ctx context.Context, userName string) (User, error) {
 		&i.Qualification,
 	)
 	return i, err
+}
+
+const listUser = `-- name: ListUser :many
+SELECT user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at, qualification FROM users
+WHERE role = $1
+ORDER BY user_id
+LIMIT $2
+OFFSET $3
+`
+
+type ListUserParams struct {
+	Role   string `json:"role"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, listUser, arg.Role, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.UserID,
+			&i.UserName,
+			&i.Role,
+			&i.HashedPassword,
+			&i.FullName,
+			&i.Email,
+			&i.IsEmailVerified,
+			&i.PasswordChangedAt,
+			&i.CreatedAt,
+			&i.Qualification,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateUser = `-- name: UpdateUser :one

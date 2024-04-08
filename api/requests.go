@@ -102,8 +102,8 @@ type listRequestRequest struct {
 	StudentID int64 `form:"student_id"`
 	TeacherID int64 `form:"teacher_id"`
 	CourseID  int64 `form:"course_id"`
-	Limit     int32 `form:"limit" binding:"required,min=5,max=10"`
-	Offset    int32 `form:"offset" binding:"required,min=0"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+    PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 // @Summary List requests
@@ -127,8 +127,8 @@ func (server *Server) listRequests(ctx *gin.Context) {
 	}
 
 	arg := db.ListRequestParams{
-		Limit:  req.Limit,
-		Offset: req.Offset,
+		Limit:  req.PageSize,
+        Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	requests, err := server.store.ListRequest(ctx, arg)
