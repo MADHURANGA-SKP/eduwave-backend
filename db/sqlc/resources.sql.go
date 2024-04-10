@@ -48,16 +48,11 @@ func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) 
 
 const deleteResource = `-- name: DeleteResource :exec
 DELETE FROM resources
-WHERE resource_id = $1 AND material_id = $2
+WHERE resource_id = $1
 `
 
-type DeleteResourceParams struct {
-	ResourceID int64 `json:"resource_id"`
-	MaterialID int64 `json:"material_id"`
-}
-
-func (q *Queries) DeleteResource(ctx context.Context, arg DeleteResourceParams) error {
-	_, err := q.db.ExecContext(ctx, deleteResource, arg.ResourceID, arg.MaterialID)
+func (q *Queries) DeleteResource(ctx context.Context, resourceID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteResource, resourceID)
 	return err
 }
 

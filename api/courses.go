@@ -4,7 +4,6 @@ package api
 
 import (
 	"net/http"
-	"strconv"
 
 	db "eduwave-back-end/db/sqlc"
 
@@ -91,7 +90,7 @@ func (server *Server) GetCourse(ctx *gin.Context) {
 
 type ListCoursesRequest struct {
 	PageID   int32 `form:"page_id,min=1"`
-	PageSize int32 `form:"page_size,min=5,max=10"`
+	PageSize int32 `form:"page_size,min=10,max=10"`
 }
 
 // @Summary List courses
@@ -145,29 +144,29 @@ type UpdateCoursesRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /course/{course_id} [put]
+// @Router /course/update [put]
 // UpdateCourse updates the selected course
-func (server *Server) UpdateCourse(ctx *gin.Context) {
+func (server *Server) UpdateCourses(ctx *gin.Context) {
 	var req UpdateCoursesRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	courseID, err := strconv.Atoi(ctx.Param("course_id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-	}
+	// courseID, err := strconv.Atoi(ctx.Param("course_id"))
+	// if err != nil {
+	// 	ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	// }
 
 	arg := db.UpdateCoursesParams{
-		CourseID: int64(courseID),
+		CourseID: req.CourseID,
 		Title: req.Title,
 		Type: req.Type,
 		Description: req.Description,
 		Image: req.Image,
 	}
 
-	courses, err := server.store.UpdateCourses(ctx, arg)
+	courses, err := server.store.UpdateCourses(ctx, db.UpdateCoursesParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

@@ -40,16 +40,11 @@ func (q *Queries) CreateMaterial(ctx context.Context, arg CreateMaterialParams) 
 
 const deleteMaterial = `-- name: DeleteMaterial :exec
 DELETE FROM materials
-WHERE material_id = $1 AND course_id = $2
+WHERE material_id = $1
 `
 
-type DeleteMaterialParams struct {
-	MaterialID int64 `json:"material_id"`
-	CourseID   int64 `json:"course_id"`
-}
-
-func (q *Queries) DeleteMaterial(ctx context.Context, arg DeleteMaterialParams) error {
-	_, err := q.db.ExecContext(ctx, deleteMaterial, arg.MaterialID, arg.CourseID)
+func (q *Queries) DeleteMaterial(ctx context.Context, materialID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteMaterial, materialID)
 	return err
 }
 

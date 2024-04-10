@@ -5,7 +5,6 @@ import (
 	db "eduwave-back-end/db/sqlc"
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -117,14 +116,14 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 		return
 	}
 
-	assignmentid, err := strconv.Atoi(ctx.Param("assignment_id"))
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, errorResponse(err))
-        return
-    }
+	// assignmentid, err := strconv.Atoi(ctx.Param("assignment_id"))
+    // if err != nil {
+    //     ctx.JSON(http.StatusBadRequest, errorResponse(err))
+    //     return
+    // }
 
 	arg := db.UpdateAssignmentParams{
-		AssignmentID: int64(assignmentid),
+		AssignmentID: req.AssignmentID,
 		Type:           req.Type,
 		Title:          req.Title,
 		Description:    req.Description,
@@ -141,8 +140,8 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 }
 
 type DeleteAssignmentRequest struct {
-	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   int64 `json:"resource_id"`
+	AssignmentID int64         `uri:"assignment_id"`
+	ResourceID   int64 `uri:"resource_id"`
 }
 
 // @Summary Delete an assignment
@@ -158,16 +157,15 @@ type DeleteAssignmentRequest struct {
 // @Failure 500
 // @Router /assignments/{assignment_id}/{resource_id} [delete]
 func (server *Server) deleteAssignment(ctx *gin.Context) {
-	assignmentID, err := strconv.ParseInt(ctx.Param("assignment_id"), 10, 64)
-	resourceID, err := strconv.ParseInt(ctx.Param("resource_id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("invalid assignment_id")))
+	var req DeleteAssignmentRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	err = server.store.DeleteAssignment(ctx, db.DeleteAssignmentParam{
-		AssignmentID: assignmentID,
-		ResourceID : resourceID,
+	
+	err := server.store.DeleteAssignment(ctx, db.DeleteAssignmentParam{
+		AssignmentID: req.AssignmentID,
+		ResourceID : req.ResourceID,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

@@ -22,11 +22,10 @@ RETURNING *;
 
 -- name: ListRequest :many
 SELECT * FROM requests
-WHERE user_id = $1 AND course_id =$2
 ORDER BY request_id
-LIMIT $3
-OFFSET $4;
+LIMIT $1
+OFFSET $2;
 
 -- name: DeleteRequest :exec
 DELETE FROM requests
-WHERE user_id = $1 AND request_id = $2;
+WHERE request_id = $1;

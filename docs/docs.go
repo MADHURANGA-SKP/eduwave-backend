@@ -15,6 +15,44 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/signup": {
+            "post": {
+                "description": "Create a new admin's user with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a admin's user",
+                "operationId": "create admin user",
+                "parameters": [
+                    {
+                        "description": "User creation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.createUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/assignments": {
             "post": {
                 "description": "Create a new assignment with the provided details",
@@ -212,37 +250,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/course/{course_id}": {
-            "get": {
-                "description": "Retrieves a course by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get a course by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "course_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
+        "/course/update": {
             "put": {
                 "description": "Updates a course with provided details",
                 "consumes": [
@@ -261,6 +269,38 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/api.UpdateCoursesRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/course/{course_id}": {
+            "get": {
+                "description": "Retrieves a course by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a course by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "course_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -583,6 +623,120 @@ const docTemplate = `{
                 }
             }
         },
+        "/listadmin": {
+            "get": {
+                "description": "ListUser with the provided admin based",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "ListUser",
+                "operationId": "list-user",
+                "parameters": [
+                    {
+                        "description": "admin list request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ListUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/liststudent": {
+            "get": {
+                "description": "ListUserStudent with the provided student based",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "ListUserStudent",
+                "operationId": "list-student",
+                "parameters": [
+                    {
+                        "description": "student list request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ListUserStudentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/listteacher": {
+            "get": {
+                "description": "ListUserTeacher with the provided teacher based",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "ListUserTeacher",
+                "operationId": "list-teacher",
+                "parameters": [
+                    {
+                        "description": "teacher list request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ListUserTeacherRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Log in a user with the provided credentials",
@@ -738,9 +892,7 @@ const docTemplate = `{
                         "description": "Internal Server Error"
                     }
                 }
-            }
-        },
-        "/material/{material_id}/{course_id}": {
+            },
             "delete": {
                 "description": "Delete a material",
                 "consumes": [
@@ -765,6 +917,43 @@ const docTemplate = `{
                         "name": "course_id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/request/update": {
+            "put": {
+                "description": "Update a request with the provided parameters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update a request",
+                "parameters": [
+                    {
+                        "description": "Requested data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.updateRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -815,44 +1004,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/request/{student_id}": {
-            "put": {
-                "description": "Update a request with the provided parameters",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update a request",
-                "parameters": [
-                    {
-                        "description": "Request data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.updateRequestRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/request/{student_id}/{request_id}": {
+        "/request/{user_id}/{request_id}": {
             "delete": {
                 "description": "Delete a request by student and request ID",
                 "produces": [
@@ -1019,6 +1171,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/resource/{resource_id}": {
+            "delete": {
+                "description": "Deletes a resource",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete a resource",
+                "operationId": "delete-resource",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Material ID",
+                        "name": "material_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/resource/{resource_id}/{material_id}": {
             "get": {
                 "description": "Retrieves a resource",
@@ -1039,44 +1231,6 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Resource ID",
                         "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes a resource",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Delete a resource",
-                "operationId": "delete-resource",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Material ID",
-                        "name": "material_id",
                         "in": "path",
                         "required": true
                     }
@@ -1262,6 +1416,43 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/edit": {
+            "patch": {
+                "description": "Updates a user with provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update a user",
+                "parameters": [
+                    {
+                        "description": "Updated user details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1323,6 +1514,60 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "api.ListUserRequest": {
+            "type": "object",
+            "required": [
+                "page_id",
+                "page_size"
+            ],
+            "properties": {
+                "page_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "page_size": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 5
+                }
+            }
+        },
+        "api.ListUserStudentRequest": {
+            "type": "object",
+            "required": [
+                "page_id",
+                "page_size"
+            ],
+            "properties": {
+                "page_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "page_size": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 5
+                }
+            }
+        },
+        "api.ListUserTeacherRequest": {
+            "type": "object",
+            "required": [
+                "page_id",
+                "page_size"
+            ],
+            "properties": {
+                "page_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "page_size": {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 5
                 }
             }
         },
@@ -1392,6 +1637,9 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "api.UpdateUserRequest": {
+            "type": "object"
         },
         "api.createAssignmentRequest": {
             "type": "object",
@@ -1498,7 +1746,7 @@ const docTemplate = `{
                 }
             }
         },
-        "api.updateRequestRequest": {
+        "api.updateRequest": {
             "type": "object"
         }
     }

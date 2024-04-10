@@ -27,4 +27,4 @@ OFFSET $4;
 
 -- name: DeleteResource :exec
 DELETE FROM resources
-WHERE resource_id = $1 AND material_id = $2;
+WHERE resource_id = $1;

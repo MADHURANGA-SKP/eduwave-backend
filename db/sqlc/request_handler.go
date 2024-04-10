@@ -46,18 +46,9 @@ func (store *Store) CreateRequest(ctx context.Context, arg CreateRequestParam) (
 	return result, err
 }
 
-//GetRequestParam contains the input parameters of the retriving  data
-type DeleteRequestParam struct {
-	UserID    int64 `json:"user_id"`
-    RequestID int64 `json:"request_id"`
-}
-
 //DeleteRequest db handler for api call to delete a request from the database
-func (store *Store) DeleteRequest(ctx context.Context, arg DeleteRequestParam) error {
-	return store.Queries.DeleteRequest(ctx, DeleteRequestParams{
-		UserID: arg.UserID,
-		RequestID: arg.RequestID,
-	})
+func (store *Store) DeleteRequest(ctx context.Context, requestID int64) error {
+	return store.Queries.DeleteRequest(ctx, requestID)
 }
 
 //GetRequestParam contains the input parameters of the retriving  data

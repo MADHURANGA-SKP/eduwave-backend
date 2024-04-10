@@ -26,4 +26,4 @@ OFFSET $3;
 
 -- name: DeleteMaterial :exec
 DELETE FROM materials
-WHERE material_id = $1 AND course_id = $2;
+WHERE material_id = $1;

@@ -38,9 +38,14 @@ func (store *Store) CreateResource(ctx context.Context, arg CreateResourceParam)
 	return result, err
 }
 
+//DeleteMaterialParam contains the input parameters of the delete the data
+type DeleteResourceParam struct {
+	ResourceID  int64  `json:"resource_id"`
+}
+
 //DeleteResource db handler for api call to delete exact data from the database
-func (store *Store) DeleteResource(ctx context.Context, params DeleteResourceParams) error {
-	return store.Queries.DeleteResource(ctx, params)
+func (store *Store) DeleteResource(ctx context.Context, arg DeleteResourceParam) error {
+	return store.Queries.DeleteResource(ctx, arg.ResourceID )
 }
 
 //GetResourceParam contains the input paramters of the retriving data
@@ -80,9 +85,10 @@ func (store *Store) ListResource(ctx context.Context, params ListResourceParams)
 //UpdateResourceParam contains the input parameters of the updating data
 type UpdateResourceParam struct {
 	MaterialID int64        `json:"material_id"`
-	Title        string        `json:"title"`
-	Type         TypeResource  `json:"type"`
-	ContentUrl   string        `json:"content_url"`
+	ResourceID int64        `json:"resource_id"`
+	Title      string       `json:"title"`
+	Type       TypeResource `json:"type"`
+	ContentUrl string       `json:"content_url"`
 }
 
 //UpdateResourceResponse contains the result of the updating data
@@ -99,6 +105,7 @@ func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(
 
 		result.Resource, err = q.UpdateResource(ctx, UpdateResourceParams{
 			MaterialID: arg.MaterialID,
+			ResourceID: arg.ResourceID,
 			Title: arg.Title,
 			Type: arg.Type,
 			ContentUrl:  arg.ContentUrl,
