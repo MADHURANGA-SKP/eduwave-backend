@@ -94,10 +94,10 @@ func (store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam) (Update
 		var err error
 
 		result.User, err = q.UpdateUser(ctx, UpdateUserParams{
-			HashedPassword: arg.HashedPassword,
-			FullName:       arg.FullName,
-			Email:          arg.Email,
-			UserName:       arg.UserName,
+			HashedPassword: sql.NullString{String: arg.HashedPassword.String , Valid: true},
+			FullName: sql.NullString{String: arg.FullName.String, Valid: true},
+			Email: sql.NullString{String: arg.Email.String, Valid: true},
+			UserName: arg.UserName,
 		})
 
 		if err != nil {

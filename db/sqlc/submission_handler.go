@@ -4,8 +4,8 @@ import "context"
 
 //GetSubmissionParam contains the input parameters of getting the data
 type GetSubmissionsParam struct {
-	AssignmentID int64 `json:"assignment_id"`
-    UserID       int64 `json:"user_id"`
+	AssignmentID int64 `form:"assignment_id"`
+    UserID       int64 `form:"user_id"`
 }
 
 type GetSubmissionResponse struct {
@@ -13,7 +13,7 @@ type GetSubmissionResponse struct {
 }
 
 //GetSubmission db handler for apu call to retrive submission data from the database
-func (store *Store) GetSubmission(ctx context.Context, arg GetSubmissionsParam) (GetSubmissionResponse, error) {
+func (store *Store) Getsubmissions(ctx context.Context, arg GetSubmissionsParam) (GetSubmissionResponse, error) {
 	var result GetSubmissionResponse
 
 	err := store.execTx(ctx, func(q *Queries) error {

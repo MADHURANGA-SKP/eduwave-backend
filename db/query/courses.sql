@@ -21,10 +21,9 @@ RETURNING *;
 
 -- name: ListCourses :many
 SELECT * FROM courses
-WHERE course_id = $1
 ORDER BY course_id
-LIMIT $2
-OFFSET $3;
+LIMIT $1
+OFFSET $2;
 
 -- name: DeleteCourses :exec
 DELETE FROM courses

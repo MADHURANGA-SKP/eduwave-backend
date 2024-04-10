@@ -89,8 +89,8 @@ func (server *Server) createUser(ctx *gin.Context) {
 }
 
 type UpdateUserRequest struct {
-	HashedPassword    sql.NullString `json:"hashed_password"`
-    PasswordChangedAt sql.NullTime   `json:"password_changed_at"`
+	HashedPassword    sql.NullString `json:"hashed_password,omitempty"`
+    PasswordChangedAt sql.NullTime   
     FullName          sql.NullString `json:"full_name"`
     Email             sql.NullString `json:"email"`
     IsEmailVerified   sql.NullBool   `json:"is_email_verified"`
@@ -106,21 +106,22 @@ type UpdateUserRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /user/{user_id} [Patch]
+// @Router /user/edit [Patch]
 // Updateuser updates the selected user
 // updateStudent updates a student by ID
 func (server *Server) UpdateUser(ctx *gin.Context) {
 	var req UpdateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 	authPayload, err := server.authorizeUser(ctx, []string{util.AdminRole,util.StudentRole,util.TeacherRole})
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-	}
 
-	if authPayload.Role != req.UserName && authPayload.UserName != req.UserName {
+	if authPayload.Role != util.AdminRole && authPayload.UserName != req.UserName {
 		ctx.JSON(http.StatusForbidden, "connot update other user's info")
 		return 
 	}
@@ -291,9 +292,9 @@ func newAdminResponse(user db.User) userAdminResponse {
 	}
 }
 
-// @Summary Create a new user
-// @Description Create a new user with the provided details
-// @ID create-user
+// @Summary Create a admin's user
+// @Description Create a new admin's user with the provided details
+// @ID create admin user
 // @Accept  json
 // @Produce  json
 // @Param request body createUserRequest true "User creation request"
@@ -301,7 +302,7 @@ func newAdminResponse(user db.User) userAdminResponse {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /signup [post]
+// @Router /admin/signup [post]
 func (server *Server) createAdminUser(ctx *gin.Context) {
 	var req createAdminRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -346,7 +347,7 @@ type ListUserRequest struct {
 
 // @Summary ListUser
 // @Description ListUser with the provided admin based
-// @ID create-user
+// @ID list-user
 // @Accept  json
 // @Produce  json
 // @Param request body ListUserRequest true "admin list request"
@@ -386,15 +387,15 @@ type ListUserStudentRequest struct {
 
 // @Summary ListUserStudent
 // @Description ListUserStudent with the provided student based
-// @ID create-user
+// @ID list-student
 // @Accept  json
 // @Produce  json
-// @Param request body ListUserStudent true "student list request"
+// @Param request body ListUserStudentRequest true "student list request"
 // @Success 200 
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /listadmin [get]
+// @Router /liststudent [get]
 func(server *Server) ListUserStudent(ctx *gin.Context){
 	var req ListUserStudentRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -418,7 +419,7 @@ func(server *Server) ListUserStudent(ctx *gin.Context){
 	ctx.JSON(http.StatusOK, userlist)
 }
 
-//LListUserTeacherRequest contains the impurt parameters for list rolebased user data
+//ListUserTeacherRequest contains the impurt parameters for list rolebased user data
 type ListUserTeacherRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
@@ -426,15 +427,15 @@ type ListUserTeacherRequest struct {
 
 // @Summary ListUserTeacher
 // @Description ListUserTeacher with the provided teacher based
-// @ID create-user
+// @ID list-teacher
 // @Accept  json
 // @Produce  json
-// @Param request body ListUserTeacher true "teacher list request"
+// @Param request body ListUserTeacherRequest true "teacher list request"
 // @Success 200 
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /listadmin [get]
+// @Router /listteacher [get]
 func(server *Server) ListUserTeacher(ctx *gin.Context){
 	var req ListUserTeacherRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {

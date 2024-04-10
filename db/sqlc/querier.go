@@ -23,9 +23,9 @@ type Querier interface {
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
 	DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error
 	DeleteCourses(ctx context.Context, courseID int64) error
-	DeleteMaterial(ctx context.Context, arg DeleteMaterialParams) error
-	DeleteRequest(ctx context.Context, arg DeleteRequestParams) error
-	DeleteResource(ctx context.Context, arg DeleteResourceParams) error
+	DeleteMaterial(ctx context.Context, materialID int64) error
+	DeleteRequest(ctx context.Context, requestID int64) error
+	DeleteResource(ctx context.Context, resourceID int64) error
 	DeleteUsers(ctx context.Context, userID int64) error
 	GetAssignment(ctx context.Context, assignmentID int64) (Assignment, error)
 	GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error)

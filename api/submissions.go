@@ -12,8 +12,8 @@ import (
 
 // getSubmissionRequest defines the request body structure for getting a submission
 type getSubmissionRequest struct {
-	AssignmentID int64 `json:"assignment_id"`
-    UserID       int64 `json:"user_id"`
+	AssignmentID int64 `form:"assignment_id"`
+    UserID       int64 `form:"user_id"`
 }
 
 // @Summary Get a submission
@@ -30,7 +30,7 @@ type getSubmissionRequest struct {
 // getSubmission retrieves a submission
 func (server *Server) getSubmission(ctx *gin.Context) {
 	var req getSubmissionRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -40,7 +40,7 @@ func (server *Server) getSubmission(ctx *gin.Context) {
 		UserID: req.UserID,
 	}
 
-	submission, err := server.store.Getsubmissions(ctx, arg)
+	submission, err := server.store.Getsubmissions(ctx, db.GetSubmissionsParam(arg))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -55,9 +55,9 @@ func (server *Server) getSubmission(ctx *gin.Context) {
 
 // listSubmissionsRequest defines the request body structure for listing submissions
 type listSubmissionsRequest struct {
-	AssignmentID int64 `uri:"assignment_id" binding:"required,min=1"`
-	Limit        int32 `form:"limit" binding:"required,min=1,max=100"`
-	Offset       int32 `form:"offset" binding:"required,min=0"`
+	AssignmentID int64 `form:"assignment_id" binding:"required,min=1"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+    PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 // @Summary List submissions
@@ -75,15 +75,15 @@ type listSubmissionsRequest struct {
 // listSubmissions lists submissions
 func (server *Server) listSubmissions(ctx *gin.Context) {
 	var req listSubmissionsRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	arg := db.ListsubmissionsParams{
 		AssignmentID: req.AssignmentID,
-		Limit:        req.Limit,
-		Offset:       req.Offset,
+		Limit:  req.PageSize,
+        Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	submissions, err := server.store.Listsubmissions(ctx, arg)

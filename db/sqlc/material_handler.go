@@ -34,18 +34,15 @@ func(store *Store) CreateMaterial(ctx context.Context, arg CreateMaterialParam)(
 	return result, err
 }
 
-//DeleteMaterialParam contaisn the input parameters of delete Material data
+//DeleteMaterialParam contains the input parameters of the delete the data
 type DeleteMaterialParam struct {
-	MaterialID int64         `json:"Material_id"`
-	CourseID   int64`json:"course_id"`
+	MaterialID  int64  `json:"material_id"`
 }
+
 
 //DeleteMatirila db handler for api call to delete Material data in database
 func(store *Store) DeleteMaterial(ctx context.Context, arg DeleteMaterialParam)error {
-	return store.Queries.DeleteMaterial(ctx, DeleteMaterialParams{
-		MaterialID: arg.MaterialID,
-		CourseID: arg.CourseID,
-	})
+	return store.Queries.DeleteMaterial(ctx, arg.MaterialID )
 }
 
 //GetMaterialparam contains the input parameters of the get Material data

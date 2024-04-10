@@ -40,6 +40,45 @@ definitions:
     - description
     - title
     type: object
+  api.ListUserRequest:
+    properties:
+      page_id:
+        minimum: 1
+        type: integer
+      page_size:
+        maximum: 10
+        minimum: 5
+        type: integer
+    required:
+    - page_id
+    - page_size
+    type: object
+  api.ListUserStudentRequest:
+    properties:
+      page_id:
+        minimum: 1
+        type: integer
+      page_size:
+        maximum: 10
+        minimum: 5
+        type: integer
+    required:
+    - page_id
+    - page_size
+    type: object
+  api.ListUserTeacherRequest:
+    properties:
+      page_id:
+        minimum: 1
+        type: integer
+      page_size:
+        maximum: 10
+        minimum: 5
+        type: integer
+    required:
+    - page_id
+    - page_size
+    type: object
   api.UpdateAssignmentRequest:
     properties:
       assignment_id:
@@ -84,6 +123,8 @@ definitions:
     - description
     - material_id
     - title
+    type: object
+  api.UpdateUserRequest:
     type: object
   api.createAssignmentRequest:
     properties:
@@ -153,11 +194,36 @@ definitions:
       user_name:
         type: string
     type: object
-  api.updateRequestRequest:
+  api.updateRequest:
     type: object
 info:
   contact: {}
 paths:
+  /admin/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new admin's user with the provided details
+      operationId: create admin user
+      parameters:
+      - description: User creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a admin's user
   /assignments:
     post:
       consumes:
@@ -335,6 +401,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Get a course by ID
+  /course/update:
     put:
       consumes:
       - application/json
@@ -536,6 +603,81 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a new enrolment
+  /listadmin:
+    get:
+      consumes:
+      - application/json
+      description: ListUser with the provided admin based
+      operationId: list-user
+      parameters:
+      - description: admin list request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ListUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: ListUser
+  /liststudent:
+    get:
+      consumes:
+      - application/json
+      description: ListUserStudent with the provided student based
+      operationId: list-student
+      parameters:
+      - description: student list request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ListUserStudentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: ListUserStudent
+  /listteacher:
+    get:
+      consumes:
+      - application/json
+      description: ListUserTeacher with the provided teacher based
+      operationId: list-teacher
+      parameters:
+      - description: teacher list request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ListUserTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: ListUserTeacher
   /login:
     post:
       consumes:
@@ -611,6 +753,34 @@ paths:
           description: Internal Server Error
       summary: Get materials for a course
   /material/{material_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a material
+      operationId: delete-material
+      parameters:
+      - description: Material ID
+        in: path
+        name: material_id
+        required: true
+        type: integer
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a material
     put:
       consumes:
       - application/json
@@ -640,35 +810,6 @@ paths:
         "500":
           description: Internal Server Error
       summary: Update a material
-  /material/{material_id}/{course_id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a material
-      operationId: delete-material
-      parameters:
-      - description: Material ID
-        in: path
-        name: material_id
-        required: true
-        type: integer
-      - description: Course ID
-        in: path
-        name: course_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Delete a material
   /request/{request_id}:
     get:
       description: Get a request by its ID
@@ -690,31 +831,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Get a request by ID
-  /request/{student_id}:
-    put:
-      consumes:
-      - application/json
-      description: Update a request with the provided parameters
-      parameters:
-      - description: Request data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api.updateRequestRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Update a request
-  /request/{student_id}/{request_id}:
+  /request/{user_id}/{request_id}:
     delete:
       description: Delete a request by student and request ID
       parameters:
@@ -740,6 +857,30 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a request
+  /request/update:
+    put:
+      consumes:
+      - application/json
+      description: Update a request with the provided parameters
+      parameters:
+      - description: Requested data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.updateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a request
   /requests:
     get:
       description: List requests based on provided parameters
@@ -824,7 +965,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a new resource
-  /resource/{resource_id}/{material_id}:
+  /resource/{resource_id}:
     delete:
       description: Deletes a resource
       operationId: delete-resource
@@ -851,6 +992,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a resource
+  /resource/{resource_id}/{material_id}:
     get:
       description: Retrieves a resource
       operationId: get-resource
@@ -989,4 +1131,28 @@ paths:
         "500":
           description: Internal Server Error
       summary: Renew Access Token
+  /user/edit:
+    patch:
+      consumes:
+      - application/json
+      description: Updates a user with provided details
+      parameters:
+      - description: Updated user details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a user
 swagger: "2.0"

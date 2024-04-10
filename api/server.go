@@ -71,7 +71,7 @@ func (server *Server) setupRouter() {
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
 		
 		authroute.POST("/admin/signup", server.createAdminUser)
-		authroute.PUT("/admin/edit", server.UpdateUser)
+		authroute.PUT("/user/edit", server.UpdateUser)
 		authroute.GET("/listadmin", server.ListUser)
 		authroute.GET("/liststudent", server.ListUserStudent)
 		authroute.GET("/listteacher", server.ListUserTeacher)
@@ -80,7 +80,7 @@ func (server *Server) setupRouter() {
 			authroute.GET("/request/:request_id", server.getRequest)
 			authroute.GET("/requests", server.listRequests)
 			authroute.DELETE("/request/:student_id/:request_id", server.deleteRequest)
-			authroute.PUT("/request/:student_id", server.updateRequest)
+			authroute.PUT("/request/:user_id", server.updateRequest)
 		//material
 			authroute.POST("/material", server.CreateMaterial)	
 			authroute.GET("/material/:material_id", server.GetMaterials)
@@ -89,22 +89,22 @@ func (server *Server) setupRouter() {
 		//resource
 			authroute.POST("/resource", server.createResource)	
 			authroute.GET("/resource/:resource_id", server.getResource)
-			authroute.PUT("/resource/:resource_id", server.updateResource)
+			authroute.PUT("/resource/update", server.updateResource)
 			authroute.DELETE("/resource/:resource_id", server.deleteResource)
 		//createcourse
 			authroute.POST("/course", server.CreateCourse)	
 			authroute.GET("/course/:course_id", server.GetCourse)
-			authroute.PUT("/courses", server.ListCourses)
-			authroute.PUT("/course/:course_id", server.UpdateCourse)
+			authroute.GET("/courses", server.ListCourses)
+			authroute.PUT("/course/update", server.UpdateCourses)
 			authroute.DELETE("/course/:course_id", server.DeleteCourse)
 		//assignment
 			authroute.POST("/assignments", server.createAssignment)
 			authroute.GET("/assignments/:assignment_id", server.getAssignment)
-			authroute.PUT("/assignments/:assignment_id", server.updateAssignment)
+			authroute.PUT("/assignments/update", server.updateAssignment)
 			authroute.DELETE("/assignments/:assignment_id/:resource_id", server.deleteAssignment)
 		//submissions
 			// authRoutes.POST("create/submissions/", server.createsubmission)
-			authroute.GET("/submissions/:submission_id", server.getSubmission)
+			authroute.GET("/submission", server.getSubmission)
 			authroute.GET("/submissions", server.listSubmissions)
 		//course_enrolments
 			authroute.POST("/courseEnrolments", server.CreateCourseEnrolment)

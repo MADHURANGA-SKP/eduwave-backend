@@ -82,20 +82,18 @@ func (q *Queries) GetCourses(ctx context.Context, courseID int64) (Course, error
 
 const listCourses = `-- name: ListCourses :many
 SELECT course_id, user_id, title, type, image, description, created_at FROM courses
-WHERE course_id = $1
 ORDER BY course_id
-LIMIT $2
-OFFSET $3
+LIMIT $1
+OFFSET $2
 `
 
 type ListCoursesParams struct {
-	CourseID int64 `json:"course_id"`
-	Limit    int32 `json:"limit"`
-	Offset   int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListCourses(ctx context.Context, arg ListCoursesParams) ([]Course, error) {
-	rows, err := q.db.QueryContext(ctx, listCourses, arg.CourseID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listCourses, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

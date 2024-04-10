@@ -130,8 +130,7 @@ func (server *Server) UpdateMaterial(ctx *gin.Context) {
 
 // DeleteMaterialRequest defines the request body structure for deleting a material
 type DeleteMaterialRequest struct {
-	MaterialID int64 `uri:"material_id" binding:"required,min=1"`
-	CourseID   int64 `uri:"course_id" binding:"required,min=1"`
+	MaterialID   int64 `uri:"material_id"`
 }
 
 // @Summary Delete a material
@@ -145,26 +144,20 @@ type DeleteMaterialRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /material/{material_id}/{course_id} [delete]
+// @Router /material/{material_id} [delete]
 // DeleteMaterial deletes a material
 func (server *Server) DeleteMaterial(ctx *gin.Context) {
 	var req DeleteMaterialRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	arg := db.DeleteMaterialParams{
-		MaterialID: req.MaterialID,
-		CourseID:   req.CourseID,
-	}
-
 	err := server.store.DeleteMaterial(ctx, db.DeleteMaterialParam{
-		MaterialID: arg.MaterialID,
-		CourseID: arg.CourseID,
+		MaterialID: req.MaterialID,
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 

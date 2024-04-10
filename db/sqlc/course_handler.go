@@ -45,11 +45,6 @@ type DeleteCourseParam struct {
 	CourseID  int64         `json:"course_id"`
 }
 
-//DeleteCourseResponse contains the result of the geting the data
-type DeleteCourseResponse struct {
-	Course Course `json:"course"`
-}
-
 //DeleteCourse db handler for api call to delete a course from the database
 func (store *Store) DeleteCourse(ctx context.Context, arg DeleteCourseParam) error {
 	return store.Queries.DeleteCourses(ctx, arg.CourseID)
@@ -85,7 +80,7 @@ func (store *Store) GetCourse(ctx context.Context, arg GetCourseParam) (GetCours
 
 
 //ListSubmissions db handler for api call to listcourse data of the database
-func (store *Store) listCourses(ctx context.Context, params ListCoursesParams) ([]Course, error) {
+func (store *Store) ListCourses(ctx context.Context, params ListCoursesParams) ([]Course, error) {
 	return store.Queries.ListCourses(ctx, params)
 }
 
@@ -104,7 +99,7 @@ type UpdateCoursesResponse struct {
 }
 
 //UpdateCourse dn handler for api call to update course data in databse
-func(store *Store) UpdateCourse(ctx context.Context, arg UpdateCoursesParam)(UpdateCoursesResponse, error){
+func(store *Store) UpdateCourses(ctx context.Context, arg UpdateCoursesParam)(UpdateCoursesResponse, error){
 	var result UpdateCoursesResponse
 
 	err := store.execTx(ctx, func(q *Queries) error {

@@ -57,16 +57,11 @@ func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (R
 
 const deleteRequest = `-- name: DeleteRequest :exec
 DELETE FROM requests
-WHERE user_id = $1 AND request_id = $2
+WHERE request_id = $1
 `
 
-type DeleteRequestParams struct {
-	UserID    int64 `json:"user_id"`
-	RequestID int64 `json:"request_id"`
-}
-
-func (q *Queries) DeleteRequest(ctx context.Context, arg DeleteRequestParams) error {
-	_, err := q.db.ExecContext(ctx, deleteRequest, arg.UserID, arg.RequestID)
+func (q *Queries) DeleteRequest(ctx context.Context, requestID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteRequest, requestID)
 	return err
 }
 
@@ -93,26 +88,18 @@ func (q *Queries) GetRequest(ctx context.Context, requestID int64) (Request, err
 
 const listRequest = `-- name: ListRequest :many
 SELECT request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
-WHERE user_id = $1 AND course_id =$2
 ORDER BY request_id
-LIMIT $3
-OFFSET $4
+LIMIT $1
+OFFSET $2
 `
 
 type ListRequestParams struct {
-	UserID   int64 `json:"user_id"`
-	CourseID int64 `json:"course_id"`
-	Limit    int32 `json:"limit"`
-	Offset   int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error) {
-	rows, err := q.db.QueryContext(ctx, listRequest,
-		arg.UserID,
-		arg.CourseID,
-		arg.Limit,
-		arg.Offset,
-	)
+	rows, err := q.db.QueryContext(ctx, listRequest, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

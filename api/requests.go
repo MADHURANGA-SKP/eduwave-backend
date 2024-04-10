@@ -99,9 +99,6 @@ func (server *Server) getRequest(ctx *gin.Context) {
 }
 
 type listRequestRequest struct {
-	StudentID int64 `form:"student_id"`
-	TeacherID int64 `form:"teacher_id"`
-	CourseID  int64 `form:"course_id"`
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
     PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
@@ -141,8 +138,7 @@ func (server *Server) listRequests(ctx *gin.Context) {
 }
 
 type deleteRequestRequest struct {
-	UserID    int64 `json:"user_id"`
-    RequestID int64 `json:"request_id"`
+    RequestID int64 `uri:"request_id"`
 }
 
 // @Summary Delete a request
@@ -154,7 +150,7 @@ type deleteRequestRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /request/{student_id}/{request_id} [delete]
+// @Router /request/{user_id}/{request_id} [delete]
 func (server *Server) deleteRequest(ctx *gin.Context) {
 	var req deleteRequestRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -162,10 +158,7 @@ func (server *Server) deleteRequest(ctx *gin.Context) {
 		return
 	}
 
-	err := server.store.DeleteRequest(ctx, db.DeleteRequestParam{
-		UserID: req.UserID,
-		RequestID: req.RequestID,
-	})
+	err := server.store.DeleteRequest(ctx, req.RequestID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -174,7 +167,7 @@ func (server *Server) deleteRequest(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Request deleted successfully"})
 }
 
-type updateRequestRequest struct {
+type updateRequest struct {
 	UserID     int64        `json:"user_id"`
     IsActive   sql.NullBool `json:"is_active"`
     IsPending  sql.NullBool `json:"is_pending"`
@@ -186,18 +179,24 @@ type updateRequestRequest struct {
 // @Description Update a request with the provided parameters
 // @Accept json
 // @Produce json
-// @Param request body updateRequestRequest true "Request data"
+// @Param request body updateRequest true "Requested data"
 // @Success 200 
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /request/{student_id} [put]
+// @Router /request/update [put]
 func (server *Server) updateRequest(ctx *gin.Context) {
-	var req updateRequestRequest
+	var req updateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	// userID, err := strconv.Atoi(ctx.Param("user_id"))
+	// if err != nil {
+	// 	ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	// }
+
 
 	arg := db.UpdateRequestsParams{
 		UserID: req.UserID,
