@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"errors"
 	"net/http"
 	"time"
@@ -15,10 +14,10 @@ import (
 )
 
 type createUserRequest struct {
-	UserName       string `json:"user_name"`
+	UserName       string `json:"user_name" binding:"required,alphanum"`
 	FullName       string `json:"full_name"`
-	HashedPassword string `json:"hashed_password"`
-	Email          string `json:"email"`
+	HashedPassword string `json:"hashed_password" binding:"required,min=6"`
+	Email          string `json:"email" binding:"required,email"`
 	Role           string `json:"role"`
 	Qualification  string `json:"qualification"`
 }
@@ -89,12 +88,12 @@ func (server *Server) createUser(ctx *gin.Context) {
 }
 
 type UpdateUserRequest struct {
-	HashedPassword    sql.NullString `json:"hashed_password,omitempty"`
-    PasswordChangedAt sql.NullTime   
-    FullName          sql.NullString `json:"full_name"`
-    Email             sql.NullString `json:"email"`
-    IsEmailVerified   sql.NullBool   `json:"is_email_verified"`
-    UserName          string         `json:"user_name"`
+	HashedPassword    string    `json:"hashed_password"`
+    PasswordChangedAt time.Time `json:"password_changed_at"`
+    FullName          string    `json:"full_name"`
+    Email             string    `json:"email"`
+    IsEmailVerified   bool      `json:"is_email_verified"`
+    UserName          string    `json:"user_name"`
 }
 
 // @Summary Update a user
@@ -115,38 +114,47 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	authPayload, err := server.authorizeUser(ctx, []string{util.AdminRole,util.StudentRole,util.TeacherRole})
+	
+	username, err := server.store.GetUser(ctx, db.GetUserParam{
+		UserName: req.UserName,
+	},
+	)
+	
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	if authPayload.Role != util.AdminRole && authPayload.UserName != req.UserName {
+	if username.User.UserName != req.UserName {
 		ctx.JSON(http.StatusForbidden, "connot update other user's info")
 		return 
 	}
-	
-	arg := UpdateUserRequest{
+
+	hashedPassword, err := util.HashPassword(req.HashedPassword)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	arg := &db.UpdateUserParams{
+		HashedPassword: hashedPassword,
+		PasswordChangedAt: time.Now(),
+		FullName: req.FullName,
+		Email: req.Email,
 		UserName: req.UserName,
-		FullName: sql.NullString{String: req.FullName.String, Valid: req.FullName.Valid},
-		Email: sql.NullString{String: req.Email.String, Valid: req.Email.Valid},
 	}
-
-	if req.HashedPassword.Valid{
-		hashedPassword, err := util.HashPassword(req.HashedPassword.String)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		}
-
-		arg.HashedPassword = sql.NullString{String: hashedPassword, Valid: true}
-		arg.PasswordChangedAt = sql.NullTime{Time: time.Now(), Valid: true}
-	}
-
+	
+	
 	user, err := server.store.UpdateUser(ctx, db.UpdateUserParam{
-		UserName: arg.UserName,
+		HashedPassword: arg.HashedPassword,
+		PasswordChangedAt: arg.PasswordChangedAt,
 		FullName: arg.FullName,
 		Email: arg.Email,
-		HashedPassword: arg.HashedPassword,
+		UserName: arg.UserName,
 	})
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolations {
@@ -264,10 +272,10 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 
 type createAdminRequest struct {
-	UserName       string `json:"user_name"`
+	UserName       string `json:"user_name" binding:"required,alphanum"`
 	FullName       string `json:"full_name"`
-	HashedPassword string `json:"hashed_password"`
-	Email          string `json:"email"`
+	HashedPassword string `json:"hashed_password" binding:"required,min=6"`
+	Email          string `json:"email" binding:"required,email"`
 	Role           string `json:"role"`
 	Qualification  string `json:"qualification"`
 }

@@ -335,6 +335,26 @@ paths:
           description: Internal Server Error
       summary: Update an assignment
   /course:
+    get:
+      description: Retrieves a course by its ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a course by ID
     post:
       consumes:
       - application/json
@@ -384,26 +404,6 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a course
-    get:
-      description: Retrieves a course by its ID
-      parameters:
-      - description: Course ID
-        in: path
-        name: course_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Get a course by ID
   /course/update:
     put:
       consumes:
