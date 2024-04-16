@@ -9,19 +9,48 @@ import (
 	"context"
 )
 
-const getsubmissions = `-- name: Getsubmissions :one
-SELECT submission_id, assignment_id, user_id FROM submissions
-WHERE assignment_id = $1 AND user_id = $2 
-LIMIT 1
+const createSubmission = `-- name: CreateSubmission :one
+INSERT INTO submissions (
+    assignment_id,
+    user_id
+) VALUES (
+    $1, $2
+) RETURNING submission_id, assignment_id, user_id
 `
 
-type GetsubmissionsParams struct {
+type CreateSubmissionParams struct {
 	AssignmentID int64 `json:"assignment_id"`
 	UserID       int64 `json:"user_id"`
 }
 
-func (q *Queries) Getsubmissions(ctx context.Context, arg GetsubmissionsParams) (Submission, error) {
-	row := q.db.QueryRowContext(ctx, getsubmissions, arg.AssignmentID, arg.UserID)
+func (q *Queries) CreateSubmission(ctx context.Context, arg CreateSubmissionParams) (Submission, error) {
+	row := q.db.QueryRowContext(ctx, createSubmission, arg.AssignmentID, arg.UserID)
+	var i Submission
+	err := row.Scan(&i.SubmissionID, &i.AssignmentID, &i.UserID)
+	return i, err
+}
+
+const getsubmissionsByAssignment = `-- name: GetsubmissionsByAssignment :one
+SELECT submission_id, assignment_id, user_id FROM submissions
+WHERE assignment_id = $1 
+LIMIT 1
+`
+
+func (q *Queries) GetsubmissionsByAssignment(ctx context.Context, assignmentID int64) (Submission, error) {
+	row := q.db.QueryRowContext(ctx, getsubmissionsByAssignment, assignmentID)
+	var i Submission
+	err := row.Scan(&i.SubmissionID, &i.AssignmentID, &i.UserID)
+	return i, err
+}
+
+const getsubmissionsByUser = `-- name: GetsubmissionsByUser :one
+SELECT submission_id, assignment_id, user_id FROM submissions
+WHERE user_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetsubmissionsByUser(ctx context.Context, userID int64) (Submission, error) {
+	row := q.db.QueryRowContext(ctx, getsubmissionsByUser, userID)
 	var i Submission
 	err := row.Scan(&i.SubmissionID, &i.AssignmentID, &i.UserID)
 	return i, err
@@ -29,20 +58,18 @@ func (q *Queries) Getsubmissions(ctx context.Context, arg GetsubmissionsParams) 
 
 const listsubmissions = `-- name: Listsubmissions :many
 SELECT submission_id, assignment_id, user_id FROM submissions
-WHERE assignment_id = $1 AND user_id = $2
 ORDER BY submission_id
-LIMIT $2
-OFFSET $3
+LIMIT $1
+OFFSET $2
 `
 
 type ListsubmissionsParams struct {
-	AssignmentID int64 `json:"assignment_id"`
-	Limit        int32 `json:"limit"`
-	Offset       int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) Listsubmissions(ctx context.Context, arg ListsubmissionsParams) ([]Submission, error) {
-	rows, err := q.db.QueryContext(ctx, listsubmissions, arg.AssignmentID, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listsubmissions, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
