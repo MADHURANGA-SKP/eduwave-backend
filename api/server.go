@@ -92,7 +92,7 @@ func (server *Server) setupRouter() {
 			authroute.DELETE("/resource/:resource_id", server.deleteResource)
 		//createcourse
 			authroute.POST("/course", server.CreateCourse)	
-			authroute.GET("/course/:course_id", server.GetCourse)
+			authroute.GET("/course", server.GetCourse)
 			authroute.GET("/courses", server.ListCourses)
 			authroute.PUT("/course/update", server.UpdateCourses)
 			authroute.DELETE("/course/:course_id", server.DeleteCourse)

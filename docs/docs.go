@@ -209,6 +209,36 @@ const docTemplate = `{
             }
         },
         "/course": {
+            "get": {
+                "description": "Retrieves a course by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a course by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "course_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
             "post": {
                 "description": "Creates a new course",
                 "consumes": [
@@ -283,36 +313,6 @@ const docTemplate = `{
             }
         },
         "/course/{course_id}": {
-            "get": {
-                "description": "Retrieves a course by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get a course by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "course_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
             "delete": {
                 "description": "Deletes a course by ID",
                 "produces": [

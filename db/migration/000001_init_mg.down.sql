@@ -1,11 +1,10 @@
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS admins;
-DROP TABLE IF EXISTS teachers;
-DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS course_enrolment;
 DROP TABLE IF EXISTS assignments;
 DROP TABLE IF EXISTS submissions;
 DROP TABLE IF EXISTS requests;
 DROP TABLE IF EXISTS resources;
-DROP TABLE IF EXISTS course_resources;
+DROP TABLE IF EXISTS course_progress;
+DROP TABLE IF EXISTS submissions;

@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 //CreateUserParam contains the input parameters of data
@@ -75,10 +75,11 @@ func (store *Store) GetUser(ctx context.Context, arg GetUserParam) (GetUserRespo
 
 //UpdateUserParam contains the input parameters of the update the data
 type UpdateUserParam struct {
-	HashedPassword sql.NullString `json:"hashed_password"`
-	FullName       sql.NullString `json:"full_name"`
-	Email          sql.NullString `json:"email"`
-	UserName       string         `json:"user_name"`
+	HashedPassword    string `json:"hashed_password"`
+	PasswordChangedAt  time.Time  `json:"password_changed_at"`
+	FullName          string `json:"full_name"`
+	Email             string `json:"email"`
+	UserName          string         `json:"user_name"`
 }
 
 //UpdateUserResponse contains the result of the updating data
@@ -94,9 +95,10 @@ func (store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam) (Update
 		var err error
 
 		result.User, err = q.UpdateUser(ctx, UpdateUserParams{
-			HashedPassword: sql.NullString{String: arg.HashedPassword.String , Valid: true},
-			FullName: sql.NullString{String: arg.FullName.String, Valid: true},
-			Email: sql.NullString{String: arg.Email.String, Valid: true},
+			HashedPassword: arg.HashedPassword,
+			PasswordChangedAt: time.Now(),
+			FullName: arg.FullName,
+			Email: arg.Email,
 			UserName: arg.UserName,
 		})
 
