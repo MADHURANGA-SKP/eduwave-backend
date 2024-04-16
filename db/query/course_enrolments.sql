@@ -9,7 +9,7 @@ INSERT INTO course_enrolments (
 
 -- name: ListEnrolments :many
 SELECT * FROM course_enrolments
-WHERE user_id = $1 AND course_id = $2
+WHERE course_id = $1
 ORDER BY enrolment_id
-LIMIT $3
-OFFSET $4;
+LIMIT $2
+OFFSET $3;

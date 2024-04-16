@@ -108,7 +108,7 @@ type UpdateAssignmentRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /assignments/{assignment_id} [put]
+// @Router /assignments/update [put]
 func (server *Server) updateAssignment(ctx *gin.Context) {
 	var req UpdateAssignmentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -140,8 +140,7 @@ func (server *Server) updateAssignment(ctx *gin.Context) {
 }
 
 type DeleteAssignmentRequest struct {
-	AssignmentID int64         `uri:"assignment_id"`
-	ResourceID   int64 `uri:"resource_id"`
+	AssignmentID int64         `form:"assignment_id"`
 }
 
 // @Summary Delete an assignment
@@ -150,22 +149,20 @@ type DeleteAssignmentRequest struct {
 // @Accept json
 // @Produce json
 // @Param assignment_id path int true "Assignment ID"
-// @Param resource_id path int true "Resource ID"
 // @Success 200 
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /assignments/{assignment_id}/{resource_id} [delete]
+// @Router /assignment [delete]
 func (server *Server) deleteAssignment(ctx *gin.Context) {
 	var req DeleteAssignmentRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	
 	err := server.store.DeleteAssignment(ctx, db.DeleteAssignmentParam{
 		AssignmentID: req.AssignmentID,
-		ResourceID : req.ResourceID,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

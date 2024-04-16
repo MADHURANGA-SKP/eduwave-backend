@@ -10,10 +10,9 @@ import (
 )
 
 type listEnrolmentsRequest struct {
-	UserID   int64 `json:"user_id"`
-	CourseID int64 `json:"course_id"`
-    Limit    int32 `json:"limit"`
-    Offset   int32 `json:"offset"`
+	CourseID int64 `from:"course_id"`
+    PageID   int32 `form:"page_id,min=1"`
+	PageSize int32 `form:"page_size,min=10,max=10"`
 }
 
 // @Summary List enrolments
@@ -36,13 +35,14 @@ func (server *Server) listEnrolments(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	enrolments, err := server.store.ListEnrolments(ctx, db.ListEnrolmentsParams{
-		UserID: req.UserID,
+	
+	arg := db.ListEnrolmentsParams{
 		CourseID:  req.CourseID,
-		Limit:     req.Limit,
-		Offset:    req.Offset,
-	})
+		Limit:  req.PageSize,
+        Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	enrolments, err := server.store.ListEnrolments(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

@@ -45,16 +45,12 @@ func (store *Store) CreateAssignment(ctx context.Context, arg CreateAssignmentPa
 //DeleteAssignmentParam contains the input parameters of the geting  the data
 type DeleteAssignmentParam struct {
 	AssignmentID int64         `json:"assignment_id"`
-	ResourceID   int64 `json:"resource_id"`
 }
 
 
 //DeleteAssignment db handler for api call to delete a admin from the database
 func (store *Store) DeleteAssignment(ctx context.Context, arg DeleteAssignmentParam) error {
-	return store.Queries.DeleteAssignment(ctx, DeleteAssignmentParams{
-		AssignmentID: arg.AssignmentID,
-		ResourceID: arg.ResourceID,
-	})
+	return store.Queries.DeleteAssignment(ctx, arg.AssignmentID)
 }
 
 //GetAssignmentParam contains the input parameters of the geting  the data

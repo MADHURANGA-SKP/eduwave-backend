@@ -51,10 +51,9 @@ func (server *Server) setupRouter() {
 
 	
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:   []string{"http://localhost:3001", "https://testnet.bethelnet.io", "http://*", "https://*", "*"},
+		AllowOrigins:   []string{"http://localhost:3000", "https://testnet.bethelnet.io", "http://*", "https://*", "*"},
 		AllowMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:   []string{"*"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowHeaders:   []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
@@ -101,10 +100,11 @@ func (server *Server) setupRouter() {
 			authroute.POST("/assignments", server.createAssignment)
 			authroute.GET("/assignments/:assignment_id", server.getAssignment)
 			authroute.PUT("/assignments/update", server.updateAssignment)
-			authroute.DELETE("/assignments/:assignment_id/:resource_id", server.deleteAssignment)
+			authroute.DELETE("/assignment", server.deleteAssignment)
 		//submissions
-			// authRoutes.POST("create/submissions/", server.createsubmission)
-			authroute.GET("/submission", server.getSubmission)
+			authroute.POST("/submission", server.CreateSubmission)
+			authroute.GET("/submission/byassignment", server.GetSubmissionsByAssignment)
+			authroute.GET("/submission/byuser", server.GetSubmissionsByUser)
 			authroute.GET("/submissions", server.listSubmissions)
 		//course_enrolments
 			authroute.POST("/courseEnrolments", server.CreateCourseEnrolment)

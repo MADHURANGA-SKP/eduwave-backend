@@ -53,6 +53,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/assignment": {
+            "delete": {
+                "description": "Delete an assignment by its ID and resource ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete an assignment",
+                "operationId": "delete-assignment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Assignment ID",
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/assignments": {
             "post": {
                 "description": "Create a new assignment with the provided details",
@@ -91,7 +127,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/assignments/{assignment_id}": {
+        "/assignments/update": {
             "put": {
                 "description": "Update an assignment with the provided details",
                 "consumes": [
@@ -140,47 +176,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get an assignment by ID",
                 "operationId": "get-assignment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Assignment ID",
-                        "name": "assignment_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete an assignment by its ID and resource ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Delete an assignment",
-                "operationId": "delete-assignment",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1337,16 +1332,51 @@ const docTemplate = `{
                         "description": "Internal Server Error"
                     }
                 }
+            },
+            "post": {
+                "description": "Creates a new submission by user depend on assignment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a new Submission",
+                "parameters": [
+                    {
+                        "description": "assignmnet_id and user_id",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateSubmissionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
             }
         },
-        "/submissions/{assignment_id}/{student_id}": {
+        "/submissions/byassignemnt": {
             "get": {
                 "description": "Retrieves a submission by assignment and student ID",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get a submission",
-                "operationId": "getSubmission",
+                "summary": "Get a submission By Assignment",
+                "operationId": "GetSubmissionsByAssignment",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1354,11 +1384,37 @@ const docTemplate = `{
                         "name": "assignment_id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/submissions/byuser": {
+            "get": {
+                "description": "Retrieves a submission by assignment and student ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a submission By User",
+                "operationId": "GetSubmissionsByUser",
+                "parameters": [
                     {
                         "type": "integer",
-                        "description": "Student ID",
-                        "name": "student_id",
+                        "description": "User ID",
+                        "name": "user_id",
                         "in": "path",
                         "required": true
                     }
@@ -1514,6 +1570,17 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "api.CreateSubmissionRequest": {
+            "type": "object",
+            "properties": {
+                "assignment_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
