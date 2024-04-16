@@ -49,16 +49,14 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:   []string{"http://localhost:3001", "https://testnet.bethelnet.io", "http://*", "https://*", "*"},
-		AllowMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:   []string{"*"},
+		AllowOrigins:     []string{"http://localhost:3001", "https://testnet.bethelnet.io", "http://*", "https://*", "*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//public routes
@@ -66,53 +64,55 @@ func (server *Server) setupRouter() {
 	router.POST("/login", server.loginUser)
 	router.POST("tokens/renew_access", server.renewAccessToken)
 
+	//verify email
+	router.POST("/verify-email", server.VerifyEmailHandler)
 
 	//RBAC auth routes
-		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
-		
-		authroute.POST("/admin/signup", server.createAdminUser)
-		authroute.PUT("/user/edit", server.UpdateUser)
-		authroute.GET("/listadmin", server.ListUser)
-		authroute.GET("/liststudent", server.ListUserStudent)
-		authroute.GET("/listteacher", server.ListUserTeacher)
-		//requests
-			authroute.POST("/requests", server.createRequest)//
-			authroute.GET("/request/:request_id", server.getRequest)
-			authroute.GET("/requests", server.listRequests)
-			authroute.DELETE("/request/:student_id/:request_id", server.deleteRequest)
-			authroute.PUT("/request/:user_id", server.updateRequest)
-		//material
-			authroute.POST("/material", server.CreateMaterial)	
-			authroute.GET("/material/:material_id", server.GetMaterials)
-			authroute.PUT("/material/:material_id", server.UpdateMaterial)
-			authroute.DELETE("/material/:material_id", server.DeleteMaterial)
-		//resource
-			authroute.POST("/resource", server.createResource)	
-			authroute.GET("/resource/:resource_id", server.getResource)
-			authroute.PUT("/resource/update", server.updateResource)
-			authroute.DELETE("/resource/:resource_id", server.deleteResource)
-		//createcourse
-			authroute.POST("/course", server.CreateCourse)	
-			authroute.GET("/course/:course_id", server.GetCourse)
-			authroute.GET("/courses", server.ListCourses)
-			authroute.PUT("/course/update", server.UpdateCourses)
-			authroute.DELETE("/course/:course_id", server.DeleteCourse)
-		//assignment
-			authroute.POST("/assignments", server.createAssignment)
-			authroute.GET("/assignments/:assignment_id", server.getAssignment)
-			authroute.PUT("/assignments/update", server.updateAssignment)
-			authroute.DELETE("/assignments/:assignment_id/:resource_id", server.deleteAssignment)
-		//submissions
-			// authRoutes.POST("create/submissions/", server.createsubmission)
-			authroute.GET("/submission", server.getSubmission)
-			authroute.GET("/submissions", server.listSubmissions)
-		//course_enrolments
-			authroute.POST("/courseEnrolments", server.CreateCourseEnrolment)
-			authroute.GET("/enrolments", server.listEnrolments)
-		//course_progress
-			authroute.POST("/courseProgress", server.createCourseProgress)
-			authroute.GET("/courseProgress", server.listCourseProgress)
-			authroute.GET("/courseProgress/:courseProgress_id", server.getCourseProgress)
+	authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
+
+	authroute.POST("/admin/signup", server.createAdminUser)
+	authroute.PUT("/user/edit", server.UpdateUser)
+	authroute.GET("/listadmin", server.ListUser)
+	authroute.GET("/liststudent", server.ListUserStudent)
+	authroute.GET("/listteacher", server.ListUserTeacher)
+	//requests
+	authroute.POST("/requests", server.createRequest) //
+	authroute.GET("/request/:request_id", server.getRequest)
+	authroute.GET("/requests", server.listRequests)
+	authroute.DELETE("/request/:student_id/:request_id", server.deleteRequest)
+	authroute.PUT("/request/:user_id", server.updateRequest)
+	//material
+	authroute.POST("/material", server.CreateMaterial)
+	authroute.GET("/material/:material_id", server.GetMaterials)
+	authroute.PUT("/material/:material_id", server.UpdateMaterial)
+	authroute.DELETE("/material/:material_id", server.DeleteMaterial)
+	//resource
+	authroute.POST("/resource", server.createResource)
+	authroute.GET("/resource/:resource_id", server.getResource)
+	authroute.PUT("/resource/update", server.updateResource)
+	authroute.DELETE("/resource/:resource_id", server.deleteResource)
+	//createcourse
+	authroute.POST("/course", server.CreateCourse)
+	authroute.GET("/course/:course_id", server.GetCourse)
+	authroute.GET("/courses", server.ListCourses)
+	authroute.PUT("/course/update", server.UpdateCourses)
+	authroute.DELETE("/course/:course_id", server.DeleteCourse)
+	//assignment
+	authroute.POST("/assignments", server.createAssignment)
+	authroute.GET("/assignments/:assignment_id", server.getAssignment)
+	authroute.PUT("/assignments/update", server.updateAssignment)
+	authroute.DELETE("/assignments/:assignment_id/:resource_id", server.deleteAssignment)
+	//submissions
+	// authRoutes.POST("create/submissions/", server.createsubmission)
+	authroute.GET("/submission", server.getSubmission)
+	authroute.GET("/submissions", server.listSubmissions)
+	//course_enrolments
+	authroute.POST("/courseEnrolments", server.CreateCourseEnrolment)
+	authroute.GET("/enrolments", server.listEnrolments)
+	//course_progress
+	authroute.POST("/courseProgress", server.createCourseProgress)
+	authroute.GET("/courseProgress", server.listCourseProgress)
+	authroute.GET("/courseProgress/:courseProgress_id", server.getCourseProgress)
 
 	server.router = router
 }
@@ -125,7 +125,6 @@ func (server *Server) Start(address string) error {
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
-
 
 // func main() {
 // 	r := gin.Default()

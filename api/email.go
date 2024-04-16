@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"database/sql"
 	db "eduwave-back-end/db/sqlc"
 	"html/template"
 	"math/rand"
@@ -61,48 +60,11 @@ func sendUserVerificationEmail(to string) (string, error) {
 	return secretCode, nil
 }
 
-type UpdateVerifyEmailRequest struct {
-	EmailID    int64  `json:"email_id"`
-	SecretCode string `json:"secret_code"`
-}
-
 type createVerifyEmailRequest struct {
 	UserName   string `json:"user_name"`
 	Email      string `json:"email"`
 	SecretCode string `json:"secret_code"`
 }
-
-type CreateVerifyEmailParams struct {
-	UserName   string `json:"user_name"`
-	Email      string `json:"email"`
-	SecretCode string `json:"secret_code"`
-}
-
-// VerifyEmailHandler handles the verification request sent by the user clicking the button in the email
-/*func (server *Server) VerifyEmailHandler(ctx *gin.Context) {
-	var req UpdateVerifyEmailRequest
-	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	arg := db.UpdateVerifyEmailParams{
-		EmailID:    req.EmailID,
-		SecretCode: req.SecretCode,
-	}
-
-	// Update the database to mark the email as verified
-	response, err := server.store.UpdateVerifyEmail(ctx, db.UpdateVerifyEmailParam{
-		EmailID:    arg.EmailID,
-		SecretCode: arg.SecretCode,
-	})
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, response)
-}*/
 
 // VerifyEmailHandler handles the verification request sent by the user clicking the button in the email
 func (server *Server) VerifyEmailHandler(ctx *gin.Context) {
@@ -112,40 +74,45 @@ func (server *Server) VerifyEmailHandler(ctx *gin.Context) {
 		return
 	}
 
-	// Fetch the user from the database
 	user, err := server.store.GetUser(ctx, db.GetUserParam{
 		UserName: req.UserName,
 	})
+
+	if req.UserName != user.User.UserName {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"messege": "invalid username"})
+		return
+	}
+
+	// Fetch the user's record along with the secret code from the database
+	verifyEmail, err := server.store.GetVerifyEmail(ctx, db.GetVerifyEmailParam{
+		SecretCode: req.SecretCode,
+	})
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Verify the provided secret code
+	if req.SecretCode == verifyEmail.VerifyEmail.SecretCode {
+		ctx.JSON(http.StatusOK, gin.H{"message": "Successfully Registered"})
 		return
 	}
 
 	// Update the user's record in the database to mark the email as verified
-	updateParams := db.UpdateUserParams{
-		HashedPassword:    sql.NullString{},
-		PasswordChangedAt: sql.NullTime{},
-		FullName:          sql.NullString{},
-		Email:             sql.NullString{},
-		IsEmailVerified:   sql.NullBool{Bool: true, Valid: true},
-		UserName:          user.User.UserName,
+	if req.SecretCode == verifyEmail.VerifyEmail.SecretCode {
+		// Create verify email data in the database
+		arg := db.UpdateVerifyEmailParams{
+			IsUsed: true,
+		}
+		_, err = server.store.UpdateVerifyEmail(ctx, db.UpdateVerifyEmailParam(arg))
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusOK, user)
 	}
-	var updateUserParam db.UpdateUserParam
-	updateUserParam.HashedPassword = updateParams.HashedPassword
-
-	updateUserParam.FullName = updateParams.FullName
-	updateUserParam.Email = updateParams.Email
-
-	updateUserParam.UserName = updateParams.UserName
-
-	// Call server.store.UpdateUser() with updateUserParam
-	_, err = server.store.UpdateUser(ctx, updateUserParam)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"message": "Email verified successfully"})
 }
 
 func sendEmail(from, password, smtpHost, smtpPort string, to []string, body []byte, subject string) error {
@@ -186,7 +153,7 @@ const emailTemplate = `
 </head>
 <body>
     <h3>Email Verification</h3>
-    <p>verify your account with the  secret code: <strong>{{.SecretCode}}</strong></p>
+	<p>verify your account with the  secret code: <strong>{{.SecretCode}}</strong></p>
 </body>
 </html>
 `
