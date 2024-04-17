@@ -65,6 +65,8 @@ func (server *Server) setupRouter() {
 	router.POST("/login", server.loginUser)
 	router.POST("tokens/renew_access", server.renewAccessToken)
 
+	//verify email
+	router.POST("/verify-email", server.VerifyEmailHandler)
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
@@ -125,27 +127,3 @@ func (server *Server) Start(address string) error {
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
-
-
-// func main() {
-// 	r := gin.Default()
-
-// 	// Public route
-// 	r.GET("/public", func(c *gin.Context) {
-// 		c.JSON(http.StatusOK, gin.H{"message": "This is a public route"})
-// 	})
-
-// 	// Protected route for admins
-// 	adminRoutes := r.Group("/admin").Use(AuthorizeRole("admin"))
-// 	adminRoutes.GET("/dashboard", func(c *gin.Context) {
-// 		c.JSON(http.StatusOK, gin.H{"message": "Welcome, Admin!"})
-// 	})
-
-// 	// Protected route for users
-// 	userRoutes := r.Group("/user").Use(AuthorizeRole("user"))
-// 	userRoutes.GET("/profile", func(c *gin.Context) {
-// 		c.JSON(http.StatusOK, gin.H{"message": "Welcome, User!"})
-// 	})
-
-// 	r.Run(":8080")
-// }

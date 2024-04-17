@@ -11,12 +11,12 @@ import (
 )
 
 type createRequestRequest struct {
-	UserID     int64        `json:"user_id"`
-    CourseID   int64        `json:"course_id"`
-	IsActive   bool `json:"is_active"`
-	IsPending  bool `json:"is_pending"`
-	IsAccepted bool `json:"is_accepted"`
-	IsDeclined bool `json:"is_declined"`
+	UserID     int64 `json:"user_id"`
+	CourseID   int64 `json:"course_id"`
+	IsActive   bool  `json:"is_active"`
+	IsPending  bool  `json:"is_pending"`
+	IsAccepted bool  `json:"is_accepted"`
+	IsDeclined bool  `json:"is_declined"`
 }
 
 // createRequest represents the request body for create a request.
@@ -25,9 +25,9 @@ type createRequestRequest struct {
 // @Accept json
 // @Produce json
 // @Param request body createRequestRequest true "Request data"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /requests [post]
 func (server *Server) createRequest(ctx *gin.Context) {
@@ -38,8 +38,8 @@ func (server *Server) createRequest(ctx *gin.Context) {
 	}
 
 	arg := db.CreateRequestParams{
-		UserID: req.UserID,
-		CourseID: req.CourseID,
+		UserID:     req.UserID,
+		CourseID:   req.CourseID,
 		IsActive:   sql.NullBool{Bool: req.IsActive, Valid: req.IsActive},
 		IsPending:  sql.NullBool{Bool: req.IsPending, Valid: req.IsPending},
 		IsAccepted: sql.NullBool{Bool: req.IsAccepted, Valid: req.IsAccepted},
@@ -47,10 +47,10 @@ func (server *Server) createRequest(ctx *gin.Context) {
 	}
 
 	request, err := server.store.CreateRequest(ctx, db.CreateRequestParam{
-		UserID: arg.UserID,
-		CourseID: arg.CourseID,
-		IsActive: arg.IsActive,
-		IsPending: arg.IsPending,
+		UserID:     arg.UserID,
+		CourseID:   arg.CourseID,
+		IsActive:   arg.IsActive,
+		IsPending:  arg.IsPending,
 		IsAccepted: arg.IsAccepted,
 		IsDeclined: arg.IsDeclined,
 	})
@@ -70,9 +70,9 @@ type getRequestRequest struct {
 // @Description Get a request by its ID
 // @Produce json
 // @Param request_id path int true "Request ID"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /request/{request_id} [get]
 func (server *Server) getRequest(ctx *gin.Context) {
@@ -100,7 +100,7 @@ func (server *Server) getRequest(ctx *gin.Context) {
 
 type listRequestRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-    PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 // @Summary List requests
@@ -111,9 +111,9 @@ type listRequestRequest struct {
 // @Param course_id query int false "Course ID"
 // @Param limit query int false "Limit"
 // @Param offset query int false "Offset"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /requests [get]
 func (server *Server) listRequests(ctx *gin.Context) {
@@ -125,7 +125,7 @@ func (server *Server) listRequests(ctx *gin.Context) {
 
 	arg := db.ListRequestParams{
 		Limit:  req.PageSize,
-        Offset: (req.PageID - 1) * req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	requests, err := server.store.ListRequest(ctx, arg)
@@ -138,7 +138,7 @@ func (server *Server) listRequests(ctx *gin.Context) {
 }
 
 type deleteRequestRequest struct {
-    RequestID int64 `uri:"request_id"`
+	RequestID int64 `uri:"request_id"`
 }
 
 // @Summary Delete a request
@@ -146,9 +146,9 @@ type deleteRequestRequest struct {
 // @Produce json
 // @Param student_id path int true "Student ID"
 // @Param request_id path int true "Request ID"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /request/{user_id}/{request_id} [delete]
 func (server *Server) deleteRequest(ctx *gin.Context) {
@@ -169,10 +169,10 @@ func (server *Server) deleteRequest(ctx *gin.Context) {
 
 type updateRequest struct {
 	UserID     int64        `json:"user_id"`
-    IsActive   sql.NullBool `json:"is_active"`
-    IsPending  sql.NullBool `json:"is_pending"`
-    IsAccepted sql.NullBool `json:"is_accepted"`
-    IsDeclined sql.NullBool `json:"is_declined"`
+	IsActive   sql.NullBool `json:"is_active"`
+	IsPending  sql.NullBool `json:"is_pending"`
+	IsAccepted sql.NullBool `json:"is_accepted"`
+	IsDeclined sql.NullBool `json:"is_declined"`
 }
 
 // @Summary Update a request
@@ -180,9 +180,9 @@ type updateRequest struct {
 // @Accept json
 // @Produce json
 // @Param request body updateRequest true "Requested data"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /request/update [put]
 func (server *Server) updateRequest(ctx *gin.Context) {
@@ -197,9 +197,8 @@ func (server *Server) updateRequest(ctx *gin.Context) {
 	// 	ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	// }
 
-
 	arg := db.UpdateRequestsParams{
-		UserID: req.UserID,
+		UserID:     req.UserID,
 		IsActive:   sql.NullBool{Bool: req.IsActive.Bool, Valid: true},
 		IsPending:  sql.NullBool{Bool: req.IsPending.Bool, Valid: true},
 		IsAccepted: sql.NullBool{Bool: req.IsAccepted.Bool, Valid: true},
