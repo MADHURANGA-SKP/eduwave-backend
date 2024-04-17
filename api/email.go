@@ -62,7 +62,6 @@ func sendUserVerificationEmail(to string) (string, error) {
 
 type createVerifyEmailRequest struct {
 	UserName   string `json:"user_name"`
-	Email      string `json:"email"`
 	SecretCode string `json:"secret_code"`
 }
 
@@ -77,14 +76,19 @@ func (server *Server) VerifyEmailHandler(ctx *gin.Context) {
 	user, err := server.store.GetUser(ctx, db.GetUserParam{
 		UserName: req.UserName,
 	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
 
 	if req.UserName != user.User.UserName {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"messege": "invalid username"})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "invalid username"})
 		return
 	}
 
 	// Fetch the user's record along with the secret code from the database
 	verifyEmail, err := server.store.GetVerifyEmail(ctx, db.GetVerifyEmailParam{
+		UserName:   req.UserName,
 		SecretCode: req.SecretCode,
 	})
 
@@ -96,23 +100,42 @@ func (server *Server) VerifyEmailHandler(ctx *gin.Context) {
 	// Verify the provided secret code
 	if req.SecretCode == verifyEmail.VerifyEmail.SecretCode {
 		ctx.JSON(http.StatusOK, gin.H{"message": "Successfully Registered"})
-		return
+
 	}
 
 	// Update the user's record in the database to mark the email as verified
 	if req.SecretCode == verifyEmail.VerifyEmail.SecretCode {
-		// Create verify email data in the database
+		// Update IsUsed to true
 		arg := db.UpdateVerifyEmailParams{
-			IsUsed: true,
+			IsUsed:     true,
+			EmailID:    verifyEmail.VerifyEmail.EmailID,
+			SecretCode: verifyEmail.VerifyEmail.SecretCode,
 		}
 		_, err = server.store.UpdateVerifyEmail(ctx, db.UpdateVerifyEmailParam(arg))
+
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, user)
+		//update IsEmailVerified to true
+		_, err = server.store.UpdateUser(ctx, db.UpdateUserParam{
+			FullName:        user.User.FullName,
+			UserName:        req.UserName,
+			Email:           user.User.Email,
+			HashedPassword:  user.User.HashedPassword,
+			IsEmailVerified: true,
+		})
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"message": "Email verification successful"})
+		return
 	}
+
+	ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid secret code"})
 }
 
 func sendEmail(from, password, smtpHost, smtpPort string, to []string, body []byte, subject string) error {

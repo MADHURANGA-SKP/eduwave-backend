@@ -73,21 +73,22 @@ func (store *Store) GetUser(ctx context.Context, arg GetUserParam) (GetUserRespo
 	return result, err
 }
 
-//UpdateUserParam contains the input parameters of the update the data
+// UpdateUserParam contains the input parameters of the update the data
 type UpdateUserParam struct {
-	HashedPassword    string `json:"hashed_password"`
-	PasswordChangedAt  time.Time  `json:"password_changed_at"`
-	FullName          string `json:"full_name"`
-	Email             string `json:"email"`
-	UserName          string         `json:"user_name"`
+	HashedPassword    string    `json:"hashed_password"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	IsEmailVerified   bool      `json:"is_email_verified"`
+	UserName          string    `json:"user_name"`
 }
 
-//UpdateUserResponse contains the result of the updating data
+// UpdateUserResponse contains the result of the updating data
 type UpdateUserResponse struct {
 	User User `json:"user"`
 }
 
-//UpdateUser db handler for api call to update user data in database
+// UpdateUser db handler for api call to update user data in database
 func (store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam) (UpdateUserResponse, error) {
 	var result UpdateUserResponse
 
@@ -95,11 +96,12 @@ func (store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam) (Update
 		var err error
 
 		result.User, err = q.UpdateUser(ctx, UpdateUserParams{
-			HashedPassword: arg.HashedPassword,
+			HashedPassword:    arg.HashedPassword,
 			PasswordChangedAt: time.Now(),
-			FullName: arg.FullName,
-			Email: arg.Email,
-			UserName: arg.UserName,
+			FullName:          arg.FullName,
+			Email:             arg.Email,
+			IsEmailVerified:   arg.IsEmailVerified,
+			UserName:          arg.UserName,
 		})
 
 		if err != nil {

@@ -111,12 +111,12 @@ func (server *Server) createUser(ctx *gin.Context) {
 }
 
 type UpdateUserRequest struct {
-	  HashedPassword    string    `json:"hashed_password"`
-    PasswordChangedAt time.Time `json:"password_changed_at"`
-    FullName          string    `json:"full_name"`
-    Email             string    `json:"email"`
-    IsEmailVerified   bool      `json:"is_email_verified"`
-    UserName          string    `json:"user_name"`
+	HashedPassword    string    `json:"hashed_password"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	IsEmailVerified   bool      `json:"is_email_verified"`
+	UserName          string    `json:"user_name"`
 }
 
 // @Summary Update a user
@@ -137,12 +137,12 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	
+
 	username, err := server.store.GetUser(ctx, db.GetUserParam{
 		UserName: req.UserName,
 	},
 	)
-	
+
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -154,7 +154,7 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 
 	if username.User.UserName != req.UserName {
 		ctx.JSON(http.StatusForbidden, "connot update other user's info")
-		return 
+		return
 	}
 
 	hashedPassword, err := util.HashPassword(req.HashedPassword)
@@ -164,20 +164,21 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 	}
 
 	arg := &db.UpdateUserParams{
-		HashedPassword: hashedPassword,
+		HashedPassword:    hashedPassword,
 		PasswordChangedAt: time.Now(),
-		FullName: req.FullName,
-		Email: req.Email,
-		UserName: req.UserName,
+		FullName:          req.FullName,
+		Email:             req.Email,
+		IsEmailVerified:   req.IsEmailVerified,
+		UserName:          req.UserName,
 	}
-	
-	
+
 	user, err := server.store.UpdateUser(ctx, db.UpdateUserParam{
-		HashedPassword: arg.HashedPassword,
+		HashedPassword:    arg.HashedPassword,
 		PasswordChangedAt: arg.PasswordChangedAt,
-		FullName: arg.FullName,
-		Email: arg.Email,
-		UserName: arg.UserName,
+		FullName:          arg.FullName,
+		Email:             arg.Email,
+		IsEmailVerified:   arg.IsEmailVerified,
+		UserName:          arg.UserName,
 	})
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolations {
