@@ -74,6 +74,7 @@ func (store *Store) UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmail
 
 // CreateVerifyEmailParam contaisn the input parameters of verify email data
 type GetVerifyEmailParam struct {
+	UserName   string `json:"user_name"`
 	SecretCode string `json:"secret_code"`
 }
 
