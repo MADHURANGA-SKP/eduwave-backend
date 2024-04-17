@@ -33,7 +33,7 @@ type CreateUserParams struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
+	row := q.queryRow(ctx, q.createUserStmt, createUser,
 		arg.UserName,
 		arg.FullName,
 		arg.HashedPassword,
@@ -63,7 +63,7 @@ WHERE user_id = $1
 `
 
 func (q *Queries) DeleteUsers(ctx context.Context, userID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteUsers, userID)
+	_, err := q.exec(ctx, q.deleteUsersStmt, deleteUsers, userID)
 	return err
 }
 
@@ -83,7 +83,7 @@ WHERE user_name = $1 LIMIT 1
 //
 //	users.user_name = $1 OR teachers.user_name = $1 OR admins.user_name = $1;
 func (q *Queries) GetUser(ctx context.Context, userName string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, userName)
+	row := q.queryRow(ctx, q.getUserStmt, getUser, userName)
 	var i User
 	err := row.Scan(
 		&i.UserID,
@@ -115,7 +115,7 @@ type ListUserParams struct {
 }
 
 func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, listUser, arg.Role, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.listUserStmt, listUser, arg.Role, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -162,16 +162,16 @@ RETURNING user_id, user_name, role, hashed_password, full_name, email, is_email_
 `
 
 type UpdateUserParams struct {
-	HashedPassword    string `json:"hashed_password"`
-	PasswordChangedAt  time.Time  `json:"password_changed_at"`
-	FullName          string `json:"full_name"`
-	Email             string `json:"email"`
+	HashedPassword   string `json:"hashed_password"`
+	PasswordChangedAt time.Time   `json:"password_changed_at"`
+	FullName         string `json:"full_name"`
+	Email            string `json:"email"`
 	IsEmailVerified   bool   `json:"is_email_verified"`
 	UserName          string         `json:"user_name"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser,
+	row := q.queryRow(ctx, q.updateUserStmt, updateUser,
 		arg.HashedPassword,
 		arg.PasswordChangedAt,
 		arg.FullName,

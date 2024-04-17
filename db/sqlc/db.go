@@ -7,6 +7,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 type DBTX interface {
@@ -20,12 +21,488 @@ func New(db DBTX) *Queries {
 	return &Queries{db: db}
 }
 
+func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
+	q := Queries{db: db}
+	var err error
+	if q.createAssignmentStmt, err = db.PrepareContext(ctx, createAssignment); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateAssignment: %w", err)
+	}
+	if q.createCourseProgressStmt, err = db.PrepareContext(ctx, createCourseProgress); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateCourseProgress: %w", err)
+	}
+	if q.createCoursesStmt, err = db.PrepareContext(ctx, createCourses); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateCourses: %w", err)
+	}
+	if q.createEnrolmentsStmt, err = db.PrepareContext(ctx, createEnrolments); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateEnrolments: %w", err)
+	}
+	if q.createMaterialStmt, err = db.PrepareContext(ctx, createMaterial); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateMaterial: %w", err)
+	}
+	if q.createRequestStmt, err = db.PrepareContext(ctx, createRequest); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateRequest: %w", err)
+	}
+	if q.createResourceStmt, err = db.PrepareContext(ctx, createResource); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateResource: %w", err)
+	}
+	if q.createSessionStmt, err = db.PrepareContext(ctx, createSession); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateSession: %w", err)
+	}
+	if q.createSubmissionStmt, err = db.PrepareContext(ctx, createSubmission); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateSubmission: %w", err)
+	}
+	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
+	}
+	if q.createVerifyEmailStmt, err = db.PrepareContext(ctx, createVerifyEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateVerifyEmail: %w", err)
+	}
+	if q.deleteAssignmentStmt, err = db.PrepareContext(ctx, deleteAssignment); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteAssignment: %w", err)
+	}
+	if q.deleteCoursesStmt, err = db.PrepareContext(ctx, deleteCourses); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteCourses: %w", err)
+	}
+	if q.deleteMaterialStmt, err = db.PrepareContext(ctx, deleteMaterial); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteMaterial: %w", err)
+	}
+	if q.deleteRequestStmt, err = db.PrepareContext(ctx, deleteRequest); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteRequest: %w", err)
+	}
+	if q.deleteResourceStmt, err = db.PrepareContext(ctx, deleteResource); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteResource: %w", err)
+	}
+	if q.deleteUsersStmt, err = db.PrepareContext(ctx, deleteUsers); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteUsers: %w", err)
+	}
+	if q.getAssignmentStmt, err = db.PrepareContext(ctx, getAssignment); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAssignment: %w", err)
+	}
+	if q.getCourseProgressStmt, err = db.PrepareContext(ctx, getCourseProgress); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCourseProgress: %w", err)
+	}
+	if q.getCoursesStmt, err = db.PrepareContext(ctx, getCourses); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCourses: %w", err)
+	}
+	if q.getMaterialStmt, err = db.PrepareContext(ctx, getMaterial); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMaterial: %w", err)
+	}
+	if q.getRequestStmt, err = db.PrepareContext(ctx, getRequest); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRequest: %w", err)
+	}
+	if q.getResourceStmt, err = db.PrepareContext(ctx, getResource); err != nil {
+		return nil, fmt.Errorf("error preparing query GetResource: %w", err)
+	}
+	if q.getSessionStmt, err = db.PrepareContext(ctx, getSession); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSession: %w", err)
+	}
+	if q.getUserStmt, err = db.PrepareContext(ctx, getUser); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUser: %w", err)
+	}
+	if q.getVerifyEmailStmt, err = db.PrepareContext(ctx, getVerifyEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query GetVerifyEmail: %w", err)
+	}
+	if q.getsubmissionsByAssignmentStmt, err = db.PrepareContext(ctx, getsubmissionsByAssignment); err != nil {
+		return nil, fmt.Errorf("error preparing query GetsubmissionsByAssignment: %w", err)
+	}
+	if q.getsubmissionsByUserStmt, err = db.PrepareContext(ctx, getsubmissionsByUser); err != nil {
+		return nil, fmt.Errorf("error preparing query GetsubmissionsByUser: %w", err)
+	}
+	if q.listCourseProgressStmt, err = db.PrepareContext(ctx, listCourseProgress); err != nil {
+		return nil, fmt.Errorf("error preparing query ListCourseProgress: %w", err)
+	}
+	if q.listCoursesStmt, err = db.PrepareContext(ctx, listCourses); err != nil {
+		return nil, fmt.Errorf("error preparing query ListCourses: %w", err)
+	}
+	if q.listEnrolmentsStmt, err = db.PrepareContext(ctx, listEnrolments); err != nil {
+		return nil, fmt.Errorf("error preparing query ListEnrolments: %w", err)
+	}
+	if q.listMaterialStmt, err = db.PrepareContext(ctx, listMaterial); err != nil {
+		return nil, fmt.Errorf("error preparing query ListMaterial: %w", err)
+	}
+	if q.listRequestStmt, err = db.PrepareContext(ctx, listRequest); err != nil {
+		return nil, fmt.Errorf("error preparing query ListRequest: %w", err)
+	}
+	if q.listResourceStmt, err = db.PrepareContext(ctx, listResource); err != nil {
+		return nil, fmt.Errorf("error preparing query ListResource: %w", err)
+	}
+	if q.listUserStmt, err = db.PrepareContext(ctx, listUser); err != nil {
+		return nil, fmt.Errorf("error preparing query ListUser: %w", err)
+	}
+	if q.listsubmissionsStmt, err = db.PrepareContext(ctx, listsubmissions); err != nil {
+		return nil, fmt.Errorf("error preparing query Listsubmissions: %w", err)
+	}
+	if q.updateAssignmentStmt, err = db.PrepareContext(ctx, updateAssignment); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateAssignment: %w", err)
+	}
+	if q.updateCoursesStmt, err = db.PrepareContext(ctx, updateCourses); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateCourses: %w", err)
+	}
+	if q.updateMaterialStmt, err = db.PrepareContext(ctx, updateMaterial); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateMaterial: %w", err)
+	}
+	if q.updateRequestsStmt, err = db.PrepareContext(ctx, updateRequests); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateRequests: %w", err)
+	}
+	if q.updateResourceStmt, err = db.PrepareContext(ctx, updateResource); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateResource: %w", err)
+	}
+	if q.updateUserStmt, err = db.PrepareContext(ctx, updateUser); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateUser: %w", err)
+	}
+	if q.updateVerifyEmailStmt, err = db.PrepareContext(ctx, updateVerifyEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateVerifyEmail: %w", err)
+	}
+	return &q, nil
+}
+
+func (q *Queries) Close() error {
+	var err error
+	if q.createAssignmentStmt != nil {
+		if cerr := q.createAssignmentStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createAssignmentStmt: %w", cerr)
+		}
+	}
+	if q.createCourseProgressStmt != nil {
+		if cerr := q.createCourseProgressStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createCourseProgressStmt: %w", cerr)
+		}
+	}
+	if q.createCoursesStmt != nil {
+		if cerr := q.createCoursesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createCoursesStmt: %w", cerr)
+		}
+	}
+	if q.createEnrolmentsStmt != nil {
+		if cerr := q.createEnrolmentsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createEnrolmentsStmt: %w", cerr)
+		}
+	}
+	if q.createMaterialStmt != nil {
+		if cerr := q.createMaterialStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createMaterialStmt: %w", cerr)
+		}
+	}
+	if q.createRequestStmt != nil {
+		if cerr := q.createRequestStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createRequestStmt: %w", cerr)
+		}
+	}
+	if q.createResourceStmt != nil {
+		if cerr := q.createResourceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createResourceStmt: %w", cerr)
+		}
+	}
+	if q.createSessionStmt != nil {
+		if cerr := q.createSessionStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createSessionStmt: %w", cerr)
+		}
+	}
+	if q.createSubmissionStmt != nil {
+		if cerr := q.createSubmissionStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createSubmissionStmt: %w", cerr)
+		}
+	}
+	if q.createUserStmt != nil {
+		if cerr := q.createUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.createVerifyEmailStmt != nil {
+		if cerr := q.createVerifyEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createVerifyEmailStmt: %w", cerr)
+		}
+	}
+	if q.deleteAssignmentStmt != nil {
+		if cerr := q.deleteAssignmentStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteAssignmentStmt: %w", cerr)
+		}
+	}
+	if q.deleteCoursesStmt != nil {
+		if cerr := q.deleteCoursesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteCoursesStmt: %w", cerr)
+		}
+	}
+	if q.deleteMaterialStmt != nil {
+		if cerr := q.deleteMaterialStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteMaterialStmt: %w", cerr)
+		}
+	}
+	if q.deleteRequestStmt != nil {
+		if cerr := q.deleteRequestStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteRequestStmt: %w", cerr)
+		}
+	}
+	if q.deleteResourceStmt != nil {
+		if cerr := q.deleteResourceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteResourceStmt: %w", cerr)
+		}
+	}
+	if q.deleteUsersStmt != nil {
+		if cerr := q.deleteUsersStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteUsersStmt: %w", cerr)
+		}
+	}
+	if q.getAssignmentStmt != nil {
+		if cerr := q.getAssignmentStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAssignmentStmt: %w", cerr)
+		}
+	}
+	if q.getCourseProgressStmt != nil {
+		if cerr := q.getCourseProgressStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCourseProgressStmt: %w", cerr)
+		}
+	}
+	if q.getCoursesStmt != nil {
+		if cerr := q.getCoursesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCoursesStmt: %w", cerr)
+		}
+	}
+	if q.getMaterialStmt != nil {
+		if cerr := q.getMaterialStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMaterialStmt: %w", cerr)
+		}
+	}
+	if q.getRequestStmt != nil {
+		if cerr := q.getRequestStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRequestStmt: %w", cerr)
+		}
+	}
+	if q.getResourceStmt != nil {
+		if cerr := q.getResourceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getResourceStmt: %w", cerr)
+		}
+	}
+	if q.getSessionStmt != nil {
+		if cerr := q.getSessionStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSessionStmt: %w", cerr)
+		}
+	}
+	if q.getUserStmt != nil {
+		if cerr := q.getUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserStmt: %w", cerr)
+		}
+	}
+	if q.getVerifyEmailStmt != nil {
+		if cerr := q.getVerifyEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getVerifyEmailStmt: %w", cerr)
+		}
+	}
+	if q.getsubmissionsByAssignmentStmt != nil {
+		if cerr := q.getsubmissionsByAssignmentStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getsubmissionsByAssignmentStmt: %w", cerr)
+		}
+	}
+	if q.getsubmissionsByUserStmt != nil {
+		if cerr := q.getsubmissionsByUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getsubmissionsByUserStmt: %w", cerr)
+		}
+	}
+	if q.listCourseProgressStmt != nil {
+		if cerr := q.listCourseProgressStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listCourseProgressStmt: %w", cerr)
+		}
+	}
+	if q.listCoursesStmt != nil {
+		if cerr := q.listCoursesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listCoursesStmt: %w", cerr)
+		}
+	}
+	if q.listEnrolmentsStmt != nil {
+		if cerr := q.listEnrolmentsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listEnrolmentsStmt: %w", cerr)
+		}
+	}
+	if q.listMaterialStmt != nil {
+		if cerr := q.listMaterialStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listMaterialStmt: %w", cerr)
+		}
+	}
+	if q.listRequestStmt != nil {
+		if cerr := q.listRequestStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listRequestStmt: %w", cerr)
+		}
+	}
+	if q.listResourceStmt != nil {
+		if cerr := q.listResourceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listResourceStmt: %w", cerr)
+		}
+	}
+	if q.listUserStmt != nil {
+		if cerr := q.listUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listUserStmt: %w", cerr)
+		}
+	}
+	if q.listsubmissionsStmt != nil {
+		if cerr := q.listsubmissionsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listsubmissionsStmt: %w", cerr)
+		}
+	}
+	if q.updateAssignmentStmt != nil {
+		if cerr := q.updateAssignmentStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateAssignmentStmt: %w", cerr)
+		}
+	}
+	if q.updateCoursesStmt != nil {
+		if cerr := q.updateCoursesStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateCoursesStmt: %w", cerr)
+		}
+	}
+	if q.updateMaterialStmt != nil {
+		if cerr := q.updateMaterialStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateMaterialStmt: %w", cerr)
+		}
+	}
+	if q.updateRequestsStmt != nil {
+		if cerr := q.updateRequestsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateRequestsStmt: %w", cerr)
+		}
+	}
+	if q.updateResourceStmt != nil {
+		if cerr := q.updateResourceStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateResourceStmt: %w", cerr)
+		}
+	}
+	if q.updateUserStmt != nil {
+		if cerr := q.updateUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateUserStmt: %w", cerr)
+		}
+	}
+	if q.updateVerifyEmailStmt != nil {
+		if cerr := q.updateVerifyEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateVerifyEmailStmt: %w", cerr)
+		}
+	}
+	return err
+}
+
+func (q *Queries) exec(ctx context.Context, stmt *sql.Stmt, query string, args ...interface{}) (sql.Result, error) {
+	switch {
+	case stmt != nil && q.tx != nil:
+		return q.tx.StmtContext(ctx, stmt).ExecContext(ctx, args...)
+	case stmt != nil:
+		return stmt.ExecContext(ctx, args...)
+	default:
+		return q.db.ExecContext(ctx, query, args...)
+	}
+}
+
+func (q *Queries) query(ctx context.Context, stmt *sql.Stmt, query string, args ...interface{}) (*sql.Rows, error) {
+	switch {
+	case stmt != nil && q.tx != nil:
+		return q.tx.StmtContext(ctx, stmt).QueryContext(ctx, args...)
+	case stmt != nil:
+		return stmt.QueryContext(ctx, args...)
+	default:
+		return q.db.QueryContext(ctx, query, args...)
+	}
+}
+
+func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, args ...interface{}) *sql.Row {
+	switch {
+	case stmt != nil && q.tx != nil:
+		return q.tx.StmtContext(ctx, stmt).QueryRowContext(ctx, args...)
+	case stmt != nil:
+		return stmt.QueryRowContext(ctx, args...)
+	default:
+		return q.db.QueryRowContext(ctx, query, args...)
+	}
+}
+
 type Queries struct {
-	db DBTX
+	db                             DBTX
+	tx                             *sql.Tx
+	createAssignmentStmt           *sql.Stmt
+	createCourseProgressStmt       *sql.Stmt
+	createCoursesStmt              *sql.Stmt
+	createEnrolmentsStmt           *sql.Stmt
+	createMaterialStmt             *sql.Stmt
+	createRequestStmt              *sql.Stmt
+	createResourceStmt             *sql.Stmt
+	createSessionStmt              *sql.Stmt
+	createSubmissionStmt           *sql.Stmt
+	createUserStmt                 *sql.Stmt
+	createVerifyEmailStmt          *sql.Stmt
+	deleteAssignmentStmt           *sql.Stmt
+	deleteCoursesStmt              *sql.Stmt
+	deleteMaterialStmt             *sql.Stmt
+	deleteRequestStmt              *sql.Stmt
+	deleteResourceStmt             *sql.Stmt
+	deleteUsersStmt                *sql.Stmt
+	getAssignmentStmt              *sql.Stmt
+	getCourseProgressStmt          *sql.Stmt
+	getCoursesStmt                 *sql.Stmt
+	getMaterialStmt                *sql.Stmt
+	getRequestStmt                 *sql.Stmt
+	getResourceStmt                *sql.Stmt
+	getSessionStmt                 *sql.Stmt
+	getUserStmt                    *sql.Stmt
+	getVerifyEmailStmt             *sql.Stmt
+	getsubmissionsByAssignmentStmt *sql.Stmt
+	getsubmissionsByUserStmt       *sql.Stmt
+	listCourseProgressStmt         *sql.Stmt
+	listCoursesStmt                *sql.Stmt
+	listEnrolmentsStmt             *sql.Stmt
+	listMaterialStmt               *sql.Stmt
+	listRequestStmt                *sql.Stmt
+	listResourceStmt               *sql.Stmt
+	listUserStmt                   *sql.Stmt
+	listsubmissionsStmt            *sql.Stmt
+	updateAssignmentStmt           *sql.Stmt
+	updateCoursesStmt              *sql.Stmt
+	updateMaterialStmt             *sql.Stmt
+	updateRequestsStmt             *sql.Stmt
+	updateResourceStmt             *sql.Stmt
+	updateUserStmt                 *sql.Stmt
+	updateVerifyEmailStmt          *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db: tx,
+		db:                             tx,
+		tx:                             tx,
+		createAssignmentStmt:           q.createAssignmentStmt,
+		createCourseProgressStmt:       q.createCourseProgressStmt,
+		createCoursesStmt:              q.createCoursesStmt,
+		createEnrolmentsStmt:           q.createEnrolmentsStmt,
+		createMaterialStmt:             q.createMaterialStmt,
+		createRequestStmt:              q.createRequestStmt,
+		createResourceStmt:             q.createResourceStmt,
+		createSessionStmt:              q.createSessionStmt,
+		createSubmissionStmt:           q.createSubmissionStmt,
+		createUserStmt:                 q.createUserStmt,
+		createVerifyEmailStmt:          q.createVerifyEmailStmt,
+		deleteAssignmentStmt:           q.deleteAssignmentStmt,
+		deleteCoursesStmt:              q.deleteCoursesStmt,
+		deleteMaterialStmt:             q.deleteMaterialStmt,
+		deleteRequestStmt:              q.deleteRequestStmt,
+		deleteResourceStmt:             q.deleteResourceStmt,
+		deleteUsersStmt:                q.deleteUsersStmt,
+		getAssignmentStmt:              q.getAssignmentStmt,
+		getCourseProgressStmt:          q.getCourseProgressStmt,
+		getCoursesStmt:                 q.getCoursesStmt,
+		getMaterialStmt:                q.getMaterialStmt,
+		getRequestStmt:                 q.getRequestStmt,
+		getResourceStmt:                q.getResourceStmt,
+		getSessionStmt:                 q.getSessionStmt,
+		getUserStmt:                    q.getUserStmt,
+		getVerifyEmailStmt:             q.getVerifyEmailStmt,
+		getsubmissionsByAssignmentStmt: q.getsubmissionsByAssignmentStmt,
+		getsubmissionsByUserStmt:       q.getsubmissionsByUserStmt,
+		listCourseProgressStmt:         q.listCourseProgressStmt,
+		listCoursesStmt:                q.listCoursesStmt,
+		listEnrolmentsStmt:             q.listEnrolmentsStmt,
+		listMaterialStmt:               q.listMaterialStmt,
+		listRequestStmt:                q.listRequestStmt,
+		listResourceStmt:               q.listResourceStmt,
+		listUserStmt:                   q.listUserStmt,
+		listsubmissionsStmt:            q.listsubmissionsStmt,
+		updateAssignmentStmt:           q.updateAssignmentStmt,
+		updateCoursesStmt:              q.updateCoursesStmt,
+		updateMaterialStmt:             q.updateMaterialStmt,
+		updateRequestsStmt:             q.updateRequestsStmt,
+		updateResourceStmt:             q.updateResourceStmt,
+		updateUserStmt:                 q.updateUserStmt,
+		updateVerifyEmailStmt:          q.updateVerifyEmailStmt,
 	}
 }

@@ -57,7 +57,6 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 // GetCourseRequest defines the request body structure for getting a course
 type GetCourseRequest struct {
 	CourseID  int64    `form:"course_id,min=1"`
-    // TeacherID int64 `json:"teacher_id"`
 }
 
 // @Summary Get a course by ID
@@ -68,7 +67,7 @@ type GetCourseRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /course [get]
+// @Router /course/get [get]
 // GetCourse retrieves a course by ID
 func (server *Server) GetCourse(ctx *gin.Context) {
 	var req GetCourseRequest
@@ -144,7 +143,7 @@ type UpdateCoursesRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /course/update [put]
+// @Router /course/edit [put]
 // UpdateCourse updates the selected course
 func (server *Server) UpdateCourses(ctx *gin.Context) {
 	var req UpdateCoursesRequest
@@ -152,11 +151,6 @@ func (server *Server) UpdateCourses(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	// courseID, err := strconv.Atoi(ctx.Param("course_id"))
-	// if err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, errorResponse(err))
-	// }
 
 	arg := db.UpdateCoursesParams{
 		CourseID: req.CourseID,
@@ -177,7 +171,7 @@ func (server *Server) UpdateCourses(ctx *gin.Context) {
 
 // deleteCourseRequest defines the request body structure for deleting an Course
 type deleteCourseRequest struct {
-	CourseID  int64 `uri:"course_id"`
+	CourseID  int64 `form:"course_id"`
 }
 
 // @Summary Delete a course
@@ -189,11 +183,11 @@ type deleteCourseRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /course/{course_id} [delete]
+// @Router /course/delete [delete]
 // deleteCourse deletes an Course
 func (server *Server) DeleteCourse(ctx *gin.Context) {
 	var req deleteCourseRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}

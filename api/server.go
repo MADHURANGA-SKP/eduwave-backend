@@ -76,43 +76,43 @@ func (server *Server) setupRouter() {
 		authroute.GET("/listteacher", server.ListUserTeacher)
 		//requests
 			authroute.POST("/requests", server.createRequest)//
-			authroute.GET("/request/:request_id", server.getRequest)
+			authroute.GET("/request/get", server.getRequest)
 			authroute.GET("/requests", server.listRequests)
-			authroute.DELETE("/request/:student_id/:request_id", server.deleteRequest)
-			authroute.PUT("/request/:user_id", server.updateRequest)
+			authroute.DELETE("/request/delete", server.deleteRequest)
+			authroute.PUT("/request/edit", server.updateRequest)
 		//material
 			authroute.POST("/material", server.CreateMaterial)	
-			authroute.GET("/material/:material_id", server.GetMaterials)
-			authroute.PUT("/material/:material_id", server.UpdateMaterial)
-			authroute.DELETE("/material/:material_id", server.DeleteMaterial)
+			authroute.GET("/material/get", server.GetMaterials)
+			authroute.PUT("/material/edit", server.UpdateMaterial)
+			authroute.DELETE("/material/delete", server.DeleteMaterial)
 		//resource
 			authroute.POST("/resource", server.createResource)	
-			authroute.GET("/resource/:resource_id", server.getResource)
-			authroute.PUT("/resource/update", server.updateResource)
-			authroute.DELETE("/resource/:resource_id", server.deleteResource)
+			authroute.GET("/resource/get", server.getResource)
+			authroute.PUT("/resource/edit", server.updateResource)
+			authroute.DELETE("/resource/delete", server.deleteResource)
 		//createcourse
 			authroute.POST("/course", server.CreateCourse)	
-			authroute.GET("/course", server.GetCourse)
+			authroute.GET("/course/get", server.GetCourse)
 			authroute.GET("/courses", server.ListCourses)
-			authroute.PUT("/course/update", server.UpdateCourses)
-			authroute.DELETE("/course/:course_id", server.DeleteCourse)
+			authroute.PUT("/course/edit", server.UpdateCourses)
+			authroute.DELETE("/course/delete", server.DeleteCourse)
 		//assignment
 			authroute.POST("/assignments", server.createAssignment)
-			authroute.GET("/assignments/:assignment_id", server.getAssignment)
-			authroute.PUT("/assignments/update", server.updateAssignment)
-			authroute.DELETE("/assignment", server.deleteAssignment)
+			authroute.GET("/assignment/get", server.getAssignment)
+			authroute.PUT("/assignments/edit", server.updateAssignment)
+			authroute.DELETE("/assignment/delete", server.deleteAssignment)
 		//submissions
-			authroute.POST("/submission", server.CreateSubmission)
+			authroute.POST("/submissions", server.CreateSubmission)
 			authroute.GET("/submission/byassignment", server.GetSubmissionsByAssignment)
 			authroute.GET("/submission/byuser", server.GetSubmissionsByUser)
 			authroute.GET("/submissions", server.listSubmissions)
 		//course_enrolments
-			authroute.POST("/courseEnrolments", server.CreateCourseEnrolment)
+			authroute.POST("/enrol", server.CreateCourseEnrolment)
 			authroute.GET("/enrolments", server.listEnrolments)
 		//course_progress
-			authroute.POST("/courseProgress", server.createCourseProgress)
-			authroute.GET("/courseProgress", server.listCourseProgress)
-			authroute.GET("/courseProgress/:courseProgress_id", server.getCourseProgress)
+			authroute.POST("/createprogress", server.createCourseProgress)
+			authroute.GET("/courseprogress", server.listCourseProgress)
+			authroute.GET("/courseprogress/get", server.getCourseProgress)
 
 	server.router = router
 }
@@ -125,27 +125,3 @@ func (server *Server) Start(address string) error {
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
-
-
-// func main() {
-// 	r := gin.Default()
-
-// 	// Public route
-// 	r.GET("/public", func(c *gin.Context) {
-// 		c.JSON(http.StatusOK, gin.H{"message": "This is a public route"})
-// 	})
-
-// 	// Protected route for admins
-// 	adminRoutes := r.Group("/admin").Use(AuthorizeRole("admin"))
-// 	adminRoutes.GET("/dashboard", func(c *gin.Context) {
-// 		c.JSON(http.StatusOK, gin.H{"message": "Welcome, Admin!"})
-// 	})
-
-// 	// Protected route for users
-// 	userRoutes := r.Group("/user").Use(AuthorizeRole("user"))
-// 	userRoutes.GET("/profile", func(c *gin.Context) {
-// 		c.JSON(http.StatusOK, gin.H{"message": "Welcome, User!"})
-// 	})
-
-// 	r.Run(":8080")
-// }

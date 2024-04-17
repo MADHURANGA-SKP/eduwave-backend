@@ -30,7 +30,7 @@ type CreateMaterialRequest struct {
 func (server *Server) CreateMaterial(ctx *gin.Context) {
 	var req CreateMaterialRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
@@ -51,7 +51,7 @@ func (server *Server) CreateMaterial(ctx *gin.Context) {
 
 // GetMaterialsRequest defines the request body structure for getting materials
 type GetMaterialsRequest struct {
-	MaterialID int64 `uri:"material_id,min=1"`
+	MaterialID int64 `form:"material_id,min=1"`
 }
 
 // @Summary Get materials for a course
@@ -64,12 +64,12 @@ type GetMaterialsRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /material/{course_id} [get]
+// @Router /material/get [get]
 // GetMaterials retrieves materials for a given course ID
 func (server *Server) GetMaterials(ctx *gin.Context) {
 	var req GetMaterialsRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
@@ -103,7 +103,7 @@ type UpdateMaterialRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /material/{material_id} [put]
+// @Router /material/edit [put]
 // UpdateMaterial updates a material
 func (server *Server) UpdateMaterial(ctx *gin.Context) {
 	var req UpdateMaterialRequest
@@ -121,7 +121,7 @@ func (server *Server) UpdateMaterial(ctx *gin.Context) {
 
 	material, err := server.store.UpdateMaterials(ctx, db.UpdateMaterialParam(arg))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -130,7 +130,7 @@ func (server *Server) UpdateMaterial(ctx *gin.Context) {
 
 // DeleteMaterialRequest defines the request body structure for deleting a material
 type DeleteMaterialRequest struct {
-	MaterialID   int64 `uri:"material_id"`
+	MaterialID   int64 `form:"material_id"`
 }
 
 // @Summary Delete a material
@@ -144,11 +144,11 @@ type DeleteMaterialRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /material/{material_id} [delete]
+// @Router /material/delete [delete]
 // DeleteMaterial deletes a material
 func (server *Server) DeleteMaterial(ctx *gin.Context) {
 	var req DeleteMaterialRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}

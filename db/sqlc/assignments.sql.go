@@ -31,7 +31,7 @@ type CreateAssignmentParams struct {
 }
 
 func (q *Queries) CreateAssignment(ctx context.Context, arg CreateAssignmentParams) (Assignment, error) {
-	row := q.db.QueryRowContext(ctx, createAssignment,
+	row := q.queryRow(ctx, q.createAssignmentStmt, createAssignment,
 		arg.ResourceID,
 		arg.Type,
 		arg.Title,
@@ -57,7 +57,7 @@ WHERE assignment_id = $1
 `
 
 func (q *Queries) DeleteAssignment(ctx context.Context, assignmentID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteAssignment, assignmentID)
+	_, err := q.exec(ctx, q.deleteAssignmentStmt, deleteAssignment, assignmentID)
 	return err
 }
 
@@ -67,7 +67,7 @@ WHERE assignment_id = $1
 `
 
 func (q *Queries) GetAssignment(ctx context.Context, assignmentID int64) (Assignment, error) {
-	row := q.db.QueryRowContext(ctx, getAssignment, assignmentID)
+	row := q.queryRow(ctx, q.getAssignmentStmt, getAssignment, assignmentID)
 	var i Assignment
 	err := row.Scan(
 		&i.AssignmentID,
@@ -97,7 +97,7 @@ type UpdateAssignmentParams struct {
 }
 
 func (q *Queries) UpdateAssignment(ctx context.Context, arg UpdateAssignmentParams) (Assignment, error) {
-	row := q.db.QueryRowContext(ctx, updateAssignment,
+	row := q.queryRow(ctx, q.updateAssignmentStmt, updateAssignment,
 		arg.AssignmentID,
 		arg.Type,
 		arg.Title,

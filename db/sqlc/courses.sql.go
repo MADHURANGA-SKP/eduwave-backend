@@ -30,7 +30,7 @@ type CreateCoursesParams struct {
 }
 
 func (q *Queries) CreateCourses(ctx context.Context, arg CreateCoursesParams) (Course, error) {
-	row := q.db.QueryRowContext(ctx, createCourses,
+	row := q.queryRow(ctx, q.createCoursesStmt, createCourses,
 		arg.UserID,
 		arg.Title,
 		arg.Type,
@@ -56,7 +56,7 @@ WHERE course_id = $1
 `
 
 func (q *Queries) DeleteCourses(ctx context.Context, courseID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteCourses, courseID)
+	_, err := q.exec(ctx, q.deleteCoursesStmt, deleteCourses, courseID)
 	return err
 }
 
@@ -66,7 +66,7 @@ WHERE course_id = $1
 `
 
 func (q *Queries) GetCourses(ctx context.Context, courseID int64) (Course, error) {
-	row := q.db.QueryRowContext(ctx, getCourses, courseID)
+	row := q.queryRow(ctx, q.getCoursesStmt, getCourses, courseID)
 	var i Course
 	err := row.Scan(
 		&i.CourseID,
@@ -93,7 +93,7 @@ type ListCoursesParams struct {
 }
 
 func (q *Queries) ListCourses(ctx context.Context, arg ListCoursesParams) ([]Course, error) {
-	rows, err := q.db.QueryContext(ctx, listCourses, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.listCoursesStmt, listCourses, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ type UpdateCoursesParams struct {
 }
 
 func (q *Queries) UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (Course, error) {
-	row := q.db.QueryRowContext(ctx, updateCourses,
+	row := q.queryRow(ctx, q.updateCoursesStmt, updateCourses,
 		arg.CourseID,
 		arg.Title,
 		arg.Type,

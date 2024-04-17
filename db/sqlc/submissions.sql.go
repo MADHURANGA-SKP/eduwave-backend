@@ -24,7 +24,7 @@ type CreateSubmissionParams struct {
 }
 
 func (q *Queries) CreateSubmission(ctx context.Context, arg CreateSubmissionParams) (Submission, error) {
-	row := q.db.QueryRowContext(ctx, createSubmission, arg.AssignmentID, arg.UserID)
+	row := q.queryRow(ctx, q.createSubmissionStmt, createSubmission, arg.AssignmentID, arg.UserID)
 	var i Submission
 	err := row.Scan(&i.SubmissionID, &i.AssignmentID, &i.UserID)
 	return i, err
@@ -37,7 +37,7 @@ LIMIT 1
 `
 
 func (q *Queries) GetsubmissionsByAssignment(ctx context.Context, assignmentID int64) (Submission, error) {
-	row := q.db.QueryRowContext(ctx, getsubmissionsByAssignment, assignmentID)
+	row := q.queryRow(ctx, q.getsubmissionsByAssignmentStmt, getsubmissionsByAssignment, assignmentID)
 	var i Submission
 	err := row.Scan(&i.SubmissionID, &i.AssignmentID, &i.UserID)
 	return i, err
@@ -50,7 +50,7 @@ LIMIT 1
 `
 
 func (q *Queries) GetsubmissionsByUser(ctx context.Context, userID int64) (Submission, error) {
-	row := q.db.QueryRowContext(ctx, getsubmissionsByUser, userID)
+	row := q.queryRow(ctx, q.getsubmissionsByUserStmt, getsubmissionsByUser, userID)
 	var i Submission
 	err := row.Scan(&i.SubmissionID, &i.AssignmentID, &i.UserID)
 	return i, err
@@ -69,7 +69,7 @@ type ListsubmissionsParams struct {
 }
 
 func (q *Queries) Listsubmissions(ctx context.Context, arg ListsubmissionsParams) ([]Submission, error) {
-	rows, err := q.db.QueryContext(ctx, listsubmissions, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.listsubmissionsStmt, listsubmissions, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

@@ -24,7 +24,7 @@ type CreateCourseProgressParams struct {
 }
 
 func (q *Queries) CreateCourseProgress(ctx context.Context, arg CreateCourseProgressParams) (CourseProgress, error) {
-	row := q.db.QueryRowContext(ctx, createCourseProgress, arg.EnrolmentID, arg.Progress)
+	row := q.queryRow(ctx, q.createCourseProgressStmt, createCourseProgress, arg.EnrolmentID, arg.Progress)
 	var i CourseProgress
 	err := row.Scan(&i.CourseprogressID, &i.EnrolmentID, &i.Progress)
 	return i, err
@@ -42,7 +42,7 @@ type GetCourseProgressParams struct {
 }
 
 func (q *Queries) GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error) {
-	row := q.db.QueryRowContext(ctx, getCourseProgress, arg.CourseprogressID, arg.EnrolmentID)
+	row := q.queryRow(ctx, q.getCourseProgressStmt, getCourseProgress, arg.CourseprogressID, arg.EnrolmentID)
 	var i CourseProgress
 	err := row.Scan(&i.CourseprogressID, &i.EnrolmentID, &i.Progress)
 	return i, err
@@ -63,7 +63,7 @@ type ListCourseProgressParams struct {
 }
 
 func (q *Queries) ListCourseProgress(ctx context.Context, arg ListCourseProgressParams) ([]CourseProgress, error) {
-	rows, err := q.db.QueryContext(ctx, listCourseProgress, arg.EnrolmentID, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.listCourseProgressStmt, listCourseProgress, arg.EnrolmentID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

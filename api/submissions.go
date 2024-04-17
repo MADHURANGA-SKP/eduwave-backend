@@ -17,7 +17,7 @@ type CreateSubmissionRequest struct {
 }
 
 // @Summary Create a new Submission
-// @Description Creates a new submission by user depend on assignment
+// @Description Creates a new submission by depend on assignment
 // @Accept json
 // @Produce json
 // @Param request body CreateSubmissionRequest true "assignmnet_id and user_id"

@@ -17,7 +17,7 @@ INSERT INTO resources (
     content_url
 ) VALUES (
     $1, $2, $3, $4
-) RETURNING resource_id, material_id, title, type, content_url, created_at
+) RETURNING resource_id, material_id, title, type, content_url, created_at, files
 `
 
 type CreateResourceParams struct {
@@ -28,7 +28,7 @@ type CreateResourceParams struct {
 }
 
 func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error) {
-	row := q.db.QueryRowContext(ctx, createResource,
+	row := q.queryRow(ctx, q.createResourceStmt, createResource,
 		arg.MaterialID,
 		arg.Title,
 		arg.Type,
@@ -42,6 +42,7 @@ func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) 
 		&i.Type,
 		&i.ContentUrl,
 		&i.CreatedAt,
+		&i.Files,
 	)
 	return i, err
 }
@@ -52,17 +53,17 @@ WHERE resource_id = $1
 `
 
 func (q *Queries) DeleteResource(ctx context.Context, resourceID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteResource, resourceID)
+	_, err := q.exec(ctx, q.deleteResourceStmt, deleteResource, resourceID)
 	return err
 }
 
 const getResource = `-- name: GetResource :one
-SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
+SELECT resource_id, material_id, title, type, content_url, created_at, files FROM resources
 WHERE resource_id = $1
 `
 
 func (q *Queries) GetResource(ctx context.Context, resourceID int64) (Resource, error) {
-	row := q.db.QueryRowContext(ctx, getResource, resourceID)
+	row := q.queryRow(ctx, q.getResourceStmt, getResource, resourceID)
 	var i Resource
 	err := row.Scan(
 		&i.ResourceID,
@@ -71,12 +72,13 @@ func (q *Queries) GetResource(ctx context.Context, resourceID int64) (Resource, 
 		&i.Type,
 		&i.ContentUrl,
 		&i.CreatedAt,
+		&i.Files,
 	)
 	return i, err
 }
 
 const listResource = `-- name: ListResource :many
-SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
+SELECT resource_id, material_id, title, type, content_url, created_at, files FROM resources
 WHERE material_id = $1 AND resource_id = $2
 ORDER BY resource_id
 LIMIT $3
@@ -91,7 +93,7 @@ type ListResourceParams struct {
 }
 
 func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]Resource, error) {
-	rows, err := q.db.QueryContext(ctx, listResource,
+	rows, err := q.query(ctx, q.listResourceStmt, listResource,
 		arg.MaterialID,
 		arg.ResourceID,
 		arg.Limit,
@@ -111,6 +113,7 @@ func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]R
 			&i.Type,
 			&i.ContentUrl,
 			&i.CreatedAt,
+			&i.Files,
 		); err != nil {
 			return nil, err
 		}
@@ -129,7 +132,7 @@ const updateResource = `-- name: UpdateResource :one
 UPDATE resources
 SET title = $3, type = $4, content_url = $5
 WHERE material_id = $1 AND resource_id = $2
-RETURNING resource_id, material_id, title, type, content_url, created_at
+RETURNING resource_id, material_id, title, type, content_url, created_at, files
 `
 
 type UpdateResourceParams struct {
@@ -141,7 +144,7 @@ type UpdateResourceParams struct {
 }
 
 func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) (Resource, error) {
-	row := q.db.QueryRowContext(ctx, updateResource,
+	row := q.queryRow(ctx, q.updateResourceStmt, updateResource,
 		arg.MaterialID,
 		arg.ResourceID,
 		arg.Title,
@@ -156,6 +159,7 @@ func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) 
 		&i.Type,
 		&i.ContentUrl,
 		&i.CreatedAt,
+		&i.Files,
 	)
 	return i, err
 }
