@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -162,11 +162,11 @@ RETURNING user_id, user_name, role, hashed_password, full_name, email, is_email_
 `
 
 type UpdateUserParams struct {
-	HashedPassword    sql.NullString `json:"hashed_password"`
-	PasswordChangedAt sql.NullTime   `json:"password_changed_at"`
-	FullName          sql.NullString `json:"full_name"`
-	Email             sql.NullString `json:"email"`
-	IsEmailVerified   sql.NullBool   `json:"is_email_verified"`
+	HashedPassword    string `json:"hashed_password"`
+	PasswordChangedAt  time.Time  `json:"password_changed_at"`
+	FullName          string `json:"full_name"`
+	Email             string `json:"email"`
+	IsEmailVerified   bool   `json:"is_email_verified"`
 	UserName          string         `json:"user_name"`
 }
 

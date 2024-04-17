@@ -21,4 +21,4 @@ RETURNING *;
 
 -- name: DeleteAssignment :exec
 DELETE FROM assignments
-WHERE assignment_id = $1 AND resource_id =$2;
+WHERE assignment_id = $1;

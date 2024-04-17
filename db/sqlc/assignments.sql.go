@@ -53,16 +53,11 @@ func (q *Queries) CreateAssignment(ctx context.Context, arg CreateAssignmentPara
 
 const deleteAssignment = `-- name: DeleteAssignment :exec
 DELETE FROM assignments
-WHERE assignment_id = $1 AND resource_id =$2
+WHERE assignment_id = $1
 `
 
-type DeleteAssignmentParams struct {
-	AssignmentID int64 `json:"assignment_id"`
-	ResourceID   int64 `json:"resource_id"`
-}
-
-func (q *Queries) DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error {
-	_, err := q.db.ExecContext(ctx, deleteAssignment, arg.AssignmentID, arg.ResourceID)
+func (q *Queries) DeleteAssignment(ctx context.Context, assignmentID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteAssignment, assignmentID)
 	return err
 }
 

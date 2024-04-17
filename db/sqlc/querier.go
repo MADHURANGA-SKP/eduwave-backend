@@ -19,9 +19,10 @@ type Querier interface {
 	CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error)
 	CreateResource(ctx context.Context, arg CreateResourceParams) (Resource, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
+	CreateSubmission(ctx context.Context, arg CreateSubmissionParams) (Submission, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
-	DeleteAssignment(ctx context.Context, arg DeleteAssignmentParams) error
+	DeleteAssignment(ctx context.Context, assignmentID int64) error
 	DeleteCourses(ctx context.Context, courseID int64) error
 	DeleteMaterial(ctx context.Context, materialID int64) error
 	DeleteRequest(ctx context.Context, requestID int64) error
@@ -43,7 +44,8 @@ type Querier interface {
 	//     users.user_name = $1 OR teachers.user_name = $1 OR admins.user_name = $1;
 	GetUser(ctx context.Context, userName string) (User, error)
 	GetVerifyEmail(ctx context.Context, secretCode string) (VerifyEmail, error)
-	Getsubmissions(ctx context.Context, arg GetsubmissionsParams) (Submission, error)
+	GetsubmissionsByAssignment(ctx context.Context, assignmentID int64) (Submission, error)
+	GetsubmissionsByUser(ctx context.Context, userID int64) (Submission, error)
 	ListCourseProgress(ctx context.Context, arg ListCourseProgressParams) ([]CourseProgress, error)
 	ListCourses(ctx context.Context, arg ListCoursesParams) ([]Course, error)
 	ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error)

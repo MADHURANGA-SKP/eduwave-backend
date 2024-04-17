@@ -39,26 +39,20 @@ func (q *Queries) CreateEnrolments(ctx context.Context, arg CreateEnrolmentsPara
 
 const listEnrolments = `-- name: ListEnrolments :many
 SELECT enrolment_id, course_id, request_id, user_id FROM course_enrolments
-WHERE user_id = $1 AND course_id = $2
+WHERE course_id = $1
 ORDER BY enrolment_id
-LIMIT $3
-OFFSET $4
+LIMIT $2
+OFFSET $3
 `
 
 type ListEnrolmentsParams struct {
-	UserID   int64 `json:"user_id"`
 	CourseID int64 `json:"course_id"`
 	Limit    int32 `json:"limit"`
 	Offset   int32 `json:"offset"`
 }
 
 func (q *Queries) ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error) {
-	rows, err := q.db.QueryContext(ctx, listEnrolments,
-		arg.UserID,
-		arg.CourseID,
-		arg.Limit,
-		arg.Offset,
-	)
+	rows, err := q.db.QueryContext(ctx, listEnrolments, arg.CourseID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

@@ -40,6 +40,13 @@ definitions:
     - description
     - title
     type: object
+  api.CreateSubmissionRequest:
+    properties:
+      assignment_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   api.ListUserRequest:
     properties:
       page_id:
@@ -224,6 +231,30 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a admin's user
+  /assignment:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an assignment by its ID and resource ID
+      operationId: delete-assignment
+      parameters:
+      - description: Assignment ID
+        in: path
+        name: assignment_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete an assignment
   /assignments:
     post:
       consumes:
@@ -249,60 +280,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a new assignment
-  /assignments/{assignment_id}:
-    put:
-      consumes:
-      - application/json
-      description: Update an assignment with the provided details
-      operationId: update-assignment
-      parameters:
-      - description: Updated assignment details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api.UpdateAssignmentRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Update an assignment
   /assignments/{assignment_id}/{resource_id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete an assignment by its ID and resource ID
-      operationId: delete-assignment
-      parameters:
-      - description: Assignment ID
-        in: path
-        name: assignment_id
-        required: true
-        type: integer
-      - description: Resource ID
-        in: path
-        name: resource_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Delete an assignment
     get:
       consumes:
       - application/json
@@ -331,7 +309,52 @@ paths:
         "500":
           description: Internal Server Error
       summary: Get an assignment by ID
+  /assignments/update:
+    put:
+      consumes:
+      - application/json
+      description: Update an assignment with the provided details
+      operationId: update-assignment
+      parameters:
+      - description: Updated assignment details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.UpdateAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update an assignment
   /course:
+    get:
+      description: Retrieves a course by its ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a course by ID
     post:
       consumes:
       - application/json
@@ -381,26 +404,6 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a course
-    get:
-      description: Retrieves a course by its ID
-      parameters:
-      - description: Course ID
-        in: path
-        name: course_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Get a course by ID
   /course/update:
     put:
       consumes:
@@ -1079,19 +1082,37 @@ paths:
         "500":
           description: Internal Server Error
       summary: List submissions
-  /submissions/{assignment_id}/{student_id}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new submission by user depend on assignment
+      parameters:
+      - description: assignmnet_id and user_id
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateSubmissionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new Submission
+  /submissions/byassignemnt:
     get:
       description: Retrieves a submission by assignment and student ID
-      operationId: getSubmission
+      operationId: GetSubmissionsByAssignment
       parameters:
       - description: Assignment ID
         in: path
         name: assignment_id
-        required: true
-        type: integer
-      - description: Student ID
-        in: path
-        name: student_id
         required: true
         type: integer
       produces:
@@ -1105,7 +1126,29 @@ paths:
           description: Not Found
         "500":
           description: Internal Server Error
-      summary: Get a submission
+      summary: Get a submission By Assignment
+  /submissions/byuser:
+    get:
+      description: Retrieves a submission by assignment and student ID
+      operationId: GetSubmissionsByUser
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a submission By User
   /tokens/renew_access:
     post:
       consumes:

@@ -56,7 +56,7 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 
 // GetCourseRequest defines the request body structure for getting a course
 type GetCourseRequest struct {
-	CourseID  int64    `uri:"course_id,min=1"`
+	CourseID  int64    `form:"course_id,min=1"`
     // TeacherID int64 `json:"teacher_id"`
 }
 
@@ -68,11 +68,11 @@ type GetCourseRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /course/{course_id} [get]
+// @Router /course [get]
 // GetCourse retrieves a course by ID
 func (server *Server) GetCourse(ctx *gin.Context) {
 	var req GetCourseRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
