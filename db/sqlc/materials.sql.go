@@ -26,7 +26,7 @@ type CreateMaterialParams struct {
 }
 
 func (q *Queries) CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error) {
-	row := q.db.QueryRowContext(ctx, createMaterial, arg.CourseID, arg.Title, arg.Description)
+	row := q.queryRow(ctx, q.createMaterialStmt, createMaterial, arg.CourseID, arg.Title, arg.Description)
 	var i Material
 	err := row.Scan(
 		&i.MaterialID,
@@ -44,7 +44,7 @@ WHERE material_id = $1
 `
 
 func (q *Queries) DeleteMaterial(ctx context.Context, materialID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteMaterial, materialID)
+	_, err := q.exec(ctx, q.deleteMaterialStmt, deleteMaterial, materialID)
 	return err
 }
 
@@ -54,7 +54,7 @@ WHERE material_id = $1
 `
 
 func (q *Queries) GetMaterial(ctx context.Context, materialID int64) (Material, error) {
-	row := q.db.QueryRowContext(ctx, getMaterial, materialID)
+	row := q.queryRow(ctx, q.getMaterialStmt, getMaterial, materialID)
 	var i Material
 	err := row.Scan(
 		&i.MaterialID,
@@ -81,7 +81,7 @@ type ListMaterialParams struct {
 }
 
 func (q *Queries) ListMaterial(ctx context.Context, arg ListMaterialParams) ([]Material, error) {
-	rows, err := q.db.QueryContext(ctx, listMaterial, arg.CourseID, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.listMaterialStmt, listMaterial, arg.CourseID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ type UpdateMaterialParams struct {
 }
 
 func (q *Queries) UpdateMaterial(ctx context.Context, arg UpdateMaterialParams) (Material, error) {
-	row := q.db.QueryRowContext(ctx, updateMaterial,
+	row := q.queryRow(ctx, q.updateMaterialStmt, updateMaterial,
 		arg.MaterialID,
 		arg.CourseID,
 		arg.Title,

@@ -25,7 +25,7 @@ type createCourseProgressRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /courseProgress [post]
+// @Router /createprogress [post]
 // createCourseProgressRequest defines the request body structure for creating course progress
 func (server *Server) createCourseProgress(ctx *gin.Context) {
 	var req createCourseProgressRequest
@@ -49,8 +49,8 @@ func (server *Server) createCourseProgress(ctx *gin.Context) {
 }
 
 type getCourseProgressRequest struct {
-	CourseprogressID int64         `json:"courseprogress_id"`
-    EnrolmentID      int64 `json:"enrolment_id"`
+	CourseprogressID int64         `form:"courseprogress_id"`
+    EnrolmentID      int64 `form:"enrolment_id"`
 }
 
 // @Summary Get course progress by ID
@@ -64,11 +64,11 @@ type getCourseProgressRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /courseProgress/{courseprogress_id} [get]
+// @Router /courseProgress/get [get]
 // getCourseProgress returns course progress by ID
 func (server *Server) getCourseProgress(ctx *gin.Context) {
 	var req getCourseProgressRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -91,7 +91,6 @@ func (server *Server) getCourseProgress(ctx *gin.Context) {
 }
 
 type listCourseProgressRequest struct {
-	EnrolmentID int64 `json:"enrolment_id"`
     Limit       int32 `json:"limit"`
     Offset      int32 `json:"offset"`
 }
@@ -108,7 +107,7 @@ type listCourseProgressRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /courseProgress [get]
+// @Router /courseprogress/get [get]
 // listCourseProgress returns a list of course progress
 func (server *Server) listCourseProgress(ctx *gin.Context) {
 	var req listCourseProgressRequest
@@ -118,7 +117,6 @@ func (server *Server) listCourseProgress(ctx *gin.Context) {
 	}
 
 	arg := db.ListCourseProgressParams{
-		EnrolmentID: req.EnrolmentID,
 		Limit:       req.Limit,
 		Offset:      req.Offset,
 	}

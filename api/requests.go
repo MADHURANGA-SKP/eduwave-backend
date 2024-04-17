@@ -63,7 +63,7 @@ func (server *Server) createRequest(ctx *gin.Context) {
 }
 
 type getRequestRequest struct {
-	RequestID int64 `uri:"request_id"`
+	RequestID int64 `form:"request_id"`
 }
 
 // @Summary Get a request by ID
@@ -74,10 +74,10 @@ type getRequestRequest struct {
 // @Failure 400
 // @Failure 404
 // @Failure 500
-// @Router /request/{request_id} [get]
+// @Router /request/get [get]
 func (server *Server) getRequest(ctx *gin.Context) {
 	var req getRequestRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -138,7 +138,7 @@ func (server *Server) listRequests(ctx *gin.Context) {
 }
 
 type deleteRequestRequest struct {
-	RequestID int64 `uri:"request_id"`
+    RequestID int64 `form:"request_id"`
 }
 
 // @Summary Delete a request
@@ -150,10 +150,10 @@ type deleteRequestRequest struct {
 // @Failure 400
 // @Failure 404
 // @Failure 500
-// @Router /request/{user_id}/{request_id} [delete]
+// @Router /request/delete [delete]
 func (server *Server) deleteRequest(ctx *gin.Context) {
 	var req deleteRequestRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -184,7 +184,7 @@ type updateRequest struct {
 // @Failure 400
 // @Failure 404
 // @Failure 500
-// @Router /request/update [put]
+// @Router /request/edit [put]
 func (server *Server) updateRequest(ctx *gin.Context) {
 	var req updateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

@@ -132,6 +132,19 @@ definitions:
     - title
     type: object
   api.UpdateUserRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      hashed_password:
+        type: string
+      is_email_verified:
+        type: boolean
+      password_changed_at:
+        type: string
+      user_name:
+        type: string
     type: object
   api.createAssignmentRequest:
     properties:
@@ -186,6 +199,7 @@ definitions:
       full_name:
         type: string
       hashed_password:
+        minLength: 6
         type: string
       qualification:
         type: string
@@ -193,6 +207,10 @@ definitions:
         type: string
       user_name:
         type: string
+    required:
+    - email
+    - hashed_password
+    - user_name
     type: object
   api.loginUserRequest:
     properties:
@@ -231,7 +249,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a admin's user
-  /assignment:
+  /assignment/delete:
     delete:
       consumes:
       - application/json
@@ -255,32 +273,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete an assignment
-  /assignments:
-    post:
-      consumes:
-      - application/json
-      description: Create a new assignment with the provided details
-      operationId: create-assignment
-      parameters:
-      - description: Assignment details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api.createAssignmentRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Create a new assignment
-  /assignments/{assignment_id}/{resource_id}:
+  /assignment/get:
     get:
       consumes:
       - application/json
@@ -309,7 +302,32 @@ paths:
         "500":
           description: Internal Server Error
       summary: Get an assignment by ID
-  /assignments/update:
+  /assignments:
+    post:
+      consumes:
+      - application/json
+      description: Create a new assignment with the provided details
+      operationId: create-assignment
+      parameters:
+      - description: Assignment details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.createAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new assignment
+  /assignments/edit:
     put:
       consumes:
       - application/json
@@ -335,26 +353,6 @@ paths:
           description: Internal Server Error
       summary: Update an assignment
   /course:
-    get:
-      description: Retrieves a course by its ID
-      parameters:
-      - description: Course ID
-        in: path
-        name: course_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Get a course by ID
     post:
       consumes:
       - application/json
@@ -378,7 +376,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a new course
-  /course/{course_id}:
+  /course/delete:
     delete:
       description: Deletes a course by ID
       parameters:
@@ -404,7 +402,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a course
-  /course/update:
+  /course/edit:
     put:
       consumes:
       - application/json
@@ -428,7 +426,168 @@ paths:
         "500":
           description: Internal Server Error
       summary: Update a course
-  /courseEnrolments:
+  /course/get:
+    get:
+      description: Retrieves a course by its ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: course_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a course by ID
+  /courseProgress/get:
+    get:
+      consumes:
+      - application/json
+      description: Returns course progress by ID
+      parameters:
+      - description: Course progress ID
+        in: path
+        name: courseprogress_id
+        required: true
+        type: integer
+      - description: Enrolment ID
+        in: query
+        name: enrolment_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get course progress by ID
+      tags:
+      - CourseProgress
+  /courseprogress/get:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of course progress
+      parameters:
+      - description: Enrolment ID
+        in: query
+        name: enrolment_id
+        required: true
+        type: integer
+      - description: Limit the number of results
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for paginated results
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List course progress
+      tags:
+      - CourseProgress
+  /courses:
+    get:
+      description: Lists courses with pagination
+      parameters:
+      - description: Number of items to return
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Offset for pagination
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: List courses
+  /createprogress:
+    post:
+      consumes:
+      - application/json
+      description: Creates course progress
+      parameters:
+      - description: Course progress object
+        in: body
+        name: progress
+        required: true
+        schema:
+          $ref: '#/definitions/api.createCourseProgressRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create course progress
+      tags:
+      - CourseProgress
+  /enrol:
+    post:
+      consumes:
+      - application/json
+      description: Create a new enrolment with the course
+      operationId: create-enrolment
+      parameters:
+      - description: enrolment details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateEnrolmentsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create a new enrolment
+  /enrolments:
     get:
       consumes:
       - application/json
@@ -467,145 +626,6 @@ paths:
         "500":
           description: Internal Server Error
       summary: List enrolments
-  /courseProgress:
-    get:
-      consumes:
-      - application/json
-      description: Returns a list of course progress
-      parameters:
-      - description: Enrolment ID
-        in: query
-        name: enrolment_id
-        required: true
-        type: integer
-      - description: Limit the number of results
-        in: query
-        name: limit
-        type: integer
-      - description: Offset for paginated results
-        in: query
-        name: offset
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: List course progress
-      tags:
-      - CourseProgress
-    post:
-      consumes:
-      - application/json
-      description: Creates course progress
-      parameters:
-      - description: Course progress object
-        in: body
-        name: progress
-        required: true
-        schema:
-          $ref: '#/definitions/api.createCourseProgressRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Create course progress
-      tags:
-      - CourseProgress
-  /courseProgress/{courseprogress_id}:
-    get:
-      consumes:
-      - application/json
-      description: Returns course progress by ID
-      parameters:
-      - description: Course progress ID
-        in: path
-        name: courseprogress_id
-        required: true
-        type: integer
-      - description: Enrolment ID
-        in: query
-        name: enrolment_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Get course progress by ID
-      tags:
-      - CourseProgress
-  /courses:
-    get:
-      description: Lists courses with pagination
-      parameters:
-      - description: Number of items to return
-        in: query
-        name: limit
-        required: true
-        type: integer
-      - description: Offset for pagination
-        in: query
-        name: offset
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: List courses
-  /enrolments:
-    post:
-      consumes:
-      - application/json
-      description: Create a new enrolment with the provided details
-      operationId: create-enrolment
-      parameters:
-      - description: enrolment details
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api.CreateEnrolmentsRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Create a new enrolment
   /listadmin:
     get:
       consumes:
@@ -731,31 +751,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a new material
-  /material/{course_id}:
-    get:
-      consumes:
-      - application/json
-      description: Get materials for a course
-      operationId: get-materials
-      parameters:
-      - description: Course ID
-        in: path
-        name: course_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      summary: Get materials for a course
-  /material/{material_id}:
+  /material/delete:
     delete:
       consumes:
       - application/json
@@ -784,6 +780,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a material
+  /material/edit:
     put:
       consumes:
       - application/json
@@ -813,13 +810,16 @@ paths:
         "500":
           description: Internal Server Error
       summary: Update a material
-  /request/{request_id}:
+  /material/get:
     get:
-      description: Get a request by its ID
+      consumes:
+      - application/json
+      description: Get materials for a course
+      operationId: get-materials
       parameters:
-      - description: Request ID
+      - description: Course ID
         in: path
-        name: request_id
+        name: course_id
         required: true
         type: integer
       produces:
@@ -833,8 +833,8 @@ paths:
           description: Not Found
         "500":
           description: Internal Server Error
-      summary: Get a request by ID
-  /request/{user_id}/{request_id}:
+      summary: Get materials for a course
+  /request/delete:
     delete:
       description: Delete a request by student and request ID
       parameters:
@@ -860,7 +860,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a request
-  /request/update:
+  /request/edit:
     put:
       consumes:
       - application/json
@@ -884,6 +884,27 @@ paths:
         "500":
           description: Internal Server Error
       summary: Update a request
+  /request/get:
+    get:
+      description: Get a request by its ID
+      parameters:
+      - description: Request ID
+        in: path
+        name: request_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a request by ID
   /requests:
     get:
       description: List requests based on provided parameters
@@ -968,7 +989,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a new resource
-  /resource/{resource_id}:
+  /resource/delete:
     delete:
       description: Deletes a resource
       operationId: delete-resource
@@ -995,7 +1016,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Delete a resource
-  /resource/{resource_id}/{material_id}:
+  /resource/get:
     get:
       description: Retrieves a resource
       operationId: get-resource
@@ -1085,7 +1106,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a new submission by user depend on assignment
+      description: Creates a new submission by depend on assignment
       parameters:
       - description: assignmnet_id and user_id
         in: body

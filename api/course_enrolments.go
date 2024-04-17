@@ -10,7 +10,6 @@ import (
 )
 
 type listEnrolmentsRequest struct {
-	CourseID int64 `from:"course_id"`
     PageID   int32 `form:"page_id,min=1"`
 	PageSize int32 `form:"page_size,min=10,max=10"`
 }
@@ -28,7 +27,7 @@ type listEnrolmentsRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /courseEnrolments [get]
+// @Router /enrolments [get]
 func (server *Server) listEnrolments(ctx *gin.Context) {
 	var req listEnrolmentsRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -37,7 +36,6 @@ func (server *Server) listEnrolments(ctx *gin.Context) {
 	}
 	
 	arg := db.ListEnrolmentsParams{
-		CourseID:  req.CourseID,
 		Limit:  req.PageSize,
         Offset: (req.PageID - 1) * req.PageSize,
 	}
@@ -58,7 +56,7 @@ type CreateEnrolmentsRequest struct {
 }
 
 // @Summary Create a new enrolment
-// @Description Create a new enrolment with the provided details
+// @Description Create a new enrolment with the course
 // @ID create-enrolment
 // @Accept json
 // @Produce json
@@ -67,7 +65,7 @@ type CreateEnrolmentsRequest struct {
 // @Failure 400
 // @Failure 404
 // @Failure 500
-// @Router /enrolments [post]
+// @Router /enrol [post]
 func (server *Server) CreateCourseEnrolment(ctx *gin.Context) {
 	var req CreateEnrolmentsRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

@@ -53,7 +53,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/assignment": {
+        "/assignment/delete": {
             "delete": {
                 "description": "Delete an assignment by its ID and resource ID",
                 "consumes": [
@@ -69,6 +69,49 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Assignment ID",
                         "name": "assignment_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/assignment/get": {
+            "get": {
+                "description": "Get an assignment by its ID and resource ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get an assignment by ID",
+                "operationId": "get-assignment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Assignment ID",
+                        "name": "assignment_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Resource ID",
+                        "name": "resource_id",
                         "in": "path",
                         "required": true
                     }
@@ -127,7 +170,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/assignments/update": {
+        "/assignments/edit": {
             "put": {
                 "description": "Update an assignment with the provided details",
                 "consumes": [
@@ -165,80 +208,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/assignments/{assignment_id}/{resource_id}": {
-            "get": {
-                "description": "Get an assignment by its ID and resource ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get an assignment by ID",
-                "operationId": "get-assignment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Assignment ID",
-                        "name": "assignment_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
         "/course": {
-            "get": {
-                "description": "Retrieves a course by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get a course by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "course_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
             "post": {
                 "description": "Creates a new course",
                 "consumes": [
@@ -275,44 +245,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/course/update": {
-            "put": {
-                "description": "Updates a course with provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update a course",
-                "parameters": [
-                    {
-                        "description": "Updated course details",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.UpdateCoursesRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/course/{course_id}": {
+        "/course/delete": {
             "delete": {
                 "description": "Deletes a course by ID",
                 "produces": [
@@ -351,43 +284,100 @@ const docTemplate = `{
                 }
             }
         },
-        "/courseEnrolments": {
-            "get": {
-                "description": "List enrolments for a student in a course",
+        "/course/edit": {
+            "put": {
+                "description": "Updates a course with provided details",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "List enrolments",
-                "operationId": "list-enrolments",
+                "summary": "Update a course",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Student ID",
-                        "name": "student_id",
-                        "in": "query",
-                        "required": true
+                        "description": "Updated course details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.UpdateCoursesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/course/get": {
+            "get": {
+                "description": "Retrieves a course by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a course by ID",
+                "parameters": [
                     {
                         "type": "integer",
                         "description": "Course ID",
                         "name": "course_id",
-                        "in": "query",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/courseProgress/get": {
+            "get": {
+                "description": "Returns course progress by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CourseProgress"
+                ],
+                "summary": "Get course progress by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course progress ID",
+                        "name": "courseprogress_id",
+                        "in": "path",
                         "required": true
                     },
                     {
                         "type": "integer",
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Offset",
-                        "name": "offset",
+                        "description": "Enrolment ID",
+                        "name": "enrolment_id",
                         "in": "query",
                         "required": true
                     }
@@ -408,7 +398,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/courseProgress": {
+        "/courseprogress/get": {
             "get": {
                 "description": "Returns a list of course progress",
                 "consumes": [
@@ -440,89 +430,6 @@ const docTemplate = `{
                         "description": "Offset for paginated results",
                         "name": "offset",
                         "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates course progress",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CourseProgress"
-                ],
-                "summary": "Create course progress",
-                "parameters": [
-                    {
-                        "description": "Course progress object",
-                        "name": "progress",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.createCourseProgressRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/courseProgress/{courseprogress_id}": {
-            "get": {
-                "description": "Returns course progress by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "CourseProgress"
-                ],
-                "summary": "Get course progress by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Course progress ID",
-                        "name": "courseprogress_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Enrolment ID",
-                        "name": "enrolment_id",
-                        "in": "query",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -580,9 +487,49 @@ const docTemplate = `{
                 }
             }
         },
-        "/enrolments": {
+        "/createprogress": {
             "post": {
-                "description": "Create a new enrolment with the provided details",
+                "description": "Creates course progress",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CourseProgress"
+                ],
+                "summary": "Create course progress",
+                "parameters": [
+                    {
+                        "description": "Course progress object",
+                        "name": "progress",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.createCourseProgressRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/enrol": {
+            "post": {
+                "description": "Create a new enrolment with the course",
                 "consumes": [
                     "application/json"
                 ],
@@ -600,6 +547,63 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/api.CreateEnrolmentsRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/enrolments": {
+            "get": {
+                "description": "List enrolments for a student in a course",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List enrolments",
+                "operationId": "list-enrolments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Student ID",
+                        "name": "student_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "course_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -808,86 +812,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/material/{course_id}": {
-            "get": {
-                "description": "Get materials for a course",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get materials for a course",
-                "operationId": "get-materials",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "course_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/material/{material_id}": {
-            "put": {
-                "description": "Update a material",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update a material",
-                "operationId": "update-material",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Material ID",
-                        "name": "material_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update Material Request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.UpdateMaterialRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            },
+        "/material/delete": {
             "delete": {
                 "description": "Delete a material",
                 "consumes": [
@@ -930,7 +855,127 @@ const docTemplate = `{
                 }
             }
         },
-        "/request/update": {
+        "/material/edit": {
+            "put": {
+                "description": "Update a material",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update a material",
+                "operationId": "update-material",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Material ID",
+                        "name": "material_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Material Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.UpdateMaterialRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/material/get": {
+            "get": {
+                "description": "Get materials for a course",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get materials for a course",
+                "operationId": "get-materials",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "course_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/request/delete": {
+            "delete": {
+                "description": "Delete a request by student and request ID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete a request",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Student ID",
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Request ID",
+                        "name": "request_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/request/edit": {
             "put": {
                 "description": "Update a request with the provided parameters",
                 "consumes": [
@@ -967,7 +1012,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/request/{request_id}": {
+        "/request/get": {
             "get": {
                 "description": "Get a request by its ID",
                 "produces": [
@@ -975,45 +1020,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get a request by ID",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Request ID",
-                        "name": "request_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
-        "/request/{user_id}/{request_id}": {
-            "delete": {
-                "description": "Delete a request by student and request ID",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Delete a request",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Student ID",
-                        "name": "student_id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Request ID",
@@ -1166,7 +1172,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/resource/{resource_id}": {
+        "/resource/delete": {
             "delete": {
                 "description": "Deletes a resource",
                 "produces": [
@@ -1206,7 +1212,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/resource/{resource_id}/{material_id}": {
+        "/resource/get": {
             "get": {
                 "description": "Retrieves a resource",
                 "produces": [
@@ -1334,7 +1340,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Creates a new submission by user depend on assignment",
+                "description": "Creates a new submission by depend on assignment",
                 "consumes": [
                     "application/json"
                 ],
@@ -1706,7 +1712,27 @@ const docTemplate = `{
             }
         },
         "api.UpdateUserRequest": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "hashed_password": {
+                    "type": "string"
+                },
+                "is_email_verified": {
+                    "type": "boolean"
+                },
+                "password_changed_at": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            }
         },
         "api.createAssignmentRequest": {
             "type": "object",
@@ -1781,6 +1807,11 @@ const docTemplate = `{
         },
         "api.createUserRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "hashed_password",
+                "user_name"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -1789,7 +1820,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "hashed_password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 6
                 },
                 "qualification": {
                     "type": "string"

@@ -57,7 +57,7 @@ func (server *Server) createResource(ctx *gin.Context) {
 
 // deleteResourceRequest defines the request body structure for deleting a resource
 type deleteResourceRequest struct {
-	ResourceID int64 `uri:"resource_id"`
+	ResourceID int64 `form:"resource_id"`
     
 }
 
@@ -71,11 +71,11 @@ type deleteResourceRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /resource/{resource_id} [delete]
+// @Router /resource/delete [delete]
 // deleteResource deletes a resource
 func (server *Server) deleteResource(ctx *gin.Context) {
 	var req deleteResourceRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -93,7 +93,7 @@ func (server *Server) deleteResource(ctx *gin.Context) {
 
 // getResourceRequest defines the request body structure for getting a resource
 type getResourceRequest struct {
-    ResourceID int64         `uri:"resource_id,min=1"`
+    ResourceID int64         `form:"resource_id,min=1"`
 }
 
 // @Summary Get a resource
@@ -106,11 +106,11 @@ type getResourceRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /resource/{resource_id}/{material_id} [get]
+// @Router /resource/get [get]
 // getResource retrieves a resource
 func (server *Server) getResource(ctx *gin.Context) {
 	var req getResourceRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -140,7 +140,7 @@ func (server *Server) getResource(ctx *gin.Context) {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /resource/update [put]
+// @Router /resource/edit [put]
 // updateResourceRequest defines the request body structure for updating a resource
 type updateResourceRequest struct {
 	MaterialID int64        `json:"material_id"`

@@ -54,7 +54,7 @@ func (server *Server) createAssignment(ctx *gin.Context) {
 }
 
 type GetAssignmentRequest struct {
-	AssignmentID int64         `uri:"assignment_id"`
+	AssignmentID int64         `form:"assignment_id"`
 }
 // @Summary Get an assignment by ID
 // @Description Get an assignment by its ID and resource ID
@@ -67,10 +67,10 @@ type GetAssignmentRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /assignments/{assignment_id}/{resource_id} [get]
+// @Router /assignment/get [get]
 func (server *Server) getAssignment(ctx *gin.Context) {
 	var req GetAssignmentRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
@@ -108,19 +108,13 @@ type UpdateAssignmentRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /assignments/update [put]
+// @Router /assignments/edit [put]
 func (server *Server) updateAssignment(ctx *gin.Context) {
 	var req UpdateAssignmentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	// assignmentid, err := strconv.Atoi(ctx.Param("assignment_id"))
-    // if err != nil {
-    //     ctx.JSON(http.StatusBadRequest, errorResponse(err))
-    //     return
-    // }
 
 	arg := db.UpdateAssignmentParams{
 		AssignmentID: req.AssignmentID,
@@ -153,7 +147,7 @@ type DeleteAssignmentRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /assignment [delete]
+// @Router /assignment/delete [delete]
 func (server *Server) deleteAssignment(ctx *gin.Context) {
 	var req DeleteAssignmentRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {

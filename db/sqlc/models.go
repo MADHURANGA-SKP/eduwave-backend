@@ -116,6 +116,7 @@ type Resource struct {
 	Type       TypeResource `json:"type"`
 	ContentUrl string       `json:"content_url"`
 	CreatedAt  time.Time    `json:"created_at"`
+	Files      []byte       `json:"files"`
 }
 
 type Session struct {

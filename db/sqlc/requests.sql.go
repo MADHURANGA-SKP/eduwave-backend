@@ -33,7 +33,7 @@ type CreateRequestParams struct {
 }
 
 func (q *Queries) CreateRequest(ctx context.Context, arg CreateRequestParams) (Request, error) {
-	row := q.db.QueryRowContext(ctx, createRequest,
+	row := q.queryRow(ctx, q.createRequestStmt, createRequest,
 		arg.UserID,
 		arg.CourseID,
 		arg.IsActive,
@@ -61,7 +61,7 @@ WHERE request_id = $1
 `
 
 func (q *Queries) DeleteRequest(ctx context.Context, requestID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteRequest, requestID)
+	_, err := q.exec(ctx, q.deleteRequestStmt, deleteRequest, requestID)
 	return err
 }
 
@@ -71,7 +71,7 @@ WHERE request_id = $1
 `
 
 func (q *Queries) GetRequest(ctx context.Context, requestID int64) (Request, error) {
-	row := q.db.QueryRowContext(ctx, getRequest, requestID)
+	row := q.queryRow(ctx, q.getRequestStmt, getRequest, requestID)
 	var i Request
 	err := row.Scan(
 		&i.RequestID,
@@ -99,7 +99,7 @@ type ListRequestParams struct {
 }
 
 func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error) {
-	rows, err := q.db.QueryContext(ctx, listRequest, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.listRequestStmt, listRequest, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ type UpdateRequestsParams struct {
 }
 
 func (q *Queries) UpdateRequests(ctx context.Context, arg UpdateRequestsParams) (Request, error) {
-	row := q.db.QueryRowContext(ctx, updateRequests,
+	row := q.queryRow(ctx, q.updateRequestsStmt, updateRequests,
 		arg.UserID,
 		arg.IsActive,
 		arg.IsPending,

@@ -46,7 +46,7 @@ WHERE secret_code = $1 LIMIT 1
 `
 
 func (q *Queries) GetVerifyEmail(ctx context.Context, secretCode string) (VerifyEmail, error) {
-	row := q.db.QueryRowContext(ctx, getVerifyEmail, secretCode)
+	row := q.queryRow(ctx, q.getVerifyEmailStmt, getVerifyEmail, secretCode)
 	var i VerifyEmail
 	err := row.Scan(
 		&i.EmailID,
@@ -80,6 +80,7 @@ type UpdateVerifyEmailParams struct {
 
 func (q *Queries) UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (VerifyEmail, error) {
 	row := q.db.QueryRowContext(ctx, updateVerifyEmail, arg.IsUsed, arg.EmailID, arg.SecretCode)
+
 	var i VerifyEmail
 	err := row.Scan(
 		&i.EmailID,
