@@ -65,14 +65,15 @@ func (server *Server) setupRouter() {
 	router.POST("/login", server.loginUser)
 	router.POST("tokens/renew_access", server.renewAccessToken)
 
-	//verify email
 	router.POST("/verify-email", server.VerifyEmailHandler)
+
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
 		
 		authroute.POST("/admin/signup", server.createAdminUser)
 		authroute.PUT("/user/edit", server.UpdateUser)
+		authroute.GET("/getuser", server.GetUser)
 		authroute.GET("/listadmin", server.ListUser)
 		authroute.GET("/liststudent", server.ListUserStudent)
 		authroute.GET("/listteacher", server.ListUserTeacher)
@@ -127,3 +128,4 @@ func (server *Server) Start(address string) error {
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
+
