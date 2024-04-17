@@ -23,22 +23,22 @@ type createUserRequest struct {
 }
 
 type userResponse struct {
-	Username          string    `json:"user_name"`
-	FullName          string    `json:"full_name"`
-	Email             string    `json:"email"`
-	Role           	  string 	`json:"role"`
-	Qualification  	  string    `json:"qualification"`
-	CreatedAt         time.Time `json:"created_at"`
+	Username      string    `json:"user_name"`
+	FullName      string    `json:"full_name"`
+	Email         string    `json:"email"`
+	Role          string    `json:"role"`
+	Qualification string    `json:"qualification"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func newUserResponse(user db.User) userResponse {
 	return userResponse{
-		Username:          user.UserName,
-		FullName:          user.FullName,
-		Email:             user.Email,
-		Role:              user.Role,
-		Qualification: 	   user.Qualification,
-		CreatedAt:         user.CreatedAt,
+		Username:      user.UserName,
+		FullName:      user.FullName,
+		Email:         user.Email,
+		Role:          user.Role,
+		Qualification: user.Qualification,
+		CreatedAt:     user.CreatedAt,
 	}
 }
 
@@ -48,9 +48,9 @@ func newUserResponse(user db.User) userResponse {
 // @Accept  json
 // @Produce  json
 // @Param request body createUserRequest true "User creation request"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /signup [post]
 func (server *Server) createUser(ctx *gin.Context) {
@@ -67,12 +67,12 @@ func (server *Server) createUser(ctx *gin.Context) {
 	}
 
 	user, err := server.store.CreateUser(ctx, db.CreateUserParam{
-		UserName: req.UserName,
-		FullName: req.FullName,
-		HashedPassword:hashedPassword,
-		Email: req.Email,
-		Role: "student",
-		Qualification: req.Qualification,
+		UserName:       req.UserName,
+		FullName:       req.FullName,
+		HashedPassword: hashedPassword,
+		Email:          req.Email,
+		Role:           "student",
+		Qualification:  req.Qualification,
 	})
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolations {
@@ -83,12 +83,35 @@ func (server *Server) createUser(ctx *gin.Context) {
 		return
 	}
 
+	// Send verification email
+	secretCode, err := sendUserVerificationEmail(req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Create verify email data in the database
+	verifyEmail := db.CreateVerifyEmailParam{
+		UserName:   req.UserName,
+		Email:      req.Email,
+		SecretCode: secretCode,
+	}
+	_, err = server.store.CreateVerifyEmail(ctx, verifyEmail)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Respond to the client
 	rsp := newUserResponse(user.User)
-	ctx.JSON(http.StatusOK, rsp)
+	ctx.JSON(http.StatusOK, gin.H{
+		"user":       rsp,
+		"secretCode": secretCode, // Send the secret code back to the client
+	})
 }
 
 type UpdateUserRequest struct {
-	HashedPassword    string    `json:"hashed_password"`
+	  HashedPassword    string    `json:"hashed_password"`
     PasswordChangedAt time.Time `json:"password_changed_at"`
     FullName          string    `json:"full_name"`
     Email             string    `json:"email"`
@@ -101,9 +124,9 @@ type UpdateUserRequest struct {
 // @Accept json
 // @Produce json
 // @Param request body UpdateUserRequest true "Updated user details"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /user/edit [Patch]
 // Updateuser updates the selected user
@@ -188,26 +211,24 @@ type loginUserResponse struct {
 // @Accept  json
 // @Produce  json
 // @Param request body loginUserRequest true "Login request"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /login [post]
 func (server *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
-
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	
 	user, err := server.store.GetUser(ctx, db.GetUserParam{
 		UserName: req.UserName,
 	},
 	)
-	
+
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -271,8 +292,6 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
-
-
 type createAdminRequest struct {
 	UserName       string `json:"user_name" binding:"required,alphanum"`
 	FullName       string `json:"full_name"`
@@ -283,22 +302,22 @@ type createAdminRequest struct {
 }
 
 type userAdminResponse struct {
-	Username          string    `json:"user_name"`
-	FullName          string    `json:"full_name"`
-	Email             string    `json:"email"`
-	Role           	  string 	`json:"role"`
-	Qualification  string `json:"qualification"`
-	CreatedAt         time.Time `json:"created_at"`
+	Username      string    `json:"user_name"`
+	FullName      string    `json:"full_name"`
+	Email         string    `json:"email"`
+	Role          string    `json:"role"`
+	Qualification string    `json:"qualification"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func newAdminResponse(user db.User) userAdminResponse {
 	return userAdminResponse{
-		Username:          user.UserName,
-		FullName:          user.FullName,
-		Email:             user.Email,
-		Role:              user.Role,
-		Qualification:     user.Qualification,
-		CreatedAt:         user.CreatedAt,
+		Username:      user.UserName,
+		FullName:      user.FullName,
+		Email:         user.Email,
+		Role:          user.Role,
+		Qualification: user.Qualification,
+		CreatedAt:     user.CreatedAt,
 	}
 }
 
@@ -308,9 +327,9 @@ func newAdminResponse(user db.User) userAdminResponse {
 // @Accept  json
 // @Produce  json
 // @Param request body createUserRequest true "User creation request"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /admin/signup [post]
 func (server *Server) createAdminUser(ctx *gin.Context) {
@@ -327,12 +346,12 @@ func (server *Server) createAdminUser(ctx *gin.Context) {
 	}
 
 	user, err := server.store.CreateUser(ctx, db.CreateUserParam{
-		UserName: req.UserName,
-		FullName: req.FullName,
-		HashedPassword:hashedPassword,
-		Email: req.Email,
-		Role: req.Role,
-		Qualification: req.Qualification,
+		UserName:       req.UserName,
+		FullName:       req.FullName,
+		HashedPassword: hashedPassword,
+		Email:          req.Email,
+		Role:           req.Role,
+		Qualification:  req.Qualification,
 	})
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolations {
@@ -347,13 +366,11 @@ func (server *Server) createAdminUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
-
-//ListUserRequest contains the impurt parameters for list rolsbased user data
+// ListUserRequest contains the impurt parameters for list rolsbased user data
 type ListUserRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
-
 
 // @Summary ListUser
 // @Description ListUser with the provided admin based
@@ -361,12 +378,12 @@ type ListUserRequest struct {
 // @Accept  json
 // @Produce  json
 // @Param request body ListUserRequest true "admin list request"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /listadmin [get]
-func(server *Server) ListUser(ctx *gin.Context){
+func (server *Server) ListUser(ctx *gin.Context) {
 	var req ListUserRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -375,8 +392,8 @@ func(server *Server) ListUser(ctx *gin.Context){
 
 	// authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListUserParams{
-		Role: "admin",
-		Limit: req.PageSize,
+		Role:   "admin",
+		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
@@ -389,7 +406,7 @@ func(server *Server) ListUser(ctx *gin.Context){
 	ctx.JSON(http.StatusOK, userlist)
 }
 
-//ListUserStudentRequest contains the impurt parameters for list rolebased user data
+// ListUserStudentRequest contains the impurt parameters for list rolebased user data
 type ListUserStudentRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
@@ -401,12 +418,12 @@ type ListUserStudentRequest struct {
 // @Accept  json
 // @Produce  json
 // @Param request body ListUserStudentRequest true "student list request"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /liststudent [get]
-func(server *Server) ListUserStudent(ctx *gin.Context){
+func (server *Server) ListUserStudent(ctx *gin.Context) {
 	var req ListUserStudentRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -415,8 +432,8 @@ func(server *Server) ListUserStudent(ctx *gin.Context){
 
 	// authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListUserParams{
-		Role: "student",
-		Limit: req.PageSize,
+		Role:   "student",
+		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
@@ -429,7 +446,7 @@ func(server *Server) ListUserStudent(ctx *gin.Context){
 	ctx.JSON(http.StatusOK, userlist)
 }
 
-//ListUserTeacherRequest contains the impurt parameters for list rolebased user data
+// ListUserTeacherRequest contains the impurt parameters for list rolebased user data
 type ListUserTeacherRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
@@ -441,12 +458,12 @@ type ListUserTeacherRequest struct {
 // @Accept  json
 // @Produce  json
 // @Param request body ListUserTeacherRequest true "teacher list request"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /listteacher [get]
-func(server *Server) ListUserTeacher(ctx *gin.Context){
+func (server *Server) ListUserTeacher(ctx *gin.Context) {
 	var req ListUserTeacherRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -455,8 +472,8 @@ func(server *Server) ListUserTeacher(ctx *gin.Context){
 
 	// authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListUserParams{
-		Role: "teacher",
-		Limit: req.PageSize,
+		Role:   "teacher",
+		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
