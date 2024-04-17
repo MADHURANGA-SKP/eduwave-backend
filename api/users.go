@@ -524,6 +524,4 @@ func (server *Server) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
-func(server *Server) GetSample(ctx *gin.Context){
-	ctx.JSON(http.StatusOK, gin.H{"message": "hellow world"})
-}
+
