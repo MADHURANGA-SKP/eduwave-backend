@@ -468,3 +468,43 @@ func(server *Server) ListUserTeacher(ctx *gin.Context){
 
 	ctx.JSON(http.StatusOK, userlist)
 }
+
+type GetUserRequest struct {
+	UserName string         `form:"user_name"`
+}
+// @Summary Get an user details by username
+// @Description Get an user by its username
+// @ID get-user
+// @Accept json
+// @Produce json
+// @Param user_name 
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /user/get [get]
+func (server *Server) GetUser(ctx *gin.Context) {
+	var req GetUserRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	arg := db.GetUserParam{UserName: req.UserName}
+
+	assignment, err := server.store.GetUser(ctx, arg)
+	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, assignment)
+}
+
+// func(server *Server) GetSample(ctx *gin.Context){
+// 	ctx.JSON(http.StatusOK, gin.H{"message": "hellow world"})
+// }

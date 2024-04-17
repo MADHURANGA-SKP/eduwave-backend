@@ -202,3 +202,33 @@ func (server *Server) DeleteCourse(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Course deleted successfully"})
 }
+
+
+// // @Summary Get a course by ID
+// // @Description Retrieves a course by its ID
+// // @Produce json
+// // @Param course_id path int true "Course ID"
+// // @Success 200 
+// // @Failure 400 
+// // @Failure 404 
+// // @Failure 500
+// // @Router /course/get [get]
+// // GetCourse retrieves a course by ID
+// func (server *Server) GetCoursetest(ctx *gin.Context) {
+// 	var req GetCourseRequest
+// 	if err := ctx.ShouldBind(&req); err != nil {
+// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+// 		return
+// 	}
+
+// 	arg := db.GetCourseParam{CourseID: req.CourseID}
+// 	fmt.Print("output test")
+
+// 	course, err := server.store.GetCourse(ctx, db.GetCourseParam(arg))
+// 	if err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+// 		return
+// 	}
+	
+// 	ctx.JSON(http.StatusOK, course)
+// }

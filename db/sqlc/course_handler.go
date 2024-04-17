@@ -52,7 +52,7 @@ func (store *Store) DeleteCourse(ctx context.Context, arg DeleteCourseParam) err
 
 //GetCourseParam contains the input parameters of the geting the data
 type GetCourseParam struct {
-	CourseID  int64    `uri:"id,min=1"`
+	CourseID  int64    `form:"course_id,min=1"`
 }
 
 //GetCourseResponse contains the result of the geting the data
