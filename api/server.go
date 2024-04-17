@@ -64,7 +64,9 @@ func (server *Server) setupRouter() {
 	router.POST("/signup", server.createUser)
 	router.POST("/login", server.loginUser)
 	router.POST("tokens/renew_access", server.renewAccessToken)
-	router.GET("/test", server.GetSample)
+
+	router.POST("/verify-email", server.VerifyEmailHandler)
+
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
