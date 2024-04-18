@@ -162,10 +162,10 @@ RETURNING user_id, user_name, role, hashed_password, full_name, email, is_email_
 `
 
 type UpdateUserParams struct {
-	HashedPassword   string `json:"hashed_password"`
+	HashedPassword    string `json:"hashed_password"`
 	PasswordChangedAt time.Time   `json:"password_changed_at"`
-	FullName         string `json:"full_name"`
-	Email            string `json:"email"`
+	FullName          string `json:"full_name"`
+	Email             string `json:"email"`
 	IsEmailVerified   bool   `json:"is_email_verified"`
 	UserName          string         `json:"user_name"`
 }
