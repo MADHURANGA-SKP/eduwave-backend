@@ -155,28 +155,54 @@ func sendEmail(from, password, smtpHost, smtpPort string, to []string, body []by
 // HTML email template
 const emailTemplate = `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Verification</title>
-    <script>
-        function redirectToVerification(emailID, secretCode) {
-            var xhr = new XMLHttpRequest();
-			var url = "/v1/verify_email";
-			var params = "email_id=" + emailID + "&secret_code=" + secretCode;
-			xhr.open("POST", url, true);
-			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhr.onreadystatechange = function () {
-				if (xhr.readyState == 4 && xhr.status == 200) {
-					alert(xhr.responseText);
-				}
-			}
-			xhr.send(params);
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
         }
-    </script>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #666;
+        }
+        .verification-code {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 20px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-    <h3>Email Verification</h3>
-	<p>verify your account with the  secret code: <strong>{{.SecretCode}}</strong></p>
+    <div class="container">
+        <h1>Email Verification</h1>
+        <p>Welcome! To complete your account setup, please verify your email address by entering the secret code below:</p>
+        <p>Secret Code: <span class="verification-code">{{.SecretCode}}</span></p>
+        <p>If you didn't request this verification, please ignore this email.</p>
+        <p>Thank you!</p>
+    </div>
 </body>
 </html>
 `
