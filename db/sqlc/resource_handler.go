@@ -1,6 +1,8 @@
 package db
 
-import "context"
+import (
+	"context"
+)
 
 //CreateResourceParam contains the input parameters of data
 type CreateResourceParam struct {
@@ -85,10 +87,11 @@ func (store *Store) ListResource(ctx context.Context, params ListResourceParams)
 //UpdateResourceParam contains the input parameters of the updating data
 type UpdateResourceParam struct {
 	MaterialID int64        `json:"material_id"`
-	ResourceID int64        `json:"resource_id"`
-	Title      string       `json:"title"`
-	Type       TypeResource `json:"type"`
-	ContentUrl string       `json:"content_url"`
+    ResourceID int64        `json:"resource_id"`
+    Title      string       `json:"title"`
+    Type       TypeResource `json:"type"`
+    ContentUrl string       `json:"content_url"`
+    Files      []byte       `json:"files"`
 }
 
 //UpdateResourceResponse contains the result of the updating data
@@ -109,6 +112,7 @@ func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(
 			Title: arg.Title,
 			Type: arg.Type,
 			ContentUrl:  arg.ContentUrl,
+			Files: arg.Files,
 		})
 
 		if err != nil {

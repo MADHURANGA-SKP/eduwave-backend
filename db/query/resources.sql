@@ -14,7 +14,7 @@ WHERE resource_id = $1;
 
 -- name: UpdateResource :one
 UPDATE resources
-SET title = $3, type = $4, content_url = $5
+SET title = $3, type = $4, content_url = $5, files = $6
 WHERE material_id = $1 AND resource_id = $2
 RETURNING *;
 

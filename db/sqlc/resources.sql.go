@@ -130,7 +130,7 @@ func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]R
 
 const updateResource = `-- name: UpdateResource :one
 UPDATE resources
-SET title = $3, type = $4, content_url = $5
+SET title = $3, type = $4, content_url = $5, files = $6
 WHERE material_id = $1 AND resource_id = $2
 RETURNING resource_id, material_id, title, type, content_url, created_at, files
 `
@@ -141,6 +141,7 @@ type UpdateResourceParams struct {
 	Title      string       `json:"title"`
 	Type       TypeResource `json:"type"`
 	ContentUrl string       `json:"content_url"`
+	Files      []byte       `json:"files"`
 }
 
 func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) (Resource, error) {
@@ -150,6 +151,7 @@ func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) 
 		arg.Title,
 		arg.Type,
 		arg.ContentUrl,
+		arg.Files,
 	)
 	var i Resource
 	err := row.Scan(
