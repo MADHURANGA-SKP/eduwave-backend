@@ -114,6 +114,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.listCoursesStmt, err = db.PrepareContext(ctx, listCourses); err != nil {
 		return nil, fmt.Errorf("error preparing query ListCourses: %w", err)
 	}
+	if q.listCoursesByUserStmt, err = db.PrepareContext(ctx, listCoursesByUser); err != nil {
+		return nil, fmt.Errorf("error preparing query ListCoursesByUser: %w", err)
+	}
 	if q.listEnrolmentsStmt, err = db.PrepareContext(ctx, listEnrolments); err != nil {
 		return nil, fmt.Errorf("error preparing query ListEnrolments: %w", err)
 	}
@@ -308,6 +311,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing listCoursesStmt: %w", cerr)
 		}
 	}
+	if q.listCoursesByUserStmt != nil {
+		if cerr := q.listCoursesByUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listCoursesByUserStmt: %w", cerr)
+		}
+	}
 	if q.listEnrolmentsStmt != nil {
 		if cerr := q.listEnrolmentsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listEnrolmentsStmt: %w", cerr)
@@ -442,6 +450,7 @@ type Queries struct {
 	getsubmissionsByUserStmt       *sql.Stmt
 	listCourseProgressStmt         *sql.Stmt
 	listCoursesStmt                *sql.Stmt
+	listCoursesByUserStmt          *sql.Stmt
 	listEnrolmentsStmt             *sql.Stmt
 	listMaterialStmt               *sql.Stmt
 	listRequestStmt                *sql.Stmt
@@ -491,6 +500,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getsubmissionsByUserStmt:       q.getsubmissionsByUserStmt,
 		listCourseProgressStmt:         q.listCourseProgressStmt,
 		listCoursesStmt:                q.listCoursesStmt,
+		listCoursesByUserStmt:          q.listCoursesByUserStmt,
 		listEnrolmentsStmt:             q.listEnrolmentsStmt,
 		listMaterialStmt:               q.listMaterialStmt,
 		listRequestStmt:                q.listRequestStmt,

@@ -3,20 +3,73 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 
 	db "eduwave-back-end/db/sqlc"
 
 	"github.com/gin-gonic/gin"
 )
 
+// uploadSingleFile handles uploading a single file
+func(server *Server) uploadSingleFile(ctx *gin.Context, file multipart.File, header *multipart.FileHeader) (string, error) {
+	// Validate file extension (optional)
+	allowedExtensions := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+	  ".txt":  true,
+	  ".docx": true,
+	  ".pdf":  true,
+	  ".mp4":  true,
+	}
+	fileExt := filepath.Ext(header.Filename)
+	if !allowedExtensions[fileExt] {
+	  return "", fmt.Errorf("unsupported file extension: %s", fileExt)
+	}
+  
+	// Generate unique filename
+	originalFileName := strings.TrimSuffix(filepath.Base(header.Filename), filepath.Ext(header.Filename))
+	now := time.Now()
+	filename := strings.ReplaceAll(strings.ToLower(originalFileName), " ", "-") + "-" + fmt.Sprintf("%v", now.Unix()) + fileExt
+  
+	// Create upload directory if it doesn't exist
+	uploadDir := "uploads/resources"
+	if err := os.MkdirAll(uploadDir, 0755); err != nil{
+	  return "", err
+	}
+  
+	// Create destination file path
+	filePath := filepath.Join(uploadDir, filename)
+  
+	// Save uploaded file
+	out, err := os.Create(filePath)
+	if err != nil {
+	  return "", err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, file)
+	if err != nil {
+	  return "", err
+	}
+  
+	return filename, nil
+  }
+
 type TypeResource string
 
 // createResourceRequest defines the request body structure for creating a new resource
 type createResourceRequest struct {
 	MaterialID int64        `json:"material_id"`
-	Title      string       `json:"title"`
-	Type       TypeResource `json:"type"`
+	Title      string       `form:"title"`
+	Type       TypeResource `form:"type"`
 	ContentUrl string       `json:"content_url"`
 }
 
@@ -30,17 +83,37 @@ type createResourceRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /resource [post]
+// @Router /resource/:material_id [post]
 // createResource creates a new resource
 func (server *Server) createResource(ctx *gin.Context) {
 	var req createResourceRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
+	materialID, err := strconv.Atoi(ctx.Param("material_id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
+
+	// Handle image upload (if included in the request)
+	var imageFilename string
+	file, header, err := ctx.Request.FormFile("file") 
+	if err == nil {
+	  imageFilename, err = server.uploadSingleFile(ctx, file, header)
+	  if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	  }
+	}
+  
+	// Update request struct with image filename (if uploaded)
+	req.ContentUrl = imageFilename 
+
 	arg := db.CreateResourceParams{
-		MaterialID: req.MaterialID,
+		MaterialID: int64(materialID),
 		Title:      req.Title,
 		Type:       db.TypeResource(req.Type),
 		ContentUrl: req.ContentUrl,
@@ -58,7 +131,6 @@ func (server *Server) createResource(ctx *gin.Context) {
 // deleteResourceRequest defines the request body structure for deleting a resource
 type deleteResourceRequest struct {
 	ResourceID int64 `form:"resource_id"`
-    
 }
 
 // @Summary Delete a resource
@@ -146,7 +218,7 @@ type updateResourceRequest struct {
 	MaterialID int64        `json:"material_id"`
     ResourceID int64        `json:"resource_id"`
     Title      string       `json:"title"`
-    Type       db.TypeResource `json:"type"`
+    Type       db.TypeResource `form:"type"`
     ContentUrl string       `json:"content_url"`
 }
 
@@ -158,9 +230,28 @@ func (server *Server) updateResource(ctx *gin.Context) {
 		return
 	}
 
+	resourceID, err := strconv.Atoi(ctx.Param("resource_id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
+
+	// Handle image upload (if included in the request)
+	var imageFilename string
+	file, header, err := ctx.Request.FormFile("image") 
+	if err == nil {
+	  imageFilename, err = server.uploadSingleFile(ctx, file, header)
+	  if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	  }
+	}
+  
+	// Update request struct with image filename (if uploaded)
+	req.ContentUrl = imageFilename 
+
 	resource, err := server.store.UpdateResource(ctx, db.UpdateResourceParam{
-		MaterialID: req.MaterialID,
-		ResourceID: req.ResourceID,
+		ResourceID: int64(resourceID),
 		Title: req.Title,
 		Type: db.TypeResource(req.Type),
 		ContentUrl: req.ContentUrl,

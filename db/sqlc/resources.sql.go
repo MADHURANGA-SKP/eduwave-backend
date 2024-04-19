@@ -17,7 +17,7 @@ INSERT INTO resources (
     content_url
 ) VALUES (
     $1, $2, $3, $4
-) RETURNING resource_id, material_id, title, type, content_url, created_at, files
+) RETURNING resource_id, material_id, title, type, content_url, created_at
 `
 
 type CreateResourceParams struct {
@@ -42,7 +42,6 @@ func (q *Queries) CreateResource(ctx context.Context, arg CreateResourceParams) 
 		&i.Type,
 		&i.ContentUrl,
 		&i.CreatedAt,
-		&i.Files,
 	)
 	return i, err
 }
@@ -58,7 +57,7 @@ func (q *Queries) DeleteResource(ctx context.Context, resourceID int64) error {
 }
 
 const getResource = `-- name: GetResource :one
-SELECT resource_id, material_id, title, type, content_url, created_at, files FROM resources
+SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
 WHERE resource_id = $1
 `
 
@@ -72,33 +71,24 @@ func (q *Queries) GetResource(ctx context.Context, resourceID int64) (Resource, 
 		&i.Type,
 		&i.ContentUrl,
 		&i.CreatedAt,
-		&i.Files,
 	)
 	return i, err
 }
 
 const listResource = `-- name: ListResource :many
-SELECT resource_id, material_id, title, type, content_url, created_at, files FROM resources
-WHERE material_id = $1 AND resource_id = $2
+SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
 ORDER BY resource_id
-LIMIT $3
-OFFSET $4
+LIMIT $1
+OFFSET $2
 `
 
 type ListResourceParams struct {
-	MaterialID int64 `json:"material_id"`
-	ResourceID int64 `json:"resource_id"`
-	Limit      int32 `json:"limit"`
-	Offset     int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]Resource, error) {
-	rows, err := q.query(ctx, q.listResourceStmt, listResource,
-		arg.MaterialID,
-		arg.ResourceID,
-		arg.Limit,
-		arg.Offset,
-	)
+	rows, err := q.query(ctx, q.listResourceStmt, listResource, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +103,6 @@ func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]R
 			&i.Type,
 			&i.ContentUrl,
 			&i.CreatedAt,
-			&i.Files,
 		); err != nil {
 			return nil, err
 		}
@@ -130,13 +119,12 @@ func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]R
 
 const updateResource = `-- name: UpdateResource :one
 UPDATE resources
-SET title = $3, type = $4, content_url = $5
-WHERE material_id = $1 AND resource_id = $2
-RETURNING resource_id, material_id, title, type, content_url, created_at, files
+SET title = $2, type = $3, content_url = $4
+WHERE resource_id = $1
+RETURNING resource_id, material_id, title, type, content_url, created_at
 `
 
 type UpdateResourceParams struct {
-	MaterialID int64        `json:"material_id"`
 	ResourceID int64        `json:"resource_id"`
 	Title      string       `json:"title"`
 	Type       TypeResource `json:"type"`
@@ -145,7 +133,6 @@ type UpdateResourceParams struct {
 
 func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) (Resource, error) {
 	row := q.queryRow(ctx, q.updateResourceStmt, updateResource,
-		arg.MaterialID,
 		arg.ResourceID,
 		arg.Title,
 		arg.Type,
@@ -159,7 +146,6 @@ func (q *Queries) UpdateResource(ctx context.Context, arg UpdateResourceParams) 
 		&i.Type,
 		&i.ContentUrl,
 		&i.CreatedAt,
-		&i.Files,
 	)
 	return i, err
 }

@@ -67,10 +67,9 @@ func (server *Server) setupRouter() {
 
 	router.POST("/verify-email", server.VerifyEmailHandler)
 
-
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
-		
+		authroute.DELETE("/del/user", server.DeleteUsers)
 		authroute.POST("/admin/signup", server.createAdminUser)
 		authroute.PUT("/user/edit", server.UpdateUser)
 		authroute.GET("/getuser", server.GetUser)
@@ -89,12 +88,12 @@ func (server *Server) setupRouter() {
 			authroute.PUT("/material/edit", server.UpdateMaterial)
 			authroute.DELETE("/material/delete", server.DeleteMaterial)
 		//resource
-			authroute.POST("/resource", server.createResource)	
+			authroute.POST("/resource/:material_id", server.createResource)	
 			authroute.GET("/resource/get", server.getResource)
 			authroute.PUT("/resource/edit", server.updateResource)
 			authroute.DELETE("/resource/delete", server.deleteResource)
 		//createcourse
-			authroute.POST("/course", server.CreateCourse)	
+			authroute.POST("/course/:user_id", server.CreateCourse)	
 			authroute.GET("/course/get", server.GetCourse)
 			authroute.GET("/courses", server.ListCourses)
 			authroute.PUT("/course/edit", server.UpdateCourses)

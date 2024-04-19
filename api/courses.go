@@ -3,20 +3,68 @@
 package api
 
 import (
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 
 	db "eduwave-back-end/db/sqlc"
 
 	"github.com/gin-gonic/gin"
 )
 
+// uploadSingleFile handles uploading a single file
+func(server *Server) uploadSingleImage(ctx *gin.Context, file multipart.File, header *multipart.FileHeader) (string, error) {
+	// Validate file extension (optional)
+	allowedExtensions := map[string]bool{
+	  ".jpg":  true,
+	  ".jpeg": true,
+	  ".png":  true,
+	}
+	fileExt := filepath.Ext(header.Filename)
+	if !allowedExtensions[fileExt] {
+	  return "", fmt.Errorf("unsupported file extension: %s", fileExt)
+	}
+  
+	// Generate unique filename
+	originalFileName := strings.TrimSuffix(filepath.Base(header.Filename), filepath.Ext(header.Filename))
+	now := time.Now()
+	filename := strings.ReplaceAll(strings.ToLower(originalFileName), " ", "-") + "-" + fmt.Sprintf("%v", now.Unix()) + fileExt
+  
+	// Create upload directory if it doesn't exist
+	uploadDir := "uploads/images"
+	if err := os.MkdirAll(uploadDir, 0755); err != nil{
+	  return "", err
+	}
+  
+	// Create destination file path
+	filePath := filepath.Join(uploadDir, filename)
+  
+	// Save uploaded file
+	out, err := os.Create(filePath)
+	if err != nil {
+	  return "", err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, file)
+	if err != nil {
+	  return "", err
+	}
+  
+	return filename, nil
+  }
 // CreateCourseRequest defines the request body structure for creating a course
 type CreateCourseRequest struct {
 	UserID      int64  `json:"user_id"`
-	Title       string `json:"title" binding:"required"`
-	Type        string `json:"type" binding:"required"`
-	Description string `json:"description" binding:"required"`
-	Image       []byte `json:"image"`
+	Title       string `form:"title" binding:"required"`
+	Type        string `form:"type" binding:"required"`
+	Description string `form:"description" binding:"required"`
+	Image       string `json:"image"`
 }
 
 // @Summary Create a new course
@@ -28,17 +76,36 @@ type CreateCourseRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /course [post]
+// @Router /course/:user_id [post]
 // CreateCourse creates a new course
 func (server *Server) CreateCourse(ctx *gin.Context) {
 	var req CreateCourseRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
+	userID, err := strconv.Atoi(ctx.Param("user_id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
+
+	// Handle image upload (if included in the request)
+	var imageFile string
+	file, header, err := ctx.Request.FormFile("image") 
+	if err == nil {
+		imageFile, err = server.uploadSingleImage(ctx, file, header)
+	  if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	  }
+	}
+	// Update request struct with image filename (if uploaded)
+	req.Image = imageFile
+
 	arg := db.CreateCoursesParams{
-		UserID: req.UserID,
+		UserID: int64(userID),
 		Title:       req.Title,
 		Type:        req.Type,
 		Description: req.Description,
@@ -131,7 +198,7 @@ type UpdateCoursesRequest struct {
 	Title       string `json:"title"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
-	Image       []byte `json:"image"`
+	Image       string `json:"image"`
 }
 
 // @Summary Update a course
@@ -152,12 +219,34 @@ func (server *Server) UpdateCourses(ctx *gin.Context) {
 		return
 	}
 
+	// // Access uploaded file information
+	// file, err := ctx.FormFile("image") // Replace "file" with your actual form field name
+	// if err != nil {
+	//   ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	//   return
+	// }
+  
+	// // Open the uploaded file on the server
+	// openedFile, err := file.Open()
+	// if err != nil {
+	//   ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	//   return
+	// }
+	// defer openedFile.Close() // Close the file after processing
+  
+	// // Read the file contents into a byte array
+	// fileData, err := io.ReadAll(openedFile)
+	// if err != nil {
+	//   ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	//   return
+	// }
+
 	arg := db.UpdateCoursesParams{
 		CourseID: req.CourseID,
 		Title: req.Title,
 		Type: req.Type,
 		Description: req.Description,
-		Image: req.Image,
+		Image:req.Image,
 	}
 
 	courses, err := server.store.UpdateCourses(ctx, db.UpdateCoursesParam(arg))

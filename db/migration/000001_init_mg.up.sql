@@ -21,7 +21,7 @@ CREATE TABLE "courses" (
   "user_id" bigint NOT NULL,
   "title" varchar NOT NULL,
   "type" varchar NOT NULL,
-  "image" bytea,
+  "image" varchar,
   "description" varchar NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );

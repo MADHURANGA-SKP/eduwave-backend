@@ -68,13 +68,13 @@ type Assignment struct {
 }
 
 type Course struct {
-	CourseID    int64     `json:"course_id"`
-	UserID      int64     `json:"user_id"`
-	Title       string    `json:"title"`
-	Type        string    `json:"type"`
-	Image       []byte    `json:"image"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
+	CourseID    int64          `json:"course_id"`
+	UserID      int64          `json:"user_id"`
+	Title       string         `json:"title"`
+	Type        string         `json:"type"`
+	Image       sql.NullString `json:"image"`
+	Description string         `json:"description"`
+	CreatedAt   time.Time      `json:"created_at"`
 }
 
 type CourseEnrolment struct {
@@ -116,7 +116,6 @@ type Resource struct {
 	Type       TypeResource `json:"type"`
 	ContentUrl string       `json:"content_url"`
 	CreatedAt  time.Time    `json:"created_at"`
-	Files      []byte       `json:"files"`
 }
 
 type Session struct {

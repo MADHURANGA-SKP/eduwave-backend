@@ -25,6 +25,13 @@ ORDER BY course_id
 LIMIT $1
 OFFSET $2;
 
+-- name: ListCoursesByUser :many
+SELECT * FROM courses
+WHERE user_id = $1
+ORDER BY course_id
+LIMIT $2
+OFFSET $3;
+
 -- name: DeleteCourses :exec
 DELETE FROM courses
 WHERE course_id = $1;
