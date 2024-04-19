@@ -10,12 +10,7 @@ import (
 )
 
 type listEnrolmentsRequest struct {
-<<<<<<< Updated upstream
-    PageID   int32 `form:"page_id,min=1"`
-=======
-	CourseID int64 `from:"course_id"`
 	PageID   int32 `form:"page_id,min=1"`
->>>>>>> Stashed changes
 	PageSize int32 `form:"page_size,min=10,max=10"`
 }
 
@@ -24,8 +19,6 @@ type listEnrolmentsRequest struct {
 // @ID list-enrolments
 // @Accept  json
 // @Produce  json
-// @Param student_id query int true "Student ID"
-// @Param course_id query int true "Course ID"
 // @Param limit query int true "Limit"
 // @Param offset query int true "Offset"
 // @Success 200
@@ -41,14 +34,8 @@ func (server *Server) listEnrolments(ctx *gin.Context) {
 	}
 
 	arg := db.ListEnrolmentsParams{
-<<<<<<< Updated upstream
-		Limit:  req.PageSize,
-        Offset: (req.PageID - 1) * req.PageSize,
-=======
-		CourseID: req.CourseID,
 		Limit:    req.PageSize,
 		Offset:   (req.PageID - 1) * req.PageSize,
->>>>>>> Stashed changes
 	}
 
 	enrolments, err := server.store.ListEnrolments(ctx, arg)

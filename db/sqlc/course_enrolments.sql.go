@@ -39,20 +39,19 @@ func (q *Queries) CreateEnrolments(ctx context.Context, arg CreateEnrolmentsPara
 
 const listEnrolments = `-- name: ListEnrolments :many
 SELECT enrolment_id, course_id, request_id, user_id FROM course_enrolments
+WHERE course_id = $1 
 ORDER BY enrolment_id
-LIMIT $1
-OFFSET $2
+LIMIT $2
+OFFSET $3
 `
 
 type ListEnrolmentsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	CourseID int64 `json:"course_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
 }
 
 func (q *Queries) ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error) {
-<<<<<<< Updated upstream
-	rows, err := q.query(ctx, q.listEnrolmentsStmt, listEnrolments, arg.Limit, arg.Offset)
-=======
 	rows, err := q.query(ctx, q.listEnrolmentsStmt, listEnrolments, arg.CourseID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
@@ -96,7 +95,6 @@ type ListEnrolmentsByUserParams struct {
 
 func (q *Queries) ListEnrolmentsByUser(ctx context.Context, arg ListEnrolmentsByUserParams) ([]CourseEnrolment, error) {
 	rows, err := q.query(ctx, q.listEnrolmentsByUserStmt, listEnrolmentsByUser, arg.UserID, arg.Limit, arg.Offset)
->>>>>>> Stashed changes
 	if err != nil {
 		return nil, err
 	}

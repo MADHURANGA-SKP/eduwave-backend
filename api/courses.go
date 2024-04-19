@@ -58,13 +58,14 @@ func(server *Server) uploadSingleImage(ctx *gin.Context, file multipart.File, he
   
 	return filename, nil
   }
+  
 // CreateCourseRequest defines the request body structure for creating a course
 type CreateCourseRequest struct {
 	UserID      int64  `json:"user_id"`
 	Title       string `form:"title" binding:"required"`
 	Type        string `form:"type" binding:"required"`
 	Description string `form:"description" binding:"required"`
-	Image       string `json:"image"`
+	Image       string `form:"image"`
 }
 
 // @Summary Create a new course
@@ -303,7 +304,9 @@ func (server *Server) getTotalStudentsByCourse(ctx *gin.Context) []gin.H {
 	}
 
 	for _, course := range courses {
-		enrolments, err := server.store.ListEnrolments(ctx, db.ListEnrolmentsParams{CourseID: course.CourseID})
+		enrolments, err := server.store.ListEnrolments(ctx, db.ListEnrolmentsParams{
+			CourseID: course.CourseID,
+		})
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			continue
@@ -329,7 +332,9 @@ func (server *Server) getTotalCoursesByUserID(ctx *gin.Context) []gin.H {
 	}
 
 	for _, user := range users {
-		enrolments, err := server.store.ListEnrolmentsByUser(ctx, db.ListEnrolmentsByUserParams{UserID: user.UserID})
+		enrolments, err := server.store.ListEnrolmentsByUser(ctx, db.ListEnrolmentsByUserParams{
+			UserID: user.UserID,
+		})
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			continue

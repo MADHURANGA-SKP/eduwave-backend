@@ -120,12 +120,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.listEnrolmentsStmt, err = db.PrepareContext(ctx, listEnrolments); err != nil {
 		return nil, fmt.Errorf("error preparing query ListEnrolments: %w", err)
 	}
-<<<<<<< Updated upstream
-=======
 	if q.listEnrolmentsByUserStmt, err = db.PrepareContext(ctx, listEnrolmentsByUser); err != nil {
 		return nil, fmt.Errorf("error preparing query ListEnrolmentsByUser: %w", err)
 	}
->>>>>>> Stashed changes
 	if q.listMaterialStmt, err = db.PrepareContext(ctx, listMaterial); err != nil {
 		return nil, fmt.Errorf("error preparing query ListMaterial: %w", err)
 	}
@@ -327,14 +324,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing listEnrolmentsStmt: %w", cerr)
 		}
 	}
-<<<<<<< Updated upstream
-=======
 	if q.listEnrolmentsByUserStmt != nil {
 		if cerr := q.listEnrolmentsByUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listEnrolmentsByUserStmt: %w", cerr)
 		}
 	}
->>>>>>> Stashed changes
 	if q.listMaterialStmt != nil {
 		if cerr := q.listMaterialStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listMaterialStmt: %w", cerr)
@@ -466,10 +460,7 @@ type Queries struct {
 	listCoursesStmt                *sql.Stmt
 	listCoursesByUserStmt          *sql.Stmt
 	listEnrolmentsStmt             *sql.Stmt
-<<<<<<< Updated upstream
-=======
 	listEnrolmentsByUserStmt       *sql.Stmt
->>>>>>> Stashed changes
 	listMaterialStmt               *sql.Stmt
 	listRequestStmt                *sql.Stmt
 	listResourceStmt               *sql.Stmt
@@ -520,10 +511,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		listCoursesStmt:                q.listCoursesStmt,
 		listCoursesByUserStmt:          q.listCoursesByUserStmt,
 		listEnrolmentsStmt:             q.listEnrolmentsStmt,
-<<<<<<< Updated upstream
-=======
 		listEnrolmentsByUserStmt:       q.listEnrolmentsByUserStmt,
->>>>>>> Stashed changes
 		listMaterialStmt:               q.listMaterialStmt,
 		listRequestStmt:                q.listRequestStmt,
 		listResourceStmt:               q.listResourceStmt,

@@ -208,7 +208,50 @@ const docTemplate = `{
                 }
             }
         },
-        "/course": {
+        "/count": {
+            "get": {
+                "description": "get counts for each list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get Summery of counts",
+                "operationId": "get-count",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/course/:user_id": {
             "post": {
                 "description": "Creates a new course",
                 "consumes": [
@@ -255,16 +298,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Course ID",
-                        "name": "course_id",
+                        "description": "User ID",
+                        "name": "user_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Teacher ID",
-                        "name": "teacher_id",
-                        "in": "query",
                         "required": true
                     }
                 ],
@@ -577,20 +613,6 @@ const docTemplate = `{
                 "summary": "List enrolments",
                 "operationId": "list-enrolments",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Student ID",
-                        "name": "student_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "course_id",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Limit",
@@ -1134,7 +1156,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/resource": {
+        "/resource/:material_id": {
             "post": {
                 "description": "Creates a new resource",
                 "consumes": [
@@ -1515,6 +1537,42 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/get": {
+            "get": {
+                "description": "Get an user by its username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get an user details by username",
+                "operationId": "get-user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UserName",
+                        "name": "user_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1530,10 +1588,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "image": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -1674,10 +1729,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "image": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"

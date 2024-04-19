@@ -496,7 +496,7 @@ type GetUserRequest struct {
 // @ID get-user
 // @Accept json
 // @Produce json
-// @Param user_name 
+// @Param user_name path string true "UserName" 
 // @Success 200 
 // @Failure 400 
 // @Failure 404 
@@ -536,8 +536,7 @@ type deleteUserRequest struct {
 // @Summary Delete a course
 // @Description Deletes a course by ID
 // @Produce json
-// @Param course_id path int true "Course ID"
-// @Param teacher_id query int true "Teacher ID"
+// @Param user_id path int true "User ID"
 // @Success 200 
 // @Failure 400 
 // @Failure 404 
@@ -562,7 +561,20 @@ func (server *Server) DeleteUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
 }
 
-// Get counts
+
+// @Summary Get Summery of counts
+// @Description get counts for each list
+// @ID get-count
+// @Accept  json
+// @Produce  json
+// @Param limit query int true "Limit"
+// @Param offset query int true "Offset"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /count [Get]
+// deleteCourse deletes an Course
 func (server *Server) getCount(ctx *gin.Context) {
 	var req ListUserStudentRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {

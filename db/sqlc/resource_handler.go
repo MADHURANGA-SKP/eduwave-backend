@@ -109,7 +109,7 @@ func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(
 			Title: arg.Title,
 			Type: arg.Type,
 			ContentUrl:  arg.ContentUrl,
-			Files: arg.Files,
+			
 		})
 
 		if err != nil {

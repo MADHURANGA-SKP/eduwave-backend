@@ -70,7 +70,7 @@ type createResourceRequest struct {
 	MaterialID int64        `json:"material_id"`
 	Title      string       `form:"title"`
 	Type       TypeResource `form:"type"`
-	ContentUrl string       `json:"content_url"`
+	ContentUrl string       `form:"content_url"`
 }
 
 // @Summary Create a new resource
@@ -254,7 +254,6 @@ func (server *Server) updateResource(ctx *gin.Context) {
 		Title: req.Title,
 		Type: db.TypeResource(req.Type),
 		ContentUrl: req.ContentUrl,
-		Files: req.Files,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

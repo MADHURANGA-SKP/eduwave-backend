@@ -4,9 +4,7 @@ definitions:
       description:
         type: string
       image:
-        items:
-          type: integer
-        type: array
+        type: string
       title:
         type: string
       type:
@@ -106,9 +104,7 @@ definitions:
       description:
         type: string
       image:
-        items:
-          type: integer
-        type: array
+        type: string
       title:
         type: string
       type:
@@ -352,7 +348,36 @@ paths:
         "500":
           description: Internal Server Error
       summary: Update an assignment
-  /course:
+  /count:
+    get:
+      consumes:
+      - application/json
+      description: get counts for each list
+      operationId: get-count
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get Summery of counts
+  /course/:user_id:
     post:
       consumes:
       - application/json
@@ -380,14 +405,9 @@ paths:
     delete:
       description: Deletes a course by ID
       parameters:
-      - description: Course ID
+      - description: User ID
         in: path
-        name: course_id
-        required: true
-        type: integer
-      - description: Teacher ID
-        in: query
-        name: teacher_id
+        name: user_id
         required: true
         type: integer
       produces:
@@ -594,16 +614,6 @@ paths:
       description: List enrolments for a student in a course
       operationId: list-enrolments
       parameters:
-      - description: Student ID
-        in: query
-        name: student_id
-        required: true
-        type: integer
-      - description: Course ID
-        in: query
-        name: course_id
-        required: true
-        type: integer
       - description: Limit
         in: query
         name: limit
@@ -964,7 +974,7 @@ paths:
         "500":
           description: Internal Server Error
       summary: Create a new request
-  /resource:
+  /resource/:material_id:
     post:
       consumes:
       - application/json
@@ -1219,4 +1229,28 @@ paths:
         "500":
           description: Internal Server Error
       summary: Update a user
+  /user/get:
+    get:
+      consumes:
+      - application/json
+      description: Get an user by its username
+      operationId: get-user
+      parameters:
+      - description: UserName
+        in: path
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get an user details by username
 swagger: "2.0"
