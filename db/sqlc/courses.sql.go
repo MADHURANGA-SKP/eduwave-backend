@@ -22,11 +22,11 @@ INSERT INTO courses (
 `
 
 type CreateCoursesParams struct {
-	UserID      int64  `json:"user_id"`
-	Title       string `json:"title"`
-	Type        string `json:"type"`
-	Description string `json:"description"`
-	Image       []byte `json:"image"`
+	UserID      int64          `json:"user_id"`
+	Title       string         `json:"title"`
+	Type        string         `json:"type"`
+	Description string         `json:"description"`
+	Image       string `json:"image"`
 }
 
 func (q *Queries) CreateCourses(ctx context.Context, arg CreateCoursesParams) (Course, error) {
@@ -123,6 +123,51 @@ func (q *Queries) ListCourses(ctx context.Context, arg ListCoursesParams) ([]Cou
 	return items, nil
 }
 
+const listCoursesByUser = `-- name: ListCoursesByUser :many
+SELECT course_id, user_id, title, type, image, description, created_at FROM courses
+WHERE user_id = $1
+ORDER BY course_id
+LIMIT $2
+OFFSET $3
+`
+
+type ListCoursesByUserParams struct {
+	UserID int64 `json:"user_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListCoursesByUser(ctx context.Context, arg ListCoursesByUserParams) ([]Course, error) {
+	rows, err := q.query(ctx, q.listCoursesByUserStmt, listCoursesByUser, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Course{}
+	for rows.Next() {
+		var i Course
+		if err := rows.Scan(
+			&i.CourseID,
+			&i.UserID,
+			&i.Title,
+			&i.Type,
+			&i.Image,
+			&i.Description,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateCourses = `-- name: UpdateCourses :one
 UPDATE courses
 SET title = $2, type = $3, description = $4, image = $5
@@ -131,11 +176,11 @@ RETURNING course_id, user_id, title, type, image, description, created_at
 `
 
 type UpdateCoursesParams struct {
-	CourseID    int64  `json:"course_id"`
-	Title       string `json:"title"`
-	Type        string `json:"type"`
-	Description string `json:"description"`
-	Image       []byte `json:"image"`
+	CourseID    int64          `json:"course_id"`
+	Title       string         `json:"title"`
+	Type        string         `json:"type"`
+	Description string         `json:"description"`
+	Image       string `json:"image"`
 }
 
 func (q *Queries) UpdateCourses(ctx context.Context, arg UpdateCoursesParams) (Course, error) {

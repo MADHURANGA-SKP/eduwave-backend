@@ -8,7 +8,7 @@ type CreateCourseParam struct{
 	Title       string `json:"title"`
     Type        string `json:"type"`
     Description string `json:"description"`
-    Image       []byte `json:"image"`
+    Image       string `json:"image"`
 }
 
 //CreateCourseResponse contains the result of the create course data 
@@ -90,7 +90,7 @@ type UpdateCoursesParam struct {
 	Title       string `json:"title"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
-	Image       []byte `json:"image"`
+	Image       string `json:"image"`
 }
 
 //UpdateCourseResponse Contains the result of the creating course data

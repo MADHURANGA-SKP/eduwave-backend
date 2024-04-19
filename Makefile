@@ -1,4 +1,4 @@
-DB_URL = postgresql://buddhima:12345@localhost:5432/eduwave?sslmode=disable
+DB_URL = postgresql://pasan:12345@localhost:5432/eduwave?sslmode=disable
 
 postgres:
 	docker run -d --name eduwave -p 5432:5432 -e POSTGRES_USER=pasan -e POSTGRES_PASSWORD=12345 postgres:16-alpine
@@ -10,7 +10,7 @@ migrate:
 	migrate create -ext sql -dir db/migration -seq init_mg
 
 dropdb:
-	docker exec -it eduwave dropdb --username=buddhima eduwave
+	docker exec -it eduwave dropdb --username=pasan eduwave
 
 migrateup:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up

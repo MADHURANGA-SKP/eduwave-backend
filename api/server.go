@@ -60,25 +60,20 @@ func (server *Server) setupRouter() {
 
 	router.MaxMultipartMemory = 8 << 20
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//public routes
-	router.POST("/signup", server.createUser)
-	router.POST("/login", server.loginUser)
-	router.POST("tokens/renew_access", server.renewAccessToken)
+    router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    //public routes
+    router.POST("/signup", server.createUser)
+    router.POST("/login", server.loginUser)
+    router.POST("tokens/renew_access", server.renewAccessToken)
 
-	router.POST("/verify-email", server.VerifyEmailHandler)
+    router.POST("/verify-email", server.VerifyEmailHandler)
 
-<<<<<<< Updated upstream
-	router.GET("/test", server.GetSample)
-=======
-	//get count
-
-	router.GET("/count", server.getCount)
->>>>>>> Stashed changes
+    router.GET("/test", server.GetSample)
+    router.GET("/count", server.getCount)
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
-		
+		authroute.DELETE("/del/user", server.DeleteUsers)
 		authroute.POST("/admin/signup", server.createAdminUser)
 		authroute.PUT("/user/edit", server.UpdateUser)
 		authroute.GET("/getuser", server.GetUser)
@@ -97,12 +92,12 @@ func (server *Server) setupRouter() {
 			authroute.PUT("/material/edit", server.UpdateMaterial)
 			authroute.DELETE("/material/delete", server.DeleteMaterial)
 		//resource
-			authroute.POST("/resource", server.createResource)	
+			authroute.POST("/resource/:material_id", server.createResource)	
 			authroute.GET("/resource/get", server.getResource)
 			authroute.PUT("/resource/edit", server.updateResource)
 			authroute.DELETE("/resource/delete", server.deleteResource)
 		//createcourse
-			authroute.POST("/course", server.CreateCourse)	
+			authroute.POST("/course/:user_id", server.CreateCourse)	
 			authroute.GET("/course/get", server.GetCourse)
 			authroute.GET("/courses", server.ListCourses)
 			authroute.PUT("/course/edit", server.UpdateCourses)

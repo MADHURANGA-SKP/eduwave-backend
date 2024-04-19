@@ -487,7 +487,6 @@ func (server *Server) ListUserTeacher(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userlist)
 }
 
-<<<<<<< Updated upstream
 
 type GetUserRequest struct {
 	UserName string         `form:"user_name"`
@@ -511,14 +510,58 @@ func (server *Server) GetUser(ctx *gin.Context) {
 
 	arg := db.GetUserParam{UserName: req.UserName}
 
-	assignment, err := server.store.GetUser(ctx, arg)
+	user, err := server.store.GetUser(ctx, arg)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
 
-=======
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
+}
+
+// func(server *Server) GetSample(ctx *gin.Context){
+// 	ctx.JSON(http.StatusOK, gin.H{"message": "hellow world"})
+// }
+
+// deleteCourseRequest defines the request body structure for deleting an Course
+type deleteUserRequest struct {
+	UserID  int64 `form:"user_id"`
+}
+
+// @Summary Delete a course
+// @Description Deletes a course by ID
+// @Produce json
+// @Param course_id path int true "Course ID"
+// @Param teacher_id query int true "Teacher ID"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /course/delete [delete]
+// deleteCourse deletes an Course
+func (server *Server) DeleteUsers(ctx *gin.Context) {
+	var req deleteUserRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := server.store.DeleteUsers(ctx, db.DeleteUsersParam{
+		UserID: req.UserID,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
+}
+
 // Get counts
 func (server *Server) getCount(ctx *gin.Context) {
 	var req ListUserStudentRequest
@@ -605,18 +648,10 @@ func (server *Server) getCount(ctx *gin.Context) {
 
 	requests, err := server.store.ListRequest(ctx, arg)
 	if err != nil {
->>>>>>> Stashed changes
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-<<<<<<< Updated upstream
-	ctx.JSON(http.StatusOK, assignment)
-}
-
-func(server *Server) GetSample(ctx *gin.Context){
-	ctx.JSON(http.StatusOK, gin.H{"message": "hellow world"})
-=======
 	for _, req := range requests {
 		if req.IsPending.Valid && req.IsPending.Bool {
 			pendingCoursesCount++
@@ -659,5 +694,5 @@ func(server *Server) GetSample(ctx *gin.Context){
 	// Return the combined response
 	ctx.JSON(http.StatusOK, response)
 
->>>>>>> Stashed changes
 }
+

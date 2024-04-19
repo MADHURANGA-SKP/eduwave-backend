@@ -14,16 +14,15 @@ WHERE resource_id = $1;
 
 -- name: UpdateResource :one
 UPDATE resources
-SET title = $3, type = $4, content_url = $5, files = $6
-WHERE material_id = $1 AND resource_id = $2
+SET title = $2, type = $3, content_url = $4
+WHERE resource_id = $1
 RETURNING *;
 
 -- name: ListResource :many
 SELECT * FROM resources
-WHERE material_id = $1 AND resource_id = $2
 ORDER BY resource_id
-LIMIT $3
-OFFSET $4;
+LIMIT $1
+OFFSET $2;
 
 -- name: DeleteResource :exec
 DELETE FROM resources

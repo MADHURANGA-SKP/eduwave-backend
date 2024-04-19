@@ -67,11 +67,16 @@ func (q *Queries) DeleteRequest(ctx context.Context, requestID int64) error {
 
 const getRequest = `-- name: GetRequest :one
 SELECT request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
-WHERE request_id = $1
+WHERE request_id = $1 AND user_id = $2
 `
 
-func (q *Queries) GetRequest(ctx context.Context, requestID int64) (Request, error) {
-	row := q.queryRow(ctx, q.getRequestStmt, getRequest, requestID)
+type GetRequestParams struct {
+	RequestID int64 `json:"request_id"`
+	UserID    int64 `json:"user_id"`
+}
+
+func (q *Queries) GetRequest(ctx context.Context, arg GetRequestParams) (Request, error) {
+	row := q.queryRow(ctx, q.getRequestStmt, getRequest, arg.RequestID, arg.UserID)
 	var i Request
 	err := row.Scan(
 		&i.RequestID,

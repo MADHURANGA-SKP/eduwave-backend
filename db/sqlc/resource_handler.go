@@ -6,10 +6,10 @@ import (
 
 //CreateResourceParam contains the input parameters of data
 type CreateResourceParam struct {
-	MaterialID int64        `json:"material_id"`
-	Title      string       `json:"title"`
-	Type       TypeResource `json:"type"`
-	ContentUrl string       `json:"content_url"`
+	MaterialID  int64          `json:"material_id"`
+	Title       string         `json:"title"`
+	Type        TypeResource   `json:"type"`
+	ContentUrl  string         `json:"content_url"`
 }
 
 //CreateResourceResponse contains the result of the creation of data
@@ -86,12 +86,10 @@ func (store *Store) ListResource(ctx context.Context, params ListResourceParams)
 
 //UpdateResourceParam contains the input parameters of the updating data
 type UpdateResourceParam struct {
-	MaterialID int64        `json:"material_id"`
-    ResourceID int64        `json:"resource_id"`
-    Title      string       `json:"title"`
-    Type       TypeResource `json:"type"`
-    ContentUrl string       `json:"content_url"`
-    Files      []byte       `json:"files"`
+	ResourceID int64        `json:"resource_id"`
+	Title      string       `json:"title"`
+	Type       TypeResource `json:"type"`
+	ContentUrl string       `json:"content_url"`
 }
 
 //UpdateResourceResponse contains the result of the updating data
@@ -107,7 +105,6 @@ func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(
 		var err error
 
 		result.Resource, err = q.UpdateResource(ctx, UpdateResourceParams{
-			MaterialID: arg.MaterialID,
 			ResourceID: arg.ResourceID,
 			Title: arg.Title,
 			Type: arg.Type,
