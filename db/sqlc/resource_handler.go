@@ -1,6 +1,8 @@
 package db
 
-import "context"
+import (
+	"context"
+)
 
 //CreateResourceParam contains the input parameters of data
 type CreateResourceParam struct {
@@ -107,6 +109,7 @@ func(store *Store) UpdateResource(ctx context.Context, arg UpdateResourceParam)(
 			Title: arg.Title,
 			Type: arg.Type,
 			ContentUrl:  arg.ContentUrl,
+			Files: arg.Files,
 		})
 
 		if err != nil {

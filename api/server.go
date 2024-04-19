@@ -58,14 +58,18 @@ func (server *Server) setupRouter() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	router.MaxMultipartMemory = 8 << 20
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//public routes
-	router.POST("/signup", server.createUser)
-	router.POST("/login", server.loginUser)
-	router.POST("tokens/renew_access", server.renewAccessToken)
+    router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    //public routes
+    router.POST("/signup", server.createUser)
+    router.POST("/login", server.loginUser)
+    router.POST("tokens/renew_access", server.renewAccessToken)
 
-	router.POST("/verify-email", server.VerifyEmailHandler)
+    router.POST("/verify-email", server.VerifyEmailHandler)
+
+    router.GET("/test", server.GetSample)
+    router.GET("/count", server.getCount)
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))

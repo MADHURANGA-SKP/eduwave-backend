@@ -10,7 +10,12 @@ import (
 )
 
 type listEnrolmentsRequest struct {
+<<<<<<< Updated upstream
     PageID   int32 `form:"page_id,min=1"`
+=======
+	CourseID int64 `from:"course_id"`
+	PageID   int32 `form:"page_id,min=1"`
+>>>>>>> Stashed changes
 	PageSize int32 `form:"page_size,min=10,max=10"`
 }
 
@@ -23,9 +28,9 @@ type listEnrolmentsRequest struct {
 // @Param course_id query int true "Course ID"
 // @Param limit query int true "Limit"
 // @Param offset query int true "Offset"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /enrolments [get]
 func (server *Server) listEnrolments(ctx *gin.Context) {
@@ -34,10 +39,16 @@ func (server *Server) listEnrolments(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	
+
 	arg := db.ListEnrolmentsParams{
+<<<<<<< Updated upstream
 		Limit:  req.PageSize,
         Offset: (req.PageID - 1) * req.PageSize,
+=======
+		CourseID: req.CourseID,
+		Limit:    req.PageSize,
+		Offset:   (req.PageID - 1) * req.PageSize,
+>>>>>>> Stashed changes
 	}
 
 	enrolments, err := server.store.ListEnrolments(ctx, arg)
@@ -74,9 +85,9 @@ func (server *Server) CreateCourseEnrolment(ctx *gin.Context) {
 	}
 
 	arg := db.CreateEnrolmentsParams{
-		CourseID: req.CourseID,
+		CourseID:  req.CourseID,
 		RequestID: req.RequestID,
-		UserID: req.UserID,
+		UserID:    req.UserID,
 	}
 
 	assignment, err := server.store.CreateCourseEnrolments(ctx, db.CreateEnrolmentsParam(arg))

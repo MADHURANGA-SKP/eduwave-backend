@@ -87,7 +87,7 @@ type createResourceRequest struct {
 // createResource creates a new resource
 func (server *Server) createResource(ctx *gin.Context) {
 	var req createResourceRequest
-	if err := ctx.ShouldBind(&req); err != nil {
+  if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -108,7 +108,6 @@ func (server *Server) createResource(ctx *gin.Context) {
 		return
 	  }
 	}
-  
 	// Update request struct with image filename (if uploaded)
 	req.ContentUrl = imageFilename 
 
@@ -218,7 +217,7 @@ type updateResourceRequest struct {
 	MaterialID int64        `json:"material_id"`
     ResourceID int64        `json:"resource_id"`
     Title      string       `json:"title"`
-    Type       db.TypeResource `form:"type"`
+    Type       TypeResource `json:"type"`
     ContentUrl string       `json:"content_url"`
 }
 
@@ -255,6 +254,7 @@ func (server *Server) updateResource(ctx *gin.Context) {
 		Title: req.Title,
 		Type: db.TypeResource(req.Type),
 		ContentUrl: req.ContentUrl,
+		Files: req.Files,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

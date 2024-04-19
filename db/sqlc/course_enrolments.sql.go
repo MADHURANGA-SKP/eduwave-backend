@@ -50,7 +50,53 @@ type ListEnrolmentsParams struct {
 }
 
 func (q *Queries) ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error) {
+<<<<<<< Updated upstream
 	rows, err := q.query(ctx, q.listEnrolmentsStmt, listEnrolments, arg.Limit, arg.Offset)
+=======
+	rows, err := q.query(ctx, q.listEnrolmentsStmt, listEnrolments, arg.CourseID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CourseEnrolment{}
+	for rows.Next() {
+		var i CourseEnrolment
+		if err := rows.Scan(
+			&i.EnrolmentID,
+			&i.CourseID,
+			&i.RequestID,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEnrolmentsByUser = `-- name: ListEnrolmentsByUser :many
+SELECT enrolment_id, course_id, request_id, user_id FROM course_enrolments
+WHERE user_id = $1 
+ORDER BY enrolment_id
+LIMIT $2
+OFFSET $3
+`
+
+type ListEnrolmentsByUserParams struct {
+	UserID int64 `json:"user_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListEnrolmentsByUser(ctx context.Context, arg ListEnrolmentsByUserParams) ([]CourseEnrolment, error) {
+	rows, err := q.query(ctx, q.listEnrolmentsByUserStmt, listEnrolmentsByUser, arg.UserID, arg.Limit, arg.Offset)
+>>>>>>> Stashed changes
 	if err != nil {
 		return nil, err
 	}

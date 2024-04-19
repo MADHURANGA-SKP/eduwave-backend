@@ -50,6 +50,7 @@ type Querier interface {
 	ListCourses(ctx context.Context, arg ListCoursesParams) ([]Course, error)
 	ListCoursesByUser(ctx context.Context, arg ListCoursesByUserParams) ([]Course, error)
 	ListEnrolments(ctx context.Context, arg ListEnrolmentsParams) ([]CourseEnrolment, error)
+	ListEnrolmentsByUser(ctx context.Context, arg ListEnrolmentsByUserParams) ([]CourseEnrolment, error)
 	ListMaterial(ctx context.Context, arg ListMaterialParams) ([]Material, error)
 	ListRequest(ctx context.Context, arg ListRequestParams) ([]Request, error)
 	ListResource(ctx context.Context, arg ListResourceParams) ([]Resource, error)
