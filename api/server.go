@@ -68,7 +68,13 @@ func (server *Server) setupRouter() {
 
 	router.POST("/verify-email", server.VerifyEmailHandler)
 
+<<<<<<< Updated upstream
 	router.GET("/test", server.GetSample)
+=======
+	//get count
+
+	router.GET("/count", server.getCount)
+>>>>>>> Stashed changes
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
