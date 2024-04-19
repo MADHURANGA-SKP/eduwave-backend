@@ -487,6 +487,7 @@ func (server *Server) ListUserTeacher(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userlist)
 }
 
+<<<<<<< Updated upstream
 
 type GetUserRequest struct {
 	UserName string         `form:"user_name"`
@@ -517,13 +518,146 @@ func (server *Server) GetUser(ctx *gin.Context) {
 			return
 		}
 
+=======
+// Get counts
+func (server *Server) getCount(ctx *gin.Context) {
+	var req ListUserStudentRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// Get course count
+	var courseCount, teacherCount, studentCount, pendingCoursesCount, inProgressCoursesCount int
+
+	pageSize := int32(10)
+	page := int32(1)
+	for {
+		arg := db.ListCoursesParams{
+			Limit:  pageSize,
+			Offset: (page - 1) * pageSize,
+		}
+
+		courses, err := server.store.ListCourses(ctx, arg)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+
+		courseCount += len(courses)
+
+		if len(courses) < int(pageSize) {
+			break
+		}
+
+		page++
+	}
+
+	// Get teacher count
+	teacherArg := db.ListUserParams{
+		Role:   "teacher",
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	teacherList, err := server.store.ListUsers(ctx, teacherArg)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
+	teacherCount = len(teacherList)
+
+	// Get student count
+	studentArg := db.ListUserParams{
+		Role:   "student",
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	studentList, err := server.store.ListUsers(ctx, studentArg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	studentCount = len(studentList)
+
+	// Get pending courses count
+	pendingArg := db.ListRequestParams{
+
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	pendingCourseList, err := server.store.ListRequest(ctx, pendingArg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	pendingCoursesCount = len(pendingCourseList)
+
+	// Get pending and in-progress courses counts
+	arg := db.ListRequestParams{
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	requests, err := server.store.ListRequest(ctx, arg)
+	if err != nil {
+>>>>>>> Stashed changes
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+<<<<<<< Updated upstream
 	ctx.JSON(http.StatusOK, assignment)
 }
 
 func(server *Server) GetSample(ctx *gin.Context){
 	ctx.JSON(http.StatusOK, gin.H{"message": "hellow world"})
+=======
+	for _, req := range requests {
+		if req.IsPending.Valid && req.IsPending.Bool {
+			pendingCoursesCount++
+		} else if req.IsActive.Valid && req.IsActive.Bool {
+			inProgressCoursesCount++
+		}
+	}
+
+	// Get total students by courses
+	totalStudentsByCourse := server.getTotalStudentsByCourse(ctx)
+
+	// Get total courses by userID
+	totalCoursesByUserID := server.getTotalCoursesByUserID(ctx)
+
+	// Create maps to store counts
+	totalStudentsByCourseMap := make(map[int64]int)
+	totalCoursesByUserIDMap := make(map[int64]int)
+
+	// Populate total students by course map
+	for _, item := range totalStudentsByCourse {
+		totalStudentsByCourseMap[item["userId"].(int64)] = item["CourseCount"].(int)
+	}
+
+	// Populate total courses by userID map
+	for _, item := range totalCoursesByUserID {
+		totalCoursesByUserIDMap[item["courseId"].(int64)] = item["StudentCount"].(int)
+	}
+
+	// Combine all counts into a single response
+	response := gin.H{
+		"Course count":              courseCount,
+		"Teacher count":             teacherCount,
+		"Student count":             studentCount,
+		"Pending courses count":     pendingCoursesCount,
+		"In-progress courses count": inProgressCoursesCount,
+		"Total students by course":  totalStudentsByCourseMap,
+		"Total courses by userID":   totalCoursesByUserIDMap,
+	}
+
+	// Return the combined response
+	ctx.JSON(http.StatusOK, response)
+
+>>>>>>> Stashed changes
 }

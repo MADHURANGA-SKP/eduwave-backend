@@ -24,9 +24,9 @@ type CreateCourseRequest struct {
 // @Accept json
 // @Produce json
 // @Param request body CreateCourseRequest true "Course details"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /course [post]
 // CreateCourse creates a new course
@@ -38,11 +38,11 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 	}
 
 	arg := db.CreateCoursesParams{
-		UserID: req.UserID,
+		UserID:      req.UserID,
 		Title:       req.Title,
 		Type:        req.Type,
 		Description: req.Description,
-		Image: req.Image,
+		Image:       req.Image,
 	}
 
 	course, err := server.store.CreateCourses(ctx, arg)
@@ -56,16 +56,21 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 
 // GetCourseRequest defines the request body structure for getting a course
 type GetCourseRequest struct {
+<<<<<<< Updated upstream
 	CourseID  int64    `form:"course_id,min=1"`
+=======
+	CourseID int64 `form:"course_id,min=1"`
+	// TeacherID int64 `json:"teacher_id"`
+>>>>>>> Stashed changes
 }
 
 // @Summary Get a course by ID
 // @Description Retrieves a course by its ID
 // @Produce json
 // @Param course_id path int true "Course ID"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /course/get [get]
 // GetCourse retrieves a course by ID
@@ -97,9 +102,9 @@ type ListCoursesRequest struct {
 // @Produce json
 // @Param limit query int true "Number of items to return"
 // @Param offset query int true "Offset for pagination"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /courses [get]
 // ListCoursesRequest defines the request body structure for listing courses
@@ -113,7 +118,7 @@ func (server *Server) ListCourses(ctx *gin.Context) {
 
 	arg := db.ListCoursesParams{
 		Limit:  req.PageSize,
-        Offset: (req.PageID - 1) * req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	courses, err := server.store.ListCourses(ctx, arg)
@@ -139,9 +144,9 @@ type UpdateCoursesRequest struct {
 // @Accept json
 // @Produce json
 // @Param request body UpdateCoursesRequest true "Updated course details"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /course/edit [put]
 // UpdateCourse updates the selected course
@@ -153,11 +158,11 @@ func (server *Server) UpdateCourses(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateCoursesParams{
-		CourseID: req.CourseID,
-		Title: req.Title,
-		Type: req.Type,
+		CourseID:    req.CourseID,
+		Title:       req.Title,
+		Type:        req.Type,
 		Description: req.Description,
-		Image: req.Image,
+		Image:       req.Image,
 	}
 
 	courses, err := server.store.UpdateCourses(ctx, db.UpdateCoursesParam(arg))
@@ -171,7 +176,11 @@ func (server *Server) UpdateCourses(ctx *gin.Context) {
 
 // deleteCourseRequest defines the request body structure for deleting an Course
 type deleteCourseRequest struct {
+<<<<<<< Updated upstream
 	CourseID  int64 `form:"course_id"`
+=======
+	CourseID int64 `uri:"course_id"`
+>>>>>>> Stashed changes
 }
 
 // @Summary Delete a course
@@ -179,9 +188,9 @@ type deleteCourseRequest struct {
 // @Produce json
 // @Param course_id path int true "Course ID"
 // @Param teacher_id query int true "Teacher ID"
-// @Success 200 
-// @Failure 400 
-// @Failure 404 
+// @Success 200
+// @Failure 400
+// @Failure 404
 // @Failure 500
 // @Router /course/delete [delete]
 // deleteCourse deletes an Course
@@ -203,6 +212,7 @@ func (server *Server) DeleteCourse(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Course deleted successfully"})
 }
 
+<<<<<<< Updated upstream
 
 // // @Summary Get a course by ID
 // // @Description Retrieves a course by its ID
@@ -232,3 +242,57 @@ func (server *Server) DeleteCourse(ctx *gin.Context) {
 	
 // 	ctx.JSON(http.StatusOK, course)
 // }
+=======
+// getTotalStudentsByCourse retrieves the total number of students enrolled in each course.
+func (server *Server) getTotalStudentsByCourse(ctx *gin.Context) []gin.H {
+	var result []gin.H
+
+	courses, err := server.store.ListCourses(ctx, db.ListCoursesParams{})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return result
+	}
+
+	for _, course := range courses {
+		enrolments, err := server.store.ListEnrolments(ctx, db.ListEnrolmentsParams{CourseID: course.CourseID})
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			continue
+		}
+
+		courseInfo := gin.H{
+			"courseId":     course,
+			"StudentCount": len(enrolments),
+		}
+		result = append(result, courseInfo)
+	}
+
+	return result
+}
+
+func (server *Server) getTotalCoursesByUserID(ctx *gin.Context) []gin.H {
+	var result []gin.H
+
+	users, err := server.store.ListUsers(ctx, db.ListUserParams{})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return result
+	}
+
+	for _, user := range users {
+		enrolments, err := server.store.ListEnrolmentsByUser(ctx, db.ListEnrolmentsByUserParams{UserID: user.UserID})
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			continue
+		}
+
+		userInfo := gin.H{
+			"userId":      user.UserID,
+			"CourseCount": len(enrolments),
+		}
+		result = append(result, userInfo)
+	}
+
+	return result
+}
+>>>>>>> Stashed changes
