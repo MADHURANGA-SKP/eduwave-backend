@@ -65,7 +65,7 @@ type CreateCourseRequest struct {
 	Title       string `form:"title" binding:"required"`
 	Type        string `form:"type" binding:"required"`
 	Description string `form:"description" binding:"required"`
-	Image       string `form:"image"`
+	Image       string `json:"image"`
 }
 
 // @Summary Create a new course

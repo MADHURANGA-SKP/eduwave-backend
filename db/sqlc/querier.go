@@ -32,7 +32,7 @@ type Querier interface {
 	GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error)
 	GetCourses(ctx context.Context, courseID int64) (Course, error)
 	GetMaterial(ctx context.Context, materialID int64) (Material, error)
-	GetRequest(ctx context.Context, arg GetRequestParams) (Request, error)
+	GetRequest(ctx context.Context, userID int64) (Request, error)
 	GetResource(ctx context.Context, resourceID int64) (Resource, error)
 	GetSession(ctx context.Context, sessionID uuid.UUID) (Session, error)
 	// -- name: GetUser :one

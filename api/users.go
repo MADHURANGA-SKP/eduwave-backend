@@ -541,8 +541,8 @@ type deleteUserRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /course/delete [delete]
-// deleteCourse deletes an Course
+// @Router /del/user [delete]
+// deleteCourse deletes an User
 func (server *Server) DeleteUsers(ctx *gin.Context) {
 	var req deleteUserRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -550,15 +550,13 @@ func (server *Server) DeleteUsers(ctx *gin.Context) {
 		return
 	}
 
-	err := server.store.DeleteUsers(ctx, db.DeleteUsersParam{
-		UserID: req.UserID,
-	})
+	err := server.store.DeleteUsers(ctx, req.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
+	ctx.JSON(http.StatusOK, errorResponse(err))
 }
 
 

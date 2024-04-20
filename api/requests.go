@@ -63,8 +63,7 @@ func (server *Server) createRequest(ctx *gin.Context) {
 }
 
 type getRequestRequest struct {
-	RequestID int64 `json:"request_id"`
-    UserID    int64 `json:"user_id"`
+    UserID    int64 `form:"user_id"`
 }
 
 // @Summary Get a request by ID
@@ -84,7 +83,6 @@ func (server *Server) getRequest(ctx *gin.Context) {
 	}
 
 	arg := db.GetRequestParam{
-		RequestID: req.RequestID,
 		UserID: req.UserID,
 	}
 
