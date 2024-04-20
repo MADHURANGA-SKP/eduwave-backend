@@ -130,6 +130,52 @@ func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Req
 	return items, nil
 }
 
+const listRequestByUser = `-- name: ListRequestByUser :many
+SELECT request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
+WHERE user_id = $1
+ORDER BY request_id
+LIMIT $2
+OFFSET $3
+`
+
+type ListRequestByUserParams struct {
+	UserID int64 `json:"user_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListRequestByUser(ctx context.Context, arg ListRequestByUserParams) ([]Request, error) {
+	rows, err := q.query(ctx, q.listRequestByUserStmt, listRequestByUser, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Request{}
+	for rows.Next() {
+		var i Request
+		if err := rows.Scan(
+			&i.RequestID,
+			&i.UserID,
+			&i.CourseID,
+			&i.IsActive,
+			&i.IsPending,
+			&i.IsAccepted,
+			&i.IsDeclined,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateRequests = `-- name: UpdateRequests :one
 UPDATE requests
 SET is_active = $2, is_pending = $3, is_accepted = $4, is_declined = $5 

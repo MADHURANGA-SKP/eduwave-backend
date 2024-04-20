@@ -20,3 +20,7 @@ WHERE user_id = $1
 ORDER BY enrolment_id
 LIMIT $2
 OFFSET $3;
+
+-- name: GetEnrolment :one
+SELECT * FROM course_enrolments
+WHERE user_id = $1  AND course_id = $2;

@@ -35,3 +35,34 @@ func (store *Store) CreateCourseEnrolments(ctx context.Context, arg CreateEnrolm
 
 	return result, err
 }
+
+// GetEnrolmentParam contains the input parameters of the geting the data
+type GetEnrolmentParam struct {
+	UserID   int64 `json:"user_id"`
+    CourseID int64 `json:"course_id"`
+}
+
+// GetEnrolmentResponse contains the result of the geting the data
+type GetEnrolmentResponse struct {
+	CourseEnrolment CourseEnrolment `json:"course_enrolment"`
+}
+
+// GetEnrolment db handler for api call to retrive a admin data from the database
+func (store *Store) GetEnrolment(ctx context.Context, arg GetEnrolmentParam) (GetEnrolmentResponse, error) {
+	var result GetEnrolmentResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.CourseEnrolment, err = q.GetEnrolment(ctx, GetEnrolmentParams{
+			UserID: arg.UserID,
+			CourseID: arg.CourseID,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+
+	})
+	return result, err
+}

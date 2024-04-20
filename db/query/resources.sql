@@ -24,6 +24,13 @@ ORDER BY resource_id
 LIMIT $1
 OFFSET $2;
 
+-- name: ListResourceByMaterial :many
+SELECT * FROM resources
+WHERE material_id = $1
+ORDER BY resource_id
+LIMIT $2
+OFFSET $3;
+
 -- name: DeleteResource :exec
 DELETE FROM resources
 WHERE resource_id = $1;

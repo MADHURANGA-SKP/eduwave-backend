@@ -84,6 +84,12 @@ func (store *Store) ListCourses(ctx context.Context, params ListCoursesParams) (
 	return store.Queries.ListCourses(ctx, params)
 }
 
+//ListSubmissions db handler for api call to listcourse data of the database
+func (store *Store) ListCoursesByUser(ctx context.Context, params ListCoursesByUserParams) ([]Course, error) {
+	return store.Queries.ListCoursesByUser(ctx, params)
+}
+
+
 //UpdateCourseParam contains the input parameters of updating coruse data 
 type UpdateCoursesParam struct {
 	CourseID    int64  `json:"course_id"`

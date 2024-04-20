@@ -262,3 +262,84 @@ func (server *Server) updateResource(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, resource)
 }
+
+
+// ListResourceRequest contains the impurt parameters for list rolebased user data
+type ListResourceRequest struct {
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+// @Summary ListResource
+// @Description ListResource all avalible resource
+// @ID list-teacher
+// @Accept  json
+// @Produce  json
+// @Param request body ListResourceRequest true "teacher list request"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /resources/get [get]
+func (server *Server) ListResource(ctx *gin.Context) {
+	var req ListResourceRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	arg := db.ListResourceParams{
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	userlist, err := server.store.ListResource(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, userlist)
+}
+
+// ListResourceRequest contains the impurt parameters for list rolebased user data
+type ListResourceByMaterialRequest struct {
+	MaterialID int64 `form:"material_id"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+// @Summary ListResource
+// @Description ListResource all avalible resource
+// @ID list-teacher
+// @Accept  json
+// @Produce  json
+// @Param request body ListResourceRequest true "teacher list request"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /resources/get [get]
+func (server *Server) ListResourceByMaterial(ctx *gin.Context) {
+	var req ListResourceByMaterialRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	arg := db.ListResourceByMaterialParams{
+		MaterialID: req.MaterialID,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	userlist, err := server.store.ListResourceByMaterial(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, userlist)
+}

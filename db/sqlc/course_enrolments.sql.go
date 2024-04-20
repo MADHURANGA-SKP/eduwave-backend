@@ -37,6 +37,28 @@ func (q *Queries) CreateEnrolments(ctx context.Context, arg CreateEnrolmentsPara
 	return i, err
 }
 
+const getEnrolment = `-- name: GetEnrolment :one
+SELECT enrolment_id, course_id, request_id, user_id FROM course_enrolments
+WHERE user_id = $1  AND course_id = $2
+`
+
+type GetEnrolmentParams struct {
+	UserID   int64 `json:"user_id"`
+	CourseID int64 `json:"course_id"`
+}
+
+func (q *Queries) GetEnrolment(ctx context.Context, arg GetEnrolmentParams) (CourseEnrolment, error) {
+	row := q.queryRow(ctx, q.getEnrolmentStmt, getEnrolment, arg.UserID, arg.CourseID)
+	var i CourseEnrolment
+	err := row.Scan(
+		&i.EnrolmentID,
+		&i.CourseID,
+		&i.RequestID,
+		&i.UserID,
+	)
+	return i, err
+}
+
 const listEnrolments = `-- name: ListEnrolments :many
 SELECT enrolment_id, course_id, request_id, user_id FROM course_enrolments
 WHERE course_id = $1 

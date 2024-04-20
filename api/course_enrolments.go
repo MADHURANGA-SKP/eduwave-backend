@@ -2,6 +2,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	db "eduwave-back-end/db/sqlc"
@@ -84,4 +85,46 @@ func (server *Server) CreateCourseEnrolment(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, assignment)
+}
+
+
+type GetEnrolmentRequest struct {
+	UserID   int64 `form:"user_id"`
+    CourseID int64 `form:"course_id"`
+}
+// @Summary Get User enrolment details by Userid and courseid
+// @Description Get an user  enrolment detials by user id and courseid
+// @ID get-user
+// @Accept json
+// @Produce json
+// @Param user_id path int true "user_id" 
+// @Param course_id path int true "course_id" 
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /enrolment/get [get]
+func (server *Server) GetEnrolment(ctx *gin.Context) {
+	var req GetEnrolmentRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	arg := db.GetEnrolmentParam{
+		UserID: req.UserID,
+		CourseID: req.CourseID,
+	}
+
+	enrolment, err := server.store.GetEnrolment(ctx, arg)
+	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, enrolment)
 }
