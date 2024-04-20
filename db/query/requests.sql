@@ -26,6 +26,13 @@ ORDER BY request_id
 LIMIT $1
 OFFSET $2;
 
+-- name: ListRequestByUser :many
+SELECT * FROM requests
+WHERE user_id = $1
+ORDER BY request_id
+LIMIT $2
+OFFSET $3;
+
 -- name: DeleteRequest :exec
 DELETE FROM requests
 WHERE request_id = $1;

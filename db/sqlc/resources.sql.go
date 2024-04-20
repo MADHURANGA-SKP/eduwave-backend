@@ -117,6 +117,50 @@ func (q *Queries) ListResource(ctx context.Context, arg ListResourceParams) ([]R
 	return items, nil
 }
 
+const listResourceByMaterial = `-- name: ListResourceByMaterial :many
+SELECT resource_id, material_id, title, type, content_url, created_at FROM resources
+WHERE material_id = $1
+ORDER BY resource_id
+LIMIT $2
+OFFSET $3
+`
+
+type ListResourceByMaterialParams struct {
+	MaterialID int64 `json:"material_id"`
+	Limit      int32 `json:"limit"`
+	Offset     int32 `json:"offset"`
+}
+
+func (q *Queries) ListResourceByMaterial(ctx context.Context, arg ListResourceByMaterialParams) ([]Resource, error) {
+	rows, err := q.query(ctx, q.listResourceByMaterialStmt, listResourceByMaterial, arg.MaterialID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Resource{}
+	for rows.Next() {
+		var i Resource
+		if err := rows.Scan(
+			&i.ResourceID,
+			&i.MaterialID,
+			&i.Title,
+			&i.Type,
+			&i.ContentUrl,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateResource = `-- name: UpdateResource :one
 UPDATE resources
 SET title = $2, type = $3, content_url = $4

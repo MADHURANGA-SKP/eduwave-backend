@@ -118,7 +118,7 @@ type listRequestRequest struct {
 // @Failure 404
 // @Failure 500
 // @Router /requests [get]
-func (server *Server) listRequests(ctx *gin.Context) {
+func (server *Server) ListRequest(ctx *gin.Context) {
 	var req listRequestRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -187,7 +187,7 @@ type updateRequest struct {
 // @Failure 404
 // @Failure 500
 // @Router /request/edit [put]
-func (server *Server) updateRequest(ctx *gin.Context) {
+func (server *Server) UpdateRequests(ctx *gin.Context) {
 	var req updateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -199,7 +199,7 @@ func (server *Server) updateRequest(ctx *gin.Context) {
 	// 	ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	// }
 
-	arg := db.UpdateRequestsParams{
+	arg := db.UpdateRequestsParam{
 		UserID:     req.UserID,
 		IsActive:   sql.NullBool{Bool: req.IsActive.Bool, Valid: true},
 		IsPending:  sql.NullBool{Bool: req.IsPending.Bool, Valid: true},
@@ -214,4 +214,45 @@ func (server *Server) updateRequest(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, request)
+}
+
+
+
+type ListRequestByUserRequest struct {
+	UserID int64 `form:"user_id"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+// @Summary List requests By user
+// @Description List requests based on User
+// @Produce json
+// @Param user_if query int "User ID"
+// @Param limit query int  "Limit"
+// @Param offset query int  "Offset"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /requests/byuser [get]
+func (server *Server) ListRequestByUser(ctx *gin.Context) {
+	var req ListRequestByUserRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.ListRequestByUserParams{
+		UserID: req.UserID,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	requests, err := server.store.ListRequestByUser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, requests)
 }

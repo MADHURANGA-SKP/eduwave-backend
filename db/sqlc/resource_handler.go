@@ -84,6 +84,11 @@ func (store *Store) ListResource(ctx context.Context, params ListResourceParams)
 	return store.Queries.ListResource(ctx, params)
 }
 
+//ListResource db handler for api call to retrive a resource data from teh databse
+func (store *Store) ListResourceByMaterial(ctx context.Context, params ListResourceByMaterialParams) ([]Resource, error) {
+	return store.Queries.ListResourceByMaterial(ctx, params)
+}
+
 //UpdateResourceParam contains the input parameters of the updating data
 type UpdateResourceParam struct {
 	ResourceID int64        `json:"resource_id"`

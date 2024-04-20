@@ -82,6 +82,7 @@ func (store *Store) GetRequest(ctx context.Context, arg GetRequestParam) (GetReq
 
 //UpdateRequestsParam contains the input parameters og the updating of the data
 type UpdateRequestsParam struct {
+	UserID     int64        `json:"user_id"`
 	IsActive   sql.NullBool `json:"is_active"`
 	IsPending  sql.NullBool `json:"is_pending"`
 	IsAccepted sql.NullBool `json:"is_accepted"`
@@ -94,13 +95,14 @@ type UpdateRequestResponse struct {
 }
 
 //UpdateRequest db handler for api call to update a request data of the database
-func (store *Store) UpdateRequest(ctx context.Context, arg UpdateRequestsParam) (UpdateRequestResponse, error) {
+func (store *Store) UpdateRequests(ctx context.Context, arg UpdateRequestsParam) (UpdateRequestResponse, error) {
 	var result UpdateRequestResponse
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
 		updateRequests, err := q.UpdateRequests(ctx, UpdateRequestsParams{
+			UserID: arg.UserID,
 			IsActive:   arg.IsActive,
 			IsPending:  arg.IsPending,
 			IsAccepted: arg.IsAccepted,
@@ -121,4 +123,9 @@ func (store *Store) UpdateRequest(ctx context.Context, arg UpdateRequestsParam) 
 //ListRequest db handler for api call to list all request data of the database
 func (store *Store) ListRequest(ctx context.Context, params ListRequestParams) ([]Request, error) {
 	return store.Queries.ListRequest(ctx, params)
+}
+
+//ListRequestByUser db handler for api call to list all request data of the database by user
+func (store *Store) ListRequestByUser(ctx context.Context, params ListRequestByUserParams) ([]Request, error) {
+	return store.Queries.ListRequestByUser(ctx, params)
 }

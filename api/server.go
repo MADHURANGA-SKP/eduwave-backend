@@ -80,9 +80,10 @@ func (server *Server) setupRouter() {
 		//requests
 			authroute.POST("/requests", server.createRequest)//
 			authroute.GET("/request/get", server.getRequest)
-			authroute.GET("/requests", server.listRequests)
+			authroute.GET("/requests", server.ListRequest)
+			authroute.GET("/requests/byuser", server.ListRequestByUser)
 			authroute.DELETE("/request/delete", server.deleteRequest)
-			authroute.PUT("/request/edit", server.updateRequest)
+			authroute.PUT("/request/edit", server.UpdateRequests)
 		//material
 			authroute.POST("/material", server.CreateMaterial)	
 			authroute.GET("/material/get", server.GetMaterials)
@@ -91,6 +92,8 @@ func (server *Server) setupRouter() {
 		//resource
 			authroute.POST("/resource/:material_id", server.createResource)	
 			authroute.GET("/resource/get", server.getResource)
+			authroute.GET("/resources/get", server.ListResource)
+			authroute.GET("/resources/bymaterial", server.ListResourceByMaterial)
 			authroute.PUT("/resource/edit", server.updateResource)
 			authroute.DELETE("/resource/delete", server.deleteResource)
 		//createcourse
@@ -99,6 +102,7 @@ func (server *Server) setupRouter() {
 			authroute.GET("/courses", server.ListCourses)
 			authroute.PUT("/course/edit", server.UpdateCourses)
 			authroute.DELETE("/course/delete", server.DeleteCourse)
+			authroute.GET("/course/byuser", server.ListCoursesByUser)
 		//assignment
 			authroute.POST("/assignments", server.createAssignment)
 			authroute.GET("/assignment/get", server.getAssignment)
@@ -112,6 +116,7 @@ func (server *Server) setupRouter() {
 		//course_enrolments
 			authroute.POST("/enrol", server.CreateCourseEnrolment)
 			authroute.GET("/enrolments", server.listEnrolments)
+			authroute.GET("/enrolment/get", server.GetEnrolment)
 		//course_progress
 			authroute.POST("/createprogress", server.createCourseProgress)
 			authroute.GET("/courseprogress", server.listCourseProgress)

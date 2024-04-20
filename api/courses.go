@@ -350,3 +350,43 @@ func (server *Server) getTotalCoursesByUserID(ctx *gin.Context) []gin.H {
 	return result
 }
 
+
+type ListCoursesByUserRequest struct {
+	UserID int64 `form:"user_id"`
+	PageID   int32 `form:"page_id,min=1"`
+	PageSize int32 `form:"page_size,min=10,max=10"`
+}
+
+// @Summary List courses
+// @Description Lists courses with pagination by usercreation
+// @Produce json
+// @Param limit query int true "Number of items to return"
+// @Param offset query int true "Offset for pagination"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /course/byuser [get]
+// ListCoursesRequest defines the request body structure for listing courses
+// ListCourses lists courses
+func (server *Server) ListCoursesByUser(ctx *gin.Context) {
+	var req ListCoursesByUserRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.ListCoursesByUserParams{
+		UserID: req.UserID,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	courses, err := server.store.ListCoursesByUser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, courses)
+}

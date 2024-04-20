@@ -84,6 +84,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getCoursesStmt, err = db.PrepareContext(ctx, getCourses); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCourses: %w", err)
 	}
+	if q.getEnrolmentStmt, err = db.PrepareContext(ctx, getEnrolment); err != nil {
+		return nil, fmt.Errorf("error preparing query GetEnrolment: %w", err)
+	}
 	if q.getMaterialStmt, err = db.PrepareContext(ctx, getMaterial); err != nil {
 		return nil, fmt.Errorf("error preparing query GetMaterial: %w", err)
 	}
@@ -129,8 +132,14 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.listRequestStmt, err = db.PrepareContext(ctx, listRequest); err != nil {
 		return nil, fmt.Errorf("error preparing query ListRequest: %w", err)
 	}
+	if q.listRequestByUserStmt, err = db.PrepareContext(ctx, listRequestByUser); err != nil {
+		return nil, fmt.Errorf("error preparing query ListRequestByUser: %w", err)
+	}
 	if q.listResourceStmt, err = db.PrepareContext(ctx, listResource); err != nil {
 		return nil, fmt.Errorf("error preparing query ListResource: %w", err)
+	}
+	if q.listResourceByMaterialStmt, err = db.PrepareContext(ctx, listResourceByMaterial); err != nil {
+		return nil, fmt.Errorf("error preparing query ListResourceByMaterial: %w", err)
 	}
 	if q.listUserStmt, err = db.PrepareContext(ctx, listUser); err != nil {
 		return nil, fmt.Errorf("error preparing query ListUser: %w", err)
@@ -264,6 +273,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getCoursesStmt: %w", cerr)
 		}
 	}
+	if q.getEnrolmentStmt != nil {
+		if cerr := q.getEnrolmentStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getEnrolmentStmt: %w", cerr)
+		}
+	}
 	if q.getMaterialStmt != nil {
 		if cerr := q.getMaterialStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getMaterialStmt: %w", cerr)
@@ -339,9 +353,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing listRequestStmt: %w", cerr)
 		}
 	}
+	if q.listRequestByUserStmt != nil {
+		if cerr := q.listRequestByUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listRequestByUserStmt: %w", cerr)
+		}
+	}
 	if q.listResourceStmt != nil {
 		if cerr := q.listResourceStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listResourceStmt: %w", cerr)
+		}
+	}
+	if q.listResourceByMaterialStmt != nil {
+		if cerr := q.listResourceByMaterialStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listResourceByMaterialStmt: %w", cerr)
 		}
 	}
 	if q.listUserStmt != nil {
@@ -448,6 +472,7 @@ type Queries struct {
 	getAssignmentStmt              *sql.Stmt
 	getCourseProgressStmt          *sql.Stmt
 	getCoursesStmt                 *sql.Stmt
+	getEnrolmentStmt               *sql.Stmt
 	getMaterialStmt                *sql.Stmt
 	getRequestStmt                 *sql.Stmt
 	getResourceStmt                *sql.Stmt
@@ -463,7 +488,9 @@ type Queries struct {
 	listEnrolmentsByUserStmt       *sql.Stmt
 	listMaterialStmt               *sql.Stmt
 	listRequestStmt                *sql.Stmt
+	listRequestByUserStmt          *sql.Stmt
 	listResourceStmt               *sql.Stmt
+	listResourceByMaterialStmt     *sql.Stmt
 	listUserStmt                   *sql.Stmt
 	listsubmissionsStmt            *sql.Stmt
 	updateAssignmentStmt           *sql.Stmt
@@ -499,6 +526,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getAssignmentStmt:              q.getAssignmentStmt,
 		getCourseProgressStmt:          q.getCourseProgressStmt,
 		getCoursesStmt:                 q.getCoursesStmt,
+		getEnrolmentStmt:               q.getEnrolmentStmt,
 		getMaterialStmt:                q.getMaterialStmt,
 		getRequestStmt:                 q.getRequestStmt,
 		getResourceStmt:                q.getResourceStmt,
@@ -514,7 +542,9 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		listEnrolmentsByUserStmt:       q.listEnrolmentsByUserStmt,
 		listMaterialStmt:               q.listMaterialStmt,
 		listRequestStmt:                q.listRequestStmt,
+		listRequestByUserStmt:          q.listRequestByUserStmt,
 		listResourceStmt:               q.listResourceStmt,
+		listResourceByMaterialStmt:     q.listResourceByMaterialStmt,
 		listUserStmt:                   q.listUserStmt,
 		listsubmissionsStmt:            q.listsubmissionsStmt,
 		updateAssignmentStmt:           q.updateAssignmentStmt,
