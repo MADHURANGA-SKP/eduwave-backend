@@ -120,12 +120,7 @@ func (store *Store) ListUsers(ctx context.Context, params ListUserParams) ([]Use
 
 
 
-//DeleteCourseParam contains the input parameters of the geting the data
-type DeleteUsersParam struct {
-	UserID  int64         `json:"user_id"`
-}
-
-//DeleteCourse db handler for api call to delete a course from the database
-func (store *Store) DeleteUsers(ctx context.Context, arg DeleteUsersParam) error {
-	return store.Queries.DeleteUsers(ctx, arg.UserID)
+//DeleteUser db handler for api call to delete a user from the database
+func (store *Store) DeleteUsers(ctx context.Context, userID int64) error {
+	return store.Queries.DeleteUsers(ctx, userID)
 }
