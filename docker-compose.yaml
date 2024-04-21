@@ -20,5 +20,7 @@ services:
       - DB_SOURCE=postgresql://admin1:XQy0%2A4%7B%5CM%3DR%27UFAR@34.42.79.184/eduwave?sslmode=disable
     entrypoint: ["/app/wait-for.sh", "postgres:5432", "--", "/app/start.sh"]
     command: ["/app/main"]
+    volumes:
+      - ./db/migration:/app/db/migration
 volumes:
   data-volume:
