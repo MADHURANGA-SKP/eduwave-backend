@@ -79,12 +79,12 @@ func (store *Store) GetCourse(ctx context.Context, arg GetCourseParam) (GetCours
 }
 
 
-//ListSubmissions db handler for api call to listcourse data of the database
+//Listcourse db handler for api call to listcourse all data of the database
 func (store *Store) ListCourses(ctx context.Context, params ListCoursesParams) ([]Course, error) {
 	return store.Queries.ListCourses(ctx, params)
 }
 
-//ListSubmissions db handler for api call to listcourse data of the database
+//ListCoursebyuser db handler for api call to listcourse by created user data of the database
 func (store *Store) ListCoursesByUser(ctx context.Context, params ListCoursesByUserParams) ([]Course, error) {
 	return store.Queries.ListCoursesByUser(ctx, params)
 }

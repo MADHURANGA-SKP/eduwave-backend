@@ -83,10 +83,10 @@ func (store *Store) GetRequest(ctx context.Context, arg GetRequestParam) (GetReq
 //UpdateRequestsParam contains the input parameters og the updating of the data
 type UpdateRequestsParam struct {
 	UserID     int64        `json:"user_id"`
-	IsActive   sql.NullBool `json:"is_active"`
-	IsPending  sql.NullBool `json:"is_pending"`
-	IsAccepted sql.NullBool `json:"is_accepted"`
-	IsDeclined sql.NullBool `json:"is_declined"`
+	IsActive   bool `json:"is_active"`
+	IsPending  bool `json:"is_pending"`
+	IsAccepted bool `json:"is_accepted"`
+	IsDeclined bool `json:"is_declined"`
 }
 
 //UpdateRequestResponse contains the result of the updaing of the data
@@ -128,4 +128,9 @@ func (store *Store) ListRequest(ctx context.Context, params ListRequestParams) (
 //ListRequestByUser db handler for api call to list all request data of the database by user
 func (store *Store) ListRequestByUser(ctx context.Context, params ListRequestByUserParams) ([]Request, error) {
 	return store.Queries.ListRequestByUser(ctx, params)
+}
+
+//ListRequestByUser db handler for api call to list all request data of the database by user
+func (store *Store) ListRequestByCourse(ctx context.Context, params ListRequestByCourseParams) ([]Request, error) {
+	return store.Queries.ListRequestByCourse(ctx, params)
 }
