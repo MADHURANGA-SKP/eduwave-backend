@@ -6,13 +6,17 @@ import (
 	db "eduwave-back-end/db/sqlc"
 	util "eduwave-back-end/util"
 
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+
 	_ "github.com/lib/pq"
 
+	_ "eduwave-back-end/docs"
 	"log"
 
-	_ "eduwave-back-end/docs"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-migrate/migrate/v4"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -29,9 +33,26 @@ func main() {
 		log.Fatal("cannot connect to the db", err)
 	}
 	
+	rundDBMigration(config.MigrationURL, config.DBSource)
+
 	store := db.NewStore(conn)
 	
 	runGinServer(config, *store, router)
+}
+
+func rundDBMigration(MigrationURL string, DBSource string){
+	log.Println("Migration URL:", MigrationURL)
+	migration, err := migrate.New(MigrationURL,DBSource)
+	
+	if err != nil {
+		log.Fatal("cannot create new migrate instance ", err)
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange  {
+		log.Fatal("failed to run migrate up", err)
+	}
+
+	log.Println("db migrated succesfully")
 }
 
 func runGinServer(config util.Config, store db.Store, router *gin.Engine) {
