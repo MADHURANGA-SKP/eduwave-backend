@@ -132,6 +132,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.listRequestStmt, err = db.PrepareContext(ctx, listRequest); err != nil {
 		return nil, fmt.Errorf("error preparing query ListRequest: %w", err)
 	}
+	if q.listRequestByCourseStmt, err = db.PrepareContext(ctx, listRequestByCourse); err != nil {
+		return nil, fmt.Errorf("error preparing query ListRequestByCourse: %w", err)
+	}
 	if q.listRequestByUserStmt, err = db.PrepareContext(ctx, listRequestByUser); err != nil {
 		return nil, fmt.Errorf("error preparing query ListRequestByUser: %w", err)
 	}
@@ -149,6 +152,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.updateAssignmentStmt, err = db.PrepareContext(ctx, updateAssignment); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateAssignment: %w", err)
+	}
+	if q.updateCourseProgressStmt, err = db.PrepareContext(ctx, updateCourseProgress); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateCourseProgress: %w", err)
 	}
 	if q.updateCoursesStmt, err = db.PrepareContext(ctx, updateCourses); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateCourses: %w", err)
@@ -353,6 +359,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing listRequestStmt: %w", cerr)
 		}
 	}
+	if q.listRequestByCourseStmt != nil {
+		if cerr := q.listRequestByCourseStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listRequestByCourseStmt: %w", cerr)
+		}
+	}
 	if q.listRequestByUserStmt != nil {
 		if cerr := q.listRequestByUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listRequestByUserStmt: %w", cerr)
@@ -381,6 +392,11 @@ func (q *Queries) Close() error {
 	if q.updateAssignmentStmt != nil {
 		if cerr := q.updateAssignmentStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateAssignmentStmt: %w", cerr)
+		}
+	}
+	if q.updateCourseProgressStmt != nil {
+		if cerr := q.updateCourseProgressStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateCourseProgressStmt: %w", cerr)
 		}
 	}
 	if q.updateCoursesStmt != nil {
@@ -488,12 +504,14 @@ type Queries struct {
 	listEnrolmentsByUserStmt       *sql.Stmt
 	listMaterialStmt               *sql.Stmt
 	listRequestStmt                *sql.Stmt
+	listRequestByCourseStmt        *sql.Stmt
 	listRequestByUserStmt          *sql.Stmt
 	listResourceStmt               *sql.Stmt
 	listResourceByMaterialStmt     *sql.Stmt
 	listUserStmt                   *sql.Stmt
 	listsubmissionsStmt            *sql.Stmt
 	updateAssignmentStmt           *sql.Stmt
+	updateCourseProgressStmt       *sql.Stmt
 	updateCoursesStmt              *sql.Stmt
 	updateMaterialStmt             *sql.Stmt
 	updateRequestsStmt             *sql.Stmt
@@ -542,12 +560,14 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		listEnrolmentsByUserStmt:       q.listEnrolmentsByUserStmt,
 		listMaterialStmt:               q.listMaterialStmt,
 		listRequestStmt:                q.listRequestStmt,
+		listRequestByCourseStmt:        q.listRequestByCourseStmt,
 		listRequestByUserStmt:          q.listRequestByUserStmt,
 		listResourceStmt:               q.listResourceStmt,
 		listResourceByMaterialStmt:     q.listResourceByMaterialStmt,
 		listUserStmt:                   q.listUserStmt,
 		listsubmissionsStmt:            q.listsubmissionsStmt,
 		updateAssignmentStmt:           q.updateAssignmentStmt,
+		updateCourseProgressStmt:       q.updateCourseProgressStmt,
 		updateCoursesStmt:              q.updateCoursesStmt,
 		updateMaterialStmt:             q.updateMaterialStmt,
 		updateRequestsStmt:             q.updateRequestsStmt,

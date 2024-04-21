@@ -11,6 +11,12 @@ SELECT * FROM course_progress
 WHERE courseprogress_id = $1 AND enrolment_id = $2 
 LIMIT 1;
 
+-- name: UpdateCourseProgress :one
+UPDATE course_progress
+SET progress = $2
+WHERE enrolment_id = $1 
+RETURNING *;
+
 -- name: ListCourseProgress :many
 SELECT * FROM course_progress
 WHERE enrolment_id = $1

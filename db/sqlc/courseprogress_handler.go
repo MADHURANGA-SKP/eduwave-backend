@@ -65,3 +65,42 @@ func (store *Store) GetCourseProgress(ctx context.Context, arg GetCourseProgress
 
 	return result, err
 }
+
+
+//ListCoursebyuser db handler for api call to listcourse by created user data of the database
+func (store *Store) ListCourseProgress(ctx context.Context, params ListCourseProgressParams) ([]CourseProgress, error) {
+	return store.Queries.ListCourseProgress(ctx, params)
+}
+
+
+//UpdateCourseProgressParam contains the input parameters of updating coruse progress data 
+type UpdateCourseProgressParam struct {
+	EnrolmentID int64  `json:"enrolment_id"`
+	Progress    string `json:"progress"`
+}
+
+//UpdateCourseResponse Contains the result of the creating course data
+type UpdateCourseProgressResponse struct {
+	CourseProgress CourseProgress `json:"course_progress"`
+}
+
+//UpdateCourse dn handler for api call to update course data in databse
+func(store *Store) UpdateCourseProgress(ctx context.Context, arg UpdateCourseProgressParam)(UpdateCourseProgressResponse, error){
+	var result UpdateCourseProgressResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error 
+
+		result.CourseProgress, err =q.UpdateCourseProgress(ctx, UpdateCourseProgressParams{
+			EnrolmentID: arg.EnrolmentID,
+			Progress: arg.Progress,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	return result, err
+}

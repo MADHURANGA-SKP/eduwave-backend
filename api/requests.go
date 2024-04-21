@@ -40,10 +40,10 @@ func (server *Server) createRequest(ctx *gin.Context) {
 	arg := db.CreateRequestParams{
 		UserID:     req.UserID,
 		CourseID:   req.CourseID,
-		IsActive:   sql.NullBool{Bool: req.IsActive, Valid: req.IsActive},
-		IsPending:  sql.NullBool{Bool: req.IsPending, Valid: req.IsPending},
-		IsAccepted: sql.NullBool{Bool: req.IsAccepted, Valid: req.IsAccepted},
-		IsDeclined: sql.NullBool{Bool: req.IsDeclined, Valid: req.IsDeclined},
+		IsActive:   sql.NullBool{Bool: false, Valid: false},
+		IsPending:  sql.NullBool{Bool: true, Valid: true},
+		IsAccepted: sql.NullBool{Bool: false, Valid: false},
+		IsDeclined: sql.NullBool{Bool: false, Valid: false},
 	}
 
 	request, err := server.store.CreateRequest(ctx, db.CreateRequestParam{
@@ -171,10 +171,10 @@ func (server *Server) deleteRequest(ctx *gin.Context) {
 
 type updateRequest struct {
 	UserID     int64        `json:"user_id"`
-	IsActive   sql.NullBool `json:"is_active"`
-	IsPending  sql.NullBool `json:"is_pending"`
-	IsAccepted sql.NullBool `json:"is_accepted"`
-	IsDeclined sql.NullBool `json:"is_declined"`
+	IsActive   bool `json:"is_active"`
+	IsPending  bool `json:"is_pending"`
+	IsAccepted bool `json:"is_accepted"`
+	IsDeclined bool `json:"is_declined"`
 }
 
 // @Summary Update a request
@@ -201,10 +201,10 @@ func (server *Server) UpdateRequests(ctx *gin.Context) {
 
 	arg := db.UpdateRequestsParam{
 		UserID:     req.UserID,
-		IsActive:   sql.NullBool{Bool: req.IsActive.Bool, Valid: true},
-		IsPending:  sql.NullBool{Bool: req.IsPending.Bool, Valid: true},
-		IsAccepted: sql.NullBool{Bool: req.IsAccepted.Bool, Valid: true},
-		IsDeclined: sql.NullBool{Bool: req.IsDeclined.Bool, Valid: true},
+		IsActive:   req.IsActive,
+		IsPending:  req.IsPending,
+		IsAccepted: req.IsAccepted,
+		IsDeclined: req.IsDeclined,
 	}
 
 	request, err := server.store.UpdateRequests(ctx, arg)
@@ -237,7 +237,7 @@ type ListRequestByUserRequest struct {
 // @Router /requests/byuser [get]
 func (server *Server) ListRequestByUser(ctx *gin.Context) {
 	var req ListRequestByUserRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -249,6 +249,47 @@ func (server *Server) ListRequestByUser(ctx *gin.Context) {
 	}
 
 	requests, err := server.store.ListRequestByUser(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, requests)
+}
+
+
+
+type ListRequestByCourseRequest struct {
+	CourseID int64 `form:"course_id"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+// @Summary List requests By course
+// @Description List requests based on course
+// @Produce json
+// @Param course_id query int "course ID"
+// @Param limit query int  "Limit"
+// @Param offset query int  "Offset"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /requests/bycourse [get]
+func (server *Server) ListRequestByCourse(ctx *gin.Context) {
+	var req ListRequestByCourseRequest
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.ListRequestByCourseParams{
+		CourseID: req.CourseID,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	requests, err := server.store.ListRequestByCourse(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

@@ -130,6 +130,52 @@ func (q *Queries) ListRequest(ctx context.Context, arg ListRequestParams) ([]Req
 	return items, nil
 }
 
+const listRequestByCourse = `-- name: ListRequestByCourse :many
+SELECT request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
+WHERE course_id = $1
+ORDER BY request_id
+LIMIT $2
+OFFSET $3
+`
+
+type ListRequestByCourseParams struct {
+	CourseID int64 `json:"course_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
+}
+
+func (q *Queries) ListRequestByCourse(ctx context.Context, arg ListRequestByCourseParams) ([]Request, error) {
+	rows, err := q.query(ctx, q.listRequestByCourseStmt, listRequestByCourse, arg.CourseID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Request{}
+	for rows.Next() {
+		var i Request
+		if err := rows.Scan(
+			&i.RequestID,
+			&i.UserID,
+			&i.CourseID,
+			&i.IsActive,
+			&i.IsPending,
+			&i.IsAccepted,
+			&i.IsDeclined,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listRequestByUser = `-- name: ListRequestByUser :many
 SELECT request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at FROM requests
 WHERE user_id = $1
@@ -185,10 +231,10 @@ RETURNING request_id, user_id, course_id, is_active, is_pending, is_accepted, is
 
 type UpdateRequestsParams struct {
 	UserID     int64        `json:"user_id"`
-	IsActive   sql.NullBool `json:"is_active"`
-	IsPending  sql.NullBool `json:"is_pending"`
-	IsAccepted sql.NullBool `json:"is_accepted"`
-	IsDeclined sql.NullBool `json:"is_declined"`
+	IsActive   bool `json:"is_active"`
+	IsPending  bool `json:"is_pending"`
+	IsAccepted bool `json:"is_accepted"`
+	IsDeclined bool `json:"is_declined"`
 }
 
 func (q *Queries) UpdateRequests(ctx context.Context, arg UpdateRequestsParams) (Request, error) {

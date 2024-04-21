@@ -84,3 +84,22 @@ func (q *Queries) ListCourseProgress(ctx context.Context, arg ListCourseProgress
 	}
 	return items, nil
 }
+
+const updateCourseProgress = `-- name: UpdateCourseProgress :one
+UPDATE course_progress
+SET progress = $2
+WHERE enrolment_id = $1 
+RETURNING courseprogress_id, enrolment_id, progress
+`
+
+type UpdateCourseProgressParams struct {
+	EnrolmentID int64  `json:"enrolment_id"`
+	Progress    string `json:"progress"`
+}
+
+func (q *Queries) UpdateCourseProgress(ctx context.Context, arg UpdateCourseProgressParams) (CourseProgress, error) {
+	row := q.queryRow(ctx, q.updateCourseProgressStmt, updateCourseProgress, arg.EnrolmentID, arg.Progress)
+	var i CourseProgress
+	err := row.Scan(&i.CourseprogressID, &i.EnrolmentID, &i.Progress)
+	return i, err
+}

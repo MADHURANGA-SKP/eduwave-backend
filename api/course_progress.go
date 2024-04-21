@@ -91,8 +91,9 @@ func (server *Server) getCourseProgress(ctx *gin.Context) {
 }
 
 type listCourseProgressRequest struct {
-    Limit       int32 `json:"limit"`
-    Offset      int32 `json:"offset"`
+	EnrolmentID int64 `form:"enrolment_id"`
+    PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 // @Summary List course progress
@@ -107,9 +108,9 @@ type listCourseProgressRequest struct {
 // @Failure 400 
 // @Failure 404 
 // @Failure 500
-// @Router /courseprogress/get [get]
+// @Router /courseprogress/byenrolment [get]
 // listCourseProgress returns a list of course progress
-func (server *Server) listCourseProgress(ctx *gin.Context) {
+func (server *Server) ListCourseProgress(ctx *gin.Context) {
 	var req listCourseProgressRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -117,8 +118,9 @@ func (server *Server) listCourseProgress(ctx *gin.Context) {
 	}
 
 	arg := db.ListCourseProgressParams{
-		Limit:       req.Limit,
-		Offset:      req.Offset,
+		EnrolmentID: req.EnrolmentID,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
 	courseProgressList, err := server.store.ListCourseProgress(ctx, arg)
@@ -128,4 +130,42 @@ func (server *Server) listCourseProgress(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, courseProgressList)
+}
+
+// UpdateCourseProgressRequest defines the request body structure for listing courses
+type UpdateCourseProgressRequest struct {
+	EnrolmentID int64  `json:"enrolment_id"`
+    Progress    string `json:"progress"`
+}
+
+// @Summary Update a UpdateCourseProgress
+// @Description Updates a UpdateCourseProgress with provided details
+// @Accept json
+// @Produce json
+// @Param request body UpdateCourseProgressRequest true "Updated UpdateCourseProgress details"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /courseprogress/edit [put]
+// UpdateCourse updates the selected course
+func (server *Server) UpdateCourseProgress(ctx *gin.Context) {
+	var req UpdateCourseProgressRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.UpdateCourseProgressParams{
+		EnrolmentID: req.EnrolmentID,
+		Progress: req.Progress,
+	}
+
+	courses, err := server.store.UpdateCourseProgress(ctx, db.UpdateCourseProgressParam(arg))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, courses)
 }

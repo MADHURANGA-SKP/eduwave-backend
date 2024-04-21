@@ -82,6 +82,7 @@ func (server *Server) setupRouter() {
 			authroute.GET("/request/get", server.getRequest)
 			authroute.GET("/requests", server.ListRequest)
 			authroute.GET("/requests/byuser", server.ListRequestByUser)
+			authroute.GET("/requests/bycourse", server.ListRequestByCourse)
 			authroute.DELETE("/request/delete", server.deleteRequest)
 			authroute.PUT("/request/edit", server.UpdateRequests)
 		//material
@@ -119,8 +120,9 @@ func (server *Server) setupRouter() {
 			authroute.GET("/enrolment/get", server.GetEnrolment)
 		//course_progress
 			authroute.POST("/createprogress", server.createCourseProgress)
-			authroute.GET("/courseprogress", server.listCourseProgress)
+			authroute.GET("/courseprogress/byenrolment", server.ListCourseProgress)
 			authroute.GET("/courseprogress/get", server.getCourseProgress)
+			authroute.PUT("/courseprogress/edit", server.UpdateCourseProgress)
 
 	server.router = router
 }
