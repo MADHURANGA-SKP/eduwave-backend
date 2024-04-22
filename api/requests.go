@@ -178,7 +178,8 @@ func (server *Server) deleteRequest(ctx *gin.Context) {
 }
 
 type updateRequest struct {
-	UserID     int64        `json:"user_id"`
+	UserID     int64 `json:"user_id"`
+    CourseID   int64 `json:"course_id"`
 	IsActive   bool `json:"is_active"`
 	IsPending  bool `json:"is_pending"`
 	IsAccepted bool `json:"is_accepted"`
@@ -209,6 +210,7 @@ func (server *Server) UpdateRequests(ctx *gin.Context) {
 
 	arg := db.UpdateRequestsParam{
 		UserID:     req.UserID,
+		CourseID: req.CourseID,
 		IsActive:   req.IsActive,
 		IsPending:  req.IsPending,
 		IsAccepted: req.IsAccepted,

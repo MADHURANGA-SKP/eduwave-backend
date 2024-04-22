@@ -16,8 +16,8 @@ WHERE user_id = $1;
 
 -- name: UpdateRequests :one
 UPDATE requests
-SET is_active = $2, is_pending = $3, is_accepted = $4, is_declined = $5 
-WHERE user_id = $1
+SET is_active = $3, is_pending = $4, is_accepted = $5, is_declined = $6 
+WHERE user_id = $1 AND course_id = $2
 RETURNING *;
 
 -- name: ListRequest :many
