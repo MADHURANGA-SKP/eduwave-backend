@@ -44,6 +44,7 @@ type Querier interface {
 	// WHERE
 	//     users.user_name = $1 OR teachers.user_name = $1 OR admins.user_name = $1;
 	GetUser(ctx context.Context, userName string) (User, error)
+	GetUserById(ctx context.Context, userID int64) (User, error)
 	GetVerifyEmail(ctx context.Context, secretCode string) (VerifyEmail, error)
 	GetsubmissionsByAssignment(ctx context.Context, assignmentID int64) (Submission, error)
 	GetsubmissionsByUser(ctx context.Context, userID int64) (Submission, error)

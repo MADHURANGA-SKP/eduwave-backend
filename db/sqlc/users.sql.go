@@ -100,6 +100,29 @@ func (q *Queries) GetUser(ctx context.Context, userName string) (User, error) {
 	return i, err
 }
 
+const getUserById = `-- name: GetUserById :one
+SELECT user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at, qualification FROM users
+WHERE user_id = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserById(ctx context.Context, userID int64) (User, error) {
+	row := q.queryRow(ctx, q.getUserByIdStmt, getUserById, userID)
+	var i User
+	err := row.Scan(
+		&i.UserID,
+		&i.UserName,
+		&i.Role,
+		&i.HashedPassword,
+		&i.FullName,
+		&i.Email,
+		&i.IsEmailVerified,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+		&i.Qualification,
+	)
+	return i, err
+}
+
 const listUser = `-- name: ListUser :many
 SELECT user_id, user_name, role, hashed_password, full_name, email, is_email_verified, password_changed_at, created_at, qualification FROM users
 WHERE role = $1

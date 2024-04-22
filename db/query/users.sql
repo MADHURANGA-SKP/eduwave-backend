@@ -24,6 +24,10 @@ SELECT * FROM users
 WHERE user_name = $1 LIMIT 1;
 
 
+-- name: GetUserById :one
+SELECT * FROM users
+WHERE user_id = $1 LIMIT 1;
+
 -- name: UpdateUser :one
 UPDATE users
 SET 

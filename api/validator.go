@@ -12,3 +12,4 @@ var validUsername validator.Func = func(fl validator.FieldLevel) bool {
 	}
 	return false
 }
+
