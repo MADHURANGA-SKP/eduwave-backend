@@ -73,6 +73,33 @@ func (store *Store) GetUser(ctx context.Context, arg GetUserParam) (GetUserRespo
 	return result, err
 }
 
+// GetUserByIdParam contains the input parameters of the geting the data
+type GetUserByIdParam struct {
+	UserID int64 `json:"user_id"`
+}
+
+// GetUserByIdResponse contains the result of the geting the data
+type GetUserByIdResponse struct {
+	User User `json:"user"`
+}
+
+// GetUserById db handler for api call to retrive a admin data from the database
+func (store *Store) GetUserById(ctx context.Context, arg GetUserByIdParam) (GetUserByIdResponse, error) {
+	var result GetUserByIdResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.User, err = q.GetUserById(ctx, arg.UserID)
+		if err != nil {
+			return err
+		}
+		return nil
+
+	})
+	return result, err
+}
+
 // UpdateUserParam contains the input parameters of the update the data
 type UpdateUserParam struct {
 	HashedPassword    string    `json:"hashed_password"`

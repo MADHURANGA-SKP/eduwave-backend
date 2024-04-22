@@ -102,6 +102,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getUserStmt, err = db.PrepareContext(ctx, getUser); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUser: %w", err)
 	}
+	if q.getUserByIdStmt, err = db.PrepareContext(ctx, getUserById); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserById: %w", err)
+	}
 	if q.getVerifyEmailStmt, err = db.PrepareContext(ctx, getVerifyEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetVerifyEmail: %w", err)
 	}
@@ -309,6 +312,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getUserStmt: %w", cerr)
 		}
 	}
+	if q.getUserByIdStmt != nil {
+		if cerr := q.getUserByIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserByIdStmt: %w", cerr)
+		}
+	}
 	if q.getVerifyEmailStmt != nil {
 		if cerr := q.getVerifyEmailStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getVerifyEmailStmt: %w", cerr)
@@ -494,6 +502,7 @@ type Queries struct {
 	getResourceStmt                *sql.Stmt
 	getSessionStmt                 *sql.Stmt
 	getUserStmt                    *sql.Stmt
+	getUserByIdStmt                *sql.Stmt
 	getVerifyEmailStmt             *sql.Stmt
 	getsubmissionsByAssignmentStmt *sql.Stmt
 	getsubmissionsByUserStmt       *sql.Stmt
@@ -550,6 +559,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getResourceStmt:                q.getResourceStmt,
 		getSessionStmt:                 q.getSessionStmt,
 		getUserStmt:                    q.getUserStmt,
+		getUserByIdStmt:                q.getUserByIdStmt,
 		getVerifyEmailStmt:             q.getVerifyEmailStmt,
 		getsubmissionsByAssignmentStmt: q.getsubmissionsByAssignmentStmt,
 		getsubmissionsByUserStmt:       q.getsubmissionsByUserStmt,

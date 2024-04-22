@@ -3,6 +3,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	db "eduwave-back-end/db/sqlc"
+	"eduwave-back-end/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -376,8 +378,15 @@ func (server *Server) ListCoursesByUser(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if req.UserID != authPayload.UserID {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	arg := db.ListCoursesByUserParams{
-		UserID: req.UserID,
+		UserID: authPayload.UserID,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}

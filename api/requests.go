@@ -4,6 +4,7 @@ package api
 import (
 	"database/sql"
 	db "eduwave-back-end/db/sqlc"
+	"eduwave-back-end/token"
 	"errors"
 	"net/http"
 
@@ -34,6 +35,13 @@ func (server *Server) createRequest(ctx *gin.Context) {
 	var req createRequestRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if req.UserID != authPayload.UserID {
+		err := errors.New("permission denied. account doesn't belongs to the authenticated user")
+		ctx.JSON(http.StatusForbidden, errorResponse(err))
 		return
 	}
 
@@ -242,8 +250,15 @@ func (server *Server) ListRequestByUser(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if req.UserID != authPayload.UserID {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+
 	arg := db.ListRequestByUserParams{
-		UserID: req.UserID,
+		UserID: authPayload.UserID,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}

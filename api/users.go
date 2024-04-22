@@ -2,10 +2,12 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	db "eduwave-back-end/db/sqlc"
+	"eduwave-back-end/token"
 
 	"eduwave-back-end/util"
 
@@ -138,10 +140,21 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if req.UserName != authPayload.UserName {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+
 	username, err := server.store.GetUser(ctx, db.GetUserParam{
 		UserName: req.UserName,
-	},
-	)
+	},)
+
+	if username.User.UserName != req.UserName {
+		ctx.JSON(http.StatusForbidden, "connot update other user's info")
+		return
+	}
 
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
@@ -149,11 +162,6 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	if username.User.UserName != req.UserName {
-		ctx.JSON(http.StatusForbidden, "connot update other user's info")
 		return
 	}
 
@@ -508,7 +516,14 @@ func (server *Server) GetUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
-	arg := db.GetUserParam{UserName: req.UserName}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if req.UserName != authPayload.UserName {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	arg := db.GetUserParam{UserName: req.UserName  }
 
 	user, err := server.store.GetUser(ctx, arg)
 	if err != nil {
@@ -524,9 +539,46 @@ func (server *Server) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-// func(server *Server) GetSample(ctx *gin.Context){
-// 	ctx.JSON(http.StatusOK, gin.H{"message": "hellow world"})
-// }
+type GetUserByIdRequest struct {
+	UserID int64         `form:"user_id"`
+}
+// @Summary Get an user details by user_id
+// @Description Get an user by its user_id
+// @ID get-user
+// @Accept json
+// @Produce json
+// @Param user_name path string true "user_id" 
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /user/get [get]
+func (server *Server) GetUserById(ctx *gin.Context) {
+	var req GetUserByIdRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	arg := db.GetUserByIdParam{UserID: req.UserID}
+
+	user, err := server.store.GetUserById(ctx, arg)
+	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	rsp := userResponse{
+		Username: user.User.UserName,
+		FullName: user.User.FullName,
+	}
+
+	ctx.JSON(http.StatusOK, rsp)
+}
 
 // deleteCourseRequest defines the request body structure for deleting an Course
 type deleteUserRequest struct {
@@ -547,6 +599,13 @@ func (server *Server) DeleteUsers(ctx *gin.Context) {
 	var req deleteUserRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if req.UserID != authPayload.UserID {
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
@@ -706,3 +765,24 @@ func (server *Server) getCount(ctx *gin.Context) {
 
 }
 
+
+func (server *Server) validAccount(ctx *gin.Context, username string) (db.User, bool) {
+	user, err := server.store.GetUser(ctx, db.GetUserParam{UserName: username})
+	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return user.User, false
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return user.User, false
+	}
+
+	if user.User.UserName != username {
+		err := fmt.Errorf("account [%d] credential mismatch: %s vs %s", user.User.UserID, username)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return user.User, false
+	}
+
+	return user.User, true
+}

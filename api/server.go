@@ -75,6 +75,7 @@ func (server *Server) setupRouter() {
 		authroute.POST("/admin/signup", server.createAdminUser)
 		authroute.PUT("/user/edit", server.UpdateUser)
 		authroute.GET("/getuser", server.GetUser)
+		authroute.GET("/getuserbyid", server.GetUserById)
 		//list all users
 		authroute.GET("/listadmin", server.ListUser)
 		authroute.GET("/liststudent", server.ListUserStudent)
