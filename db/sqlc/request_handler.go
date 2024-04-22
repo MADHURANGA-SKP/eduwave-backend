@@ -82,7 +82,8 @@ func (store *Store) GetRequest(ctx context.Context, arg GetRequestParam) (GetReq
 
 //UpdateRequestsParam contains the input parameters og the updating of the data
 type UpdateRequestsParam struct {
-	UserID     int64        `json:"user_id"`
+	UserID     int64 `json:"user_id"`
+    CourseID   int64 `json:"course_id"`
 	IsActive   bool `json:"is_active"`
 	IsPending  bool `json:"is_pending"`
 	IsAccepted bool `json:"is_accepted"`
@@ -103,6 +104,7 @@ func (store *Store) UpdateRequests(ctx context.Context, arg UpdateRequestsParam)
 
 		updateRequests, err := q.UpdateRequests(ctx, UpdateRequestsParams{
 			UserID: arg.UserID,
+			CourseID: arg.CourseID,
 			IsActive:   arg.IsActive,
 			IsPending:  arg.IsPending,
 			IsAccepted: arg.IsAccepted,

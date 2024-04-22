@@ -224,13 +224,14 @@ func (q *Queries) ListRequestByUser(ctx context.Context, arg ListRequestByUserPa
 
 const updateRequests = `-- name: UpdateRequests :one
 UPDATE requests
-SET is_active = $2, is_pending = $3, is_accepted = $4, is_declined = $5 
-WHERE user_id = $1
+SET is_active = $3, is_pending = $4, is_accepted = $5, is_declined = $6 
+WHERE user_id = $1 AND course_id = $2
 RETURNING request_id, user_id, course_id, is_active, is_pending, is_accepted, is_declined, created_at
 `
 
 type UpdateRequestsParams struct {
 	UserID     int64        `json:"user_id"`
+	CourseID   int64        `json:"course_id"`
 	IsActive   bool `json:"is_active"`
 	IsPending  bool `json:"is_pending"`
 	IsAccepted bool `json:"is_accepted"`
@@ -240,6 +241,7 @@ type UpdateRequestsParams struct {
 func (q *Queries) UpdateRequests(ctx context.Context, arg UpdateRequestsParams) (Request, error) {
 	row := q.queryRow(ctx, q.updateRequestsStmt, updateRequests,
 		arg.UserID,
+		arg.CourseID,
 		arg.IsActive,
 		arg.IsPending,
 		arg.IsAccepted,
