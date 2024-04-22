@@ -13,12 +13,12 @@ var (
 	ErrExpiredToken = errors.New("token has expired")
 )
 
-// Payload contains the payload data of the token
+// Payload contains the payload data of the token that generate for each user
 type Payload struct {
 	ID        uuid.UUID `json:"id"`
-	UserName  string    `json:"user_name"`
-	Role      string    `json:"role"`
-	UserID		int64	`json:"user_id"`
+	UserName  string    `json:"user_name"`	//logeed user's user_name
+	Role      string    `json:"role"`		//logeed user's role
+	UserID		int64	`json:"user_id"`	//logeed user's id	
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
 }

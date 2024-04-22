@@ -311,7 +311,7 @@ type ListResourceByMaterialRequest struct {
 }
 
 // @Summary ListResource
-// @Description ListResource all avalible resource
+// @Description List all Resources that belongs to material
 // @ID list-teacher
 // @Accept  json
 // @Produce  json
@@ -320,7 +320,7 @@ type ListResourceByMaterialRequest struct {
 // @Failure 400
 // @Failure 404
 // @Failure 500
-// @Router /resources/get [get]
+// @Router /resources/bymaterial [get]
 func (server *Server) ListResourceByMaterial(ctx *gin.Context) {
 	var req ListResourceByMaterialRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {

@@ -163,3 +163,42 @@ func (server *Server) DeleteMaterial(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Material deleted successfully"})
 }
+
+type ListMaterialRequest struct {
+	CourseID int64 `form:"course_id"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+// @Summary List Material By user
+// @Description List Material based on User
+// @Produce json
+// @Param user_if query int "User ID"
+// @Param limit query int  "Limit"
+// @Param offset query int  "Offset"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /material/bycourse [get]
+func (server *Server) ListMaterial(ctx *gin.Context) {
+	var req ListMaterialRequest
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.ListMaterialParams{
+		CourseID: req.CourseID,
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	requests, err := server.store.ListMaterial(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, requests)
+}
