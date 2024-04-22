@@ -40,14 +40,14 @@ func main() {
 	runGinServer(config, *store, router)
 }
 
+//run db migration when server start
 func rundDBMigration(MigrationURL string, DBSource string){
-	log.Println("Migration URL:", MigrationURL)
+	//create new migrate instance
 	migration, err := migrate.New(MigrationURL,DBSource)
-	
 	if err != nil {
 		log.Fatal("cannot create new migrate instance ", err)
 	}
-
+	//run migrate up
 	if err = migration.Up(); err != nil && err != migrate.ErrNoChange  {
 		log.Fatal("failed to run migrate up", err)
 	}
@@ -62,7 +62,7 @@ func runGinServer(config util.Config, store db.Store, router *gin.Engine) {
 	if err != nil {
 		log.Fatal("cannot create server", err)
 	}
-
+	
 	err = server.Start(config.HTTPServerAddress)
 	if err != nil {
 		log.Fatal("cannot start server", err)

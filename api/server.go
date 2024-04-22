@@ -61,6 +61,7 @@ func (server *Server) setupRouter() {
 	router.MaxMultipartMemory = 8 << 20
 
     router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
     //public routes
     router.POST("/signup", server.createUser)
     router.POST("/login", server.loginUser)
@@ -74,11 +75,12 @@ func (server *Server) setupRouter() {
 		authroute.POST("/admin/signup", server.createAdminUser)
 		authroute.PUT("/user/edit", server.UpdateUser)
 		authroute.GET("/getuser", server.GetUser)
+		//list all users
 		authroute.GET("/listadmin", server.ListUser)
 		authroute.GET("/liststudent", server.ListUserStudent)
 		authroute.GET("/listteacher", server.ListUserTeacher)
 		//requests
-			authroute.POST("/requests", server.createRequest)//
+			authroute.POST("/requests", server.createRequest)
 			authroute.GET("/request/get", server.getRequest)
 			authroute.GET("/requests", server.ListRequest)
 			authroute.GET("/requests/byuser", server.ListRequestByUser)
@@ -88,6 +90,7 @@ func (server *Server) setupRouter() {
 		//material
 			authroute.POST("/material", server.CreateMaterial)	
 			authroute.GET("/material/get", server.GetMaterials)
+			authroute.GET("/material/bycourse", server.ListMaterial)
 			authroute.PUT("/material/edit", server.UpdateMaterial)
 			authroute.DELETE("/material/delete", server.DeleteMaterial)
 		//resource
@@ -123,7 +126,6 @@ func (server *Server) setupRouter() {
 			authroute.GET("/courseprogress/byenrolment", server.ListCourseProgress)
 			authroute.GET("/courseprogress/get", server.getCourseProgress)
 			authroute.PUT("/courseprogress/edit", server.UpdateCourseProgress)
-
 	server.router = router
 }
 
