@@ -158,8 +158,8 @@ func (server *Server) GetCourse(ctx *gin.Context) {
 }
 
 type ListCoursesRequest struct {
-	PageID   int32 `form:"page_id,min=1"`
-	PageSize int32 `form:"page_size,min=10,max=10"`
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary List courses
@@ -356,7 +356,7 @@ func (server *Server) getTotalCoursesByUserID(ctx *gin.Context) []gin.H {
 type ListCoursesByUserRequest struct {
 	UserID int64 `form:"user_id"`
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary List courses

@@ -93,7 +93,7 @@ func (server *Server) getCourseProgress(ctx *gin.Context) {
 type listCourseProgressRequest struct {
 	EnrolmentID int64 `form:"enrolment_id"`
     PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary List course progress

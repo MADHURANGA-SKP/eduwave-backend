@@ -267,7 +267,7 @@ func (server *Server) updateResource(ctx *gin.Context) {
 // ListResourceRequest contains the impurt parameters for list rolebased user data
 type ListResourceRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary ListResource
@@ -307,7 +307,7 @@ func (server *Server) ListResource(ctx *gin.Context) {
 type ListResourceByMaterialRequest struct {
 	MaterialID int64 `form:"material_id"`
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary ListResource
