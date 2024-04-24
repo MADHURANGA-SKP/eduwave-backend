@@ -127,3 +127,35 @@ func(store *Store) UpdateCourses(ctx context.Context, arg UpdateCoursesParam)(Up
 	})
 	return result, err
 }
+
+//GetCourseByUserParam contains the input parameters of the geting the data
+type GetCourseByUserParam struct {
+	UserID   int64 `json:"user_id"`
+	CourseID int64 `json:"course_id"`
+}
+
+//GetCourseByUserResponse contains the result of the geting the data
+type GetCourseByUserResponse struct {
+	Course Course `json:"course"`
+}
+
+//GetUser db handler for api call to retrive a admin data from the database
+func (store *Store) GetCourseByUserCourse(ctx context.Context, arg GetCourseByUserParam) (GetCourseByUserResponse, error) {
+	var result GetCourseByUserResponse
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+
+		result.Course, err = q.GetCourseByUserCourse(ctx, GetCourseByUserCourseParams{
+			UserID: arg.UserID,
+			CourseID: arg.CourseID,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	return result, err
+}

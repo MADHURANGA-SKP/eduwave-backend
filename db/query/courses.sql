@@ -13,6 +13,11 @@ INSERT INTO courses (
 SELECT * FROM courses
 WHERE course_id = $1;
 
+-- name: GetCourseByUserCourse :one
+SELECT * FROM courses
+WHERE user_id = $1 AND course_id = $2
+LIMIT 1;
+
 -- name: UpdateCourses :one
 UPDATE courses
 SET title = $2, type = $3, description = $4, image = $5

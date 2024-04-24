@@ -78,6 +78,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getAssignmentStmt, err = db.PrepareContext(ctx, getAssignment); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAssignment: %w", err)
 	}
+	if q.getCourseByUserCourseStmt, err = db.PrepareContext(ctx, getCourseByUserCourse); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCourseByUserCourse: %w", err)
+	}
 	if q.getCourseProgressStmt, err = db.PrepareContext(ctx, getCourseProgress); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCourseProgress: %w", err)
 	}
@@ -270,6 +273,11 @@ func (q *Queries) Close() error {
 	if q.getAssignmentStmt != nil {
 		if cerr := q.getAssignmentStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getAssignmentStmt: %w", cerr)
+		}
+	}
+	if q.getCourseByUserCourseStmt != nil {
+		if cerr := q.getCourseByUserCourseStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCourseByUserCourseStmt: %w", cerr)
 		}
 	}
 	if q.getCourseProgressStmt != nil {
@@ -494,6 +502,7 @@ type Queries struct {
 	deleteResourceStmt             *sql.Stmt
 	deleteUsersStmt                *sql.Stmt
 	getAssignmentStmt              *sql.Stmt
+	getCourseByUserCourseStmt      *sql.Stmt
 	getCourseProgressStmt          *sql.Stmt
 	getCoursesStmt                 *sql.Stmt
 	getEnrolmentStmt               *sql.Stmt
@@ -551,6 +560,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deleteResourceStmt:             q.deleteResourceStmt,
 		deleteUsersStmt:                q.deleteUsersStmt,
 		getAssignmentStmt:              q.getAssignmentStmt,
+		getCourseByUserCourseStmt:      q.getCourseByUserCourseStmt,
 		getCourseProgressStmt:          q.getCourseProgressStmt,
 		getCoursesStmt:                 q.getCoursesStmt,
 		getEnrolmentStmt:               q.getEnrolmentStmt,

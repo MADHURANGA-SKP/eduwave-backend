@@ -400,11 +400,12 @@ func (server *Server) ListCoursesByUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, courses)
 }
 
+
 // GetCourseByStudentRequest defines the request body structure for getting a course
 type GetCourseWithRequestdetails struct {
 	CourseID  int64    `form:"course_id"`
 }
-type RequestDetails []db.Request
+
 type Request []db.Request
 
 // @Summary Get a course by ID
@@ -419,42 +420,78 @@ type Request []db.Request
 // GetCourseWithRequestdetails retrieves a course by ID
 func (server *Server) GetCourseWithRequestdetails(ctx *gin.Context) {
 	var req GetCourseWithRequestdetails
-	// var requestDetails RequestDetails
-	// var requestdata Request
+	var requestdata Request
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	// authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-	// for i := 0;
-	// i < len(requestdata)
-	// i++{
-	// 	if requestdata[i] == authPayload.UserID{
-	// 		requestD, err := server.store.GetRequest(ctx, db.GetRequestParam{UserID: authPayload.UserID,})
-	// 		if err != nil {
-	// 			if errors.Is(err, db.ErrRecordNotFound){
-	// 				ctx.JSON(http.StatusNotFound, errorResponse(err))
-	// 				return 
-	// 			}
-
-	// 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-	// 			return 
-	// 	}
-	// 	ctx.JSON(http.StatusOK, requestD.Request.IsAccepted && requestD.Request.IsPending)
-	// }
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	for i := 0; i < len(requestdata); i++{
+		if requestdata[i].UserID == authPayload.UserID {
+			requestD, err := server.store.GetRequest(ctx, db.GetRequestParam{UserID: authPayload.UserID,})
+			if err != nil {
+				if errors.Is(err, db.ErrRecordNotFound){
+					ctx.JSON(http.StatusNotFound, errorResponse(err))
+					return 
+				}
+				response := gin.H{
+					"is_accepted": requestD.Request.IsAccepted,
+					"is_pending":  requestD.Request.IsPending,
+				}
+				ctx.JSON(http.StatusOK, response)
+				return 
+		}
+	}
 
 	arg := db.GetCourseParam{CourseID: req.CourseID}
+    course, err := server.store.GetCourse(ctx, arg)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+        return
+    }
 
-	course, err := server.store.GetCourse(ctx, db.GetCourseParam(arg))
+    response := gin.H{
+        "course_details": course,
+    }
+
+    ctx.JSON(http.StatusOK, response)
+	}
+}
+
+// GetCourseByUserRequest defines the request body structure for getting a course
+type GetCourseByUserRequest struct {
+	UserID   int64 `form:"user_id"`
+	CourseID int64 `form:"course_id"`
+}
+
+// @Summary Get a course by ID
+// @Description Retrieves a course by its ID
+// @Produce json
+// @Param course_id path int true "Course ID"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /course/byuser [get]
+// GetCourseByUser retrieves a course by ID
+func (server *Server) GetCourseByUserCourse(ctx *gin.Context) {
+	var req GetCourseByUserRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.GetCourseByUserParam{
+		UserID: req.UserID,
+		CourseID: req.CourseID,
+	}
+
+	course, err := server.store.GetCourseByUserCourse(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	response := gin.H{
-		"course_details": course,
-	}
-
-	ctx.JSON(http.StatusOK, response)
+	ctx.JSON(http.StatusOK, course)
 }
