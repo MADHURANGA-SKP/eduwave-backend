@@ -36,7 +36,6 @@ func main() {
 	rundDBMigration(config.MigrationURL, config.DBSource)
 
 	store := db.NewStore(conn)
-	
 	runGinServer(config, *store, router)
 }
 

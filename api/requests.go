@@ -226,13 +226,25 @@ func (server *Server) UpdateRequests(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, request)
 }
 
+type userRequestResponse struct {
+	Username      string    `json:"user_name"`
+	FullName      string    `json:"full_name"`
+}
 
+func newRequestResponse(user db.User) userRequestResponse {
+	return userRequestResponse{
+		Username: user.UserName,
+		FullName: user.FullName,
+	}
+}
 
 type ListRequestByUserRequest struct {
 	UserID int64 `form:"user_id"`
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
+
+type courseDetails []db.Course
 
 // @Summary List requests By user
 // @Description List requests based on User
@@ -247,13 +259,26 @@ type ListRequestByUserRequest struct {
 // @Router /requests/byuser [get]
 func (server *Server) ListRequestByUser(ctx *gin.Context) {
 	var req ListRequestByUserRequest
+	var courseDetails courseDetails 
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
+	user, err := server.store.GetUserById(ctx, db.GetUserByIdParam{
+		UserID: req.UserID,
+	})
+	if err != nil {
+		if errors.Is(err, db.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-	if req.UserID != authPayload.UserID {
+	if user.User.UserID != authPayload.UserID {
 		err := errors.New("account doesn't belong to the authenticated user")
 		ctx.JSON(http.StatusForbidden, errorResponse(err))
 		return
@@ -265,13 +290,32 @@ func (server *Server) ListRequestByUser(ctx *gin.Context) {
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
-	requests, err := server.store.ListRequestByUser(ctx, arg)
+	request, err := server.store.ListRequestByUser(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	
+	for _, request := range request {
+		course, err := server.store.GetCourse(ctx, db.GetCourseParam{
+		  CourseID: request.CourseID,
+		})
+		if request.CourseID != course.Course.CourseID {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		courseDetails = append(courseDetails, course.Course)
+	}
 
-	ctx.JSON(http.StatusOK, requests)
+	userRsp := newRequestResponse(user.User)
+
+	response := gin.H{
+		"user"	: userRsp,
+		"number_of_request": request,
+		"requested_Course_details" : courseDetails,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 
