@@ -378,7 +378,7 @@ func (server *Server) createAdminUser(ctx *gin.Context) {
 // ListUserRequest contains the impurt parameters for list rolsbased user data
 type ListUserRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary ListUser
@@ -418,7 +418,7 @@ func (server *Server) ListUser(ctx *gin.Context) {
 // ListUserStudentRequest contains the impurt parameters for list rolebased user data
 type ListUserStudentRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary ListUserStudent
@@ -458,7 +458,7 @@ func (server *Server) ListUserStudent(ctx *gin.Context) {
 // ListUserTeacherRequest contains the impurt parameters for list rolebased user data
 type ListUserTeacherRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary ListUserTeacher

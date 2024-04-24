@@ -110,7 +110,7 @@ func (server *Server) getRequest(ctx *gin.Context) {
 
 type listRequestRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary List requests
@@ -241,7 +241,7 @@ func newRequestResponse(user db.User) userRequestResponse {
 type ListRequestByUserRequest struct {
 	UserID int64 `form:"user_id"`
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 type courseDetails []db.Course
@@ -295,7 +295,7 @@ func (server *Server) ListRequestByUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	
+
 	for _, request := range request {
 		course, err := server.store.GetCourse(ctx, db.GetCourseParam{
 		  CourseID: request.CourseID,
@@ -323,7 +323,7 @@ func (server *Server) ListRequestByUser(ctx *gin.Context) {
 type ListRequestByCourseRequest struct {
 	CourseID int64 `form:"course_id"`
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=10,max=100"`
 }
 
 // @Summary List requests By course

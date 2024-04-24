@@ -12,7 +12,7 @@ import (
 
 type listEnrolmentsRequest struct {
 	PageID   int32 `form:"page_id,min=1"`
-	PageSize int32 `form:"page_size,min=10,max=10"`
+	PageSize int32 `form:"page_size,min=10,max=100"`
 }
 
 // @Summary List enrolments
