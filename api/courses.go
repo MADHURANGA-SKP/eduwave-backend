@@ -126,7 +126,7 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 
 // GetCourseRequest defines the request body structure for getting a course
 type GetCourseRequest struct {
-	CourseID  int64    `form:"course_id,min=1"`
+	CourseID  int64    `form:"course_id"`
 }
 
 // @Summary Get a course by ID
@@ -398,4 +398,63 @@ func (server *Server) ListCoursesByUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, courses)
+}
+
+// GetCourseByStudentRequest defines the request body structure for getting a course
+type GetCourseWithRequestdetails struct {
+	CourseID  int64    `form:"course_id"`
+}
+type RequestDetails []db.Request
+type Request []db.Request
+
+// @Summary Get a course by ID
+// @Description Retrieves a course by its ID
+// @Produce json
+// @Param course_id path int true "Course ID"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /course/get [get]
+// GetCourseWithRequestdetails retrieves a course by ID
+func (server *Server) GetCourseWithRequestdetails(ctx *gin.Context) {
+	var req GetCourseWithRequestdetails
+	// var requestDetails RequestDetails
+	// var requestdata Request
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	// for i := 0;
+	// i < len(requestdata)
+	// i++{
+	// 	if requestdata[i] == authPayload.UserID{
+	// 		requestD, err := server.store.GetRequest(ctx, db.GetRequestParam{UserID: authPayload.UserID,})
+	// 		if err != nil {
+	// 			if errors.Is(err, db.ErrRecordNotFound){
+	// 				ctx.JSON(http.StatusNotFound, errorResponse(err))
+	// 				return 
+	// 			}
+
+	// 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	// 			return 
+	// 	}
+	// 	ctx.JSON(http.StatusOK, requestD.Request.IsAccepted && requestD.Request.IsPending)
+	// }
+
+	arg := db.GetCourseParam{CourseID: req.CourseID}
+
+	course, err := server.store.GetCourse(ctx, db.GetCourseParam(arg))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	response := gin.H{
+		"course_details": course,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
