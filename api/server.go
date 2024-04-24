@@ -107,7 +107,9 @@ func (server *Server) setupRouter() {
 			authroute.GET("/courses", server.ListCourses)
 			authroute.PUT("/course/edit", server.UpdateCourses)
 			authroute.DELETE("/course/delete", server.DeleteCourse)
-			authroute.GET("/course/byuser", server.ListCoursesByUser)
+			authroute.GET("/courses/byuser", server.ListCoursesByUser)
+			authroute.GET("/course/byuser", server.GetCourseByUserCourse)
+			authroute.GET("/course/withrequest", server.GetCourseWithRequestdetails)
 		//assignment
 			authroute.POST("/assignments", server.createAssignment)
 			authroute.GET("/assignment/get", server.getAssignment)

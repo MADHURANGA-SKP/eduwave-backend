@@ -29,6 +29,7 @@ type Querier interface {
 	DeleteResource(ctx context.Context, resourceID int64) error
 	DeleteUsers(ctx context.Context, userID int64) error
 	GetAssignment(ctx context.Context, assignmentID int64) (Assignment, error)
+	GetCourseByUserCourse(ctx context.Context, arg GetCourseByUserCourseParams) (Course, error)
 	GetCourseProgress(ctx context.Context, arg GetCourseProgressParams) (CourseProgress, error)
 	GetCourses(ctx context.Context, courseID int64) (Course, error)
 	GetEnrolment(ctx context.Context, arg GetEnrolmentParams) (CourseEnrolment, error)

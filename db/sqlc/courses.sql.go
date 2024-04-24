@@ -60,6 +60,32 @@ func (q *Queries) DeleteCourses(ctx context.Context, courseID int64) error {
 	return err
 }
 
+const getCourseByUserCourse = `-- name: GetCourseByUserCourse :one
+SELECT course_id, user_id, title, type, image, description, created_at FROM courses
+WHERE user_id = $1 AND course_id = $2
+LIMIT 1
+`
+
+type GetCourseByUserCourseParams struct {
+	UserID   int64 `json:"user_id"`
+	CourseID int64 `json:"course_id"`
+}
+
+func (q *Queries) GetCourseByUserCourse(ctx context.Context, arg GetCourseByUserCourseParams) (Course, error) {
+	row := q.queryRow(ctx, q.getCourseByUserCourseStmt, getCourseByUserCourse, arg.UserID, arg.CourseID)
+	var i Course
+	err := row.Scan(
+		&i.CourseID,
+		&i.UserID,
+		&i.Title,
+		&i.Type,
+		&i.Image,
+		&i.Description,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getCourses = `-- name: GetCourses :one
 SELECT course_id, user_id, title, type, image, description, created_at FROM courses
 WHERE course_id = $1
