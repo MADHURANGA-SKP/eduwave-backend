@@ -495,3 +495,57 @@ func (server *Server) GetCourseByUserCourse(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, course)
 }
+
+func (server *Server) getPendingCoursesCount(ctx *gin.Context) (map[int64]int, error) {
+	var req ListUserStudentRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return nil, err
+	}
+
+	arg := db.ListRequestParams{
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	requests, err := server.store.ListRequest(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	pendingCoursesCountByUserID := make(map[int64]int)
+	for _, req := range requests {
+		if req.IsPending.Valid && req.IsPending.Bool {
+			pendingCoursesCountByUserID[req.UserID]++
+		}
+	}
+
+	return pendingCoursesCountByUserID, nil
+}
+
+func (server *Server) getInProgessCoursesCount(ctx *gin.Context) (map[int64]int, error) {
+	var req ListUserStudentRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return nil, err
+	}
+
+	arg := db.ListRequestParams{
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	requests, err := server.store.ListRequest(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	inProgressCoursesCountByUserID := make(map[int64]int)
+	for _, req := range requests {
+		if req.IsActive.Valid && req.IsActive.Bool {
+			inProgressCoursesCountByUserID[req.UserID]++
+		}
+	}
+
+	return inProgressCoursesCountByUserID, nil
+}

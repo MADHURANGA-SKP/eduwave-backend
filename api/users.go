@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -119,6 +118,7 @@ type UpdateUserRequest struct {
 	Email             string    `json:"email"`
 	IsEmailVerified   bool      `json:"is_email_verified"`
 	UserName          string    `json:"user_name"`
+	UserID            int64     `json:"user_id"`
 }
 
 // @Summary Update a user
@@ -130,7 +130,7 @@ type UpdateUserRequest struct {
 // @Failure 400
 // @Failure 404
 // @Failure 500
-// @Router /user/edit [Patch]
+// @Router /user/edit [Put]
 // Updateuser updates the selected user
 // updateStudent updates a student by ID
 func (server *Server) UpdateUser(ctx *gin.Context) {
@@ -141,27 +141,9 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 	}
 
 	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-	if req.UserName != authPayload.UserName {
+	if req.UserID != authPayload.UserID {
 		err := errors.New("account doesn't belong to the authenticated user")
 		ctx.JSON(http.StatusForbidden, errorResponse(err))
-		return
-	}
-
-	username, err := server.store.GetUser(ctx, db.GetUserParam{
-		UserName: req.UserName,
-	},)
-
-	if username.User.UserName != req.UserName {
-		ctx.JSON(http.StatusForbidden, "connot update other user's info")
-		return
-	}
-
-	if err != nil {
-		if errors.Is(err, db.ErrRecordNotFound) {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -178,6 +160,7 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 		Email:             req.Email,
 		IsEmailVerified:   req.IsEmailVerified,
 		UserName:          req.UserName,
+		UserID: authPayload.UserID,
 	}
 
 	user, err := server.store.UpdateUser(ctx, db.UpdateUserParam{
@@ -187,6 +170,7 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 		Email:             arg.Email,
 		IsEmailVerified:   arg.IsEmailVerified,
 		UserName:          arg.UserName,
+		UserID: arg.UserID,
 	})
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolations {
@@ -631,7 +615,6 @@ func (server *Server) DeleteUsers(ctx *gin.Context) {
 // @Failure 404 
 // @Failure 500
 // @Router /count [Get]
-// deleteCourse deletes an Course
 func (server *Server) getCount(ctx *gin.Context) {
 	var req ListUserStudentRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -642,7 +625,7 @@ func (server *Server) getCount(ctx *gin.Context) {
 	// Get course count
 	var courseCount, teacherCount, studentCount, pendingCoursesCount, inProgressCoursesCount int
 
-	pageSize := int32(10)
+	pageSize := int32(100)
 	page := int32(1)
 	for {
 		arg := db.ListCoursesParams{
@@ -709,6 +692,8 @@ func (server *Server) getCount(ctx *gin.Context) {
 	}
 	pendingCoursesCount = len(pendingCourseList)
 
+	//Get the number of courses pending by userID
+
 	// Get pending and in-progress courses counts
 	arg := db.ListRequestParams{
 		Limit:  req.PageSize,
@@ -734,6 +719,7 @@ func (server *Server) getCount(ctx *gin.Context) {
 
 	// Get total courses by userID
 	totalCoursesByUserID := server.getTotalCoursesByUserID(ctx)
+	
 
 	// Create maps to store counts
 	totalStudentsByCourseMap := make(map[int64]int)
@@ -749,15 +735,40 @@ func (server *Server) getCount(ctx *gin.Context) {
 		totalCoursesByUserIDMap[item["courseId"].(int64)] = item["StudentCount"].(int)
 	}
 
+	pendingCoursesCountByUserID, err := server.getPendingCoursesCount(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	pendingCoursesCountByUserIDMap := make(map[int64]int)
+
+	// Populate pending courses count by user ID map
+	for userID, count := range pendingCoursesCountByUserID {
+		pendingCoursesCountByUserIDMap[userID] = count
+	}
+	// in progress courses count
+	inProgressCoursesCountByUserID, err := server.getInProgessCoursesCount(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	inProgressCoursesCountByUserIDMap := make(map[int64]int)
+
+	for userID, count := range inProgressCoursesCountByUserID {
+		inProgressCoursesCountByUserIDMap[userID] = count
+	}
+
 	// Combine all counts into a single response
 	response := gin.H{
-		"Course count":              courseCount,
-		"Teacher count":             teacherCount,
-		"Student count":             studentCount,
-		"Pending courses count":     pendingCoursesCount,
-		"In-progress courses count": inProgressCoursesCount,
-		"Total students by course":  totalStudentsByCourseMap,
-		"Total courses by userID":   totalCoursesByUserIDMap,
+		"Course count":                courseCount,
+		"Teacher count":               teacherCount,
+		"Student count":               studentCount,
+		"Total students by course":    totalStudentsByCourseMap,
+		"Total courses by userID":     totalCoursesByUserIDMap,
+		"Pending courses by user":     pendingCoursesCountByUserIDMap,
+		"In-progress courses by user": inProgressCoursesCountByUserIDMap,
 	}
 
 	// Return the combined response
@@ -766,23 +777,97 @@ func (server *Server) getCount(ctx *gin.Context) {
 }
 
 
-func (server *Server) validAccount(ctx *gin.Context, username string) (db.User, bool) {
-	user, err := server.store.GetUser(ctx, db.GetUserParam{UserName: username})
-	if err != nil {
-		if errors.Is(err, db.ErrRecordNotFound) {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return user.User, false
-		}
+// func (server *Server) validAccount(ctx *gin.Context, username string) (db.User, bool) {
+// 	user, err := server.store.GetUser(ctx, db.GetUserParam{UserName: username})
+// 	if err != nil {
+// 		if errors.Is(err, db.ErrRecordNotFound) {
+// 			ctx.JSON(http.StatusNotFound, errorResponse(err))
+// 			return user.User, false
+// 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return user.User, false
-	}
+// 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+// 		return user.User, false
+// 	}
 
-	if user.User.UserName != username {
-		err := fmt.Errorf("account [%d] credential mismatch: %s vs %s", user.User.UserID, username)
+// 	if user.User.UserName != username {
+// 		err := fmt.Errorf("account [%d] credential mismatch: %s vs %s", user.User.UserID, username)
+// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+// 		return user.User, false
+// 	}
+
+// 	return user.User, true
+// }
+
+
+type UpdateUserByadminRequest struct {
+	HashedPassword    string    `json:"hashed_password"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	IsEmailVerified   bool      `json:"is_email_verified"`
+	UserName          string    `json:"user_name"`
+	UserID            int64     `json:"user_id"`
+}
+
+// @Summary Update a user
+// @Description Updates a user with provided details
+// @Accept json
+// @Produce json
+// @Param request body UpdateUserByadminRequest true "Updated user details"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /edit/byadmin [Patch]
+// UpdateuserByadmin updates the selected user
+// updateStudent updates a student by ID
+func (server *Server) UpdateUserByadmin(ctx *gin.Context) {
+	var req UpdateUserByadminRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return user.User, false
+		return
 	}
 
-	return user.User, true
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if authPayload.UserName != "admin@main" {
+		err := errors.New("access denied for edit user details")
+		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+
+	hashedPassword, err := util.HashPassword(req.HashedPassword)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	arg := &db.UpdateUserParams{
+		HashedPassword:    hashedPassword,
+		PasswordChangedAt: time.Now(),
+		FullName:          req.FullName,
+		Email:             req.Email,
+		IsEmailVerified:   req.IsEmailVerified,
+		UserName:          req.UserName,
+		UserID: req.UserID,
+	}
+
+	user, err := server.store.UpdateUser(ctx, db.UpdateUserParam{
+		HashedPassword:    arg.HashedPassword,
+		PasswordChangedAt: arg.PasswordChangedAt,
+		FullName:          arg.FullName,
+		Email:             arg.Email,
+		IsEmailVerified:   arg.IsEmailVerified,
+		UserName:          arg.UserName,
+		UserID: arg.UserID,
+	})
+	if err != nil {
+		if db.ErrorCode(err) == db.UniqueViolations {
+			ctx.JSON(http.StatusForbidden, errorResponse(err))
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	rsp := newUserResponse(user.User)
+
+	ctx.JSON(http.StatusOK, rsp)
 }

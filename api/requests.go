@@ -71,7 +71,8 @@ func (server *Server) createRequest(ctx *gin.Context) {
 }
 
 type getRequestRequest struct {
-    UserID    int64 `form:"user_id"`
+	UserID   int64 `form:"user_id"`
+    CourseID int64 `form:"course_id"`
 }
 
 // @Summary Get a request by ID
@@ -83,7 +84,7 @@ type getRequestRequest struct {
 // @Failure 404
 // @Failure 500
 // @Router /request/get [get]
-func (server *Server) getRequest(ctx *gin.Context) {
+func (server *Server) GetRequest(ctx *gin.Context) {
 	var req getRequestRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -92,6 +93,7 @@ func (server *Server) getRequest(ctx *gin.Context) {
 
 	arg := db.GetRequestParam{
 		UserID: req.UserID,
+		CourseID: req.CourseID,
 	}
 
 	request, err := server.store.GetRequest(ctx, arg)

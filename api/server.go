@@ -67,13 +67,14 @@ func (server *Server) setupRouter() {
     router.POST("/login", server.loginUser)
     router.POST("tokens/renew_access", server.renewAccessToken)
     router.POST("/verify-email", server.VerifyEmailHandler)
-    router.GET("/count", server.getCount)
+    router.GET("/getCount", server.getCount)
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
 		authroute.DELETE("/del/user", server.DeleteUsers)
 		authroute.POST("/admin/signup", server.createAdminUser)
 		authroute.PUT("/user/edit", server.UpdateUser)
+		authroute.PUT("/edit/byadmin", server.UpdateUserByadmin)
 		authroute.GET("/getuser", server.GetUser)
 		authroute.GET("/getuserbyid", server.GetUserById)
 		//list all users
@@ -82,7 +83,7 @@ func (server *Server) setupRouter() {
 		authroute.GET("/listteacher", server.ListUserTeacher)
 		//requests
 			authroute.POST("/requests", server.createRequest)
-			authroute.GET("/request/get", server.getRequest)
+			authroute.GET("/request/get", server.GetRequest)
 			authroute.GET("/requests", server.ListRequest)
 			authroute.GET("/requests/byuser", server.ListRequestByUser)
 			authroute.GET("/requests/bycourse", server.ListRequestByCourse)

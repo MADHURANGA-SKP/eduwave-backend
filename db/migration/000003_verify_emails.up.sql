@@ -8,4 +8,4 @@ CREATE TABLE "verify_emails" (
   "expired_at" timestamptz NOT NULL DEFAULT (now() + interval '15 minutes')
 );
 
-ALTER TABLE "verify_emails" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name");
+ALTER TABLE "verify_emails" ADD FOREIGN KEY ("user_name") REFERENCES "users" ("user_name") ON DELETE CASCADE;
