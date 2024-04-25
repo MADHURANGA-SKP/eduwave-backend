@@ -12,7 +12,7 @@ INSERT INTO requests (
 
 -- name: GetRequest :one
 SELECT * FROM requests
-WHERE user_id = $1;
+WHERE user_id = $1 AND course_id = $2;
 
 -- name: UpdateRequests :one
 UPDATE requests

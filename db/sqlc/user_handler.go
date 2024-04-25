@@ -108,6 +108,7 @@ type UpdateUserParam struct {
 	Email             string    `json:"email"`
 	IsEmailVerified   bool      `json:"is_email_verified"`
 	UserName          string    `json:"user_name"`
+	UserID            int64     `json:"user_id"`
 }
 
 // UpdateUserResponse contains the result of the updating data
@@ -129,6 +130,7 @@ func (store *Store) UpdateUser(ctx context.Context, arg UpdateUserParam) (Update
 			Email:             arg.Email,
 			IsEmailVerified:   arg.IsEmailVerified,
 			UserName:          arg.UserName,
+			UserID: arg.UserID,
 		})
 
 		if err != nil {

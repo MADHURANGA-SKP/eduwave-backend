@@ -111,28 +111,26 @@ CREATE INDEX ON "resources" ("material_id");
 
 CREATE INDEX ON "resources" ("material_id");
 
-ALTER TABLE "courses" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+ALTER TABLE "courses" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") ON DELETE CASCADE;
 
-ALTER TABLE "materials" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id");
+ALTER TABLE "materials" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id") ON DELETE CASCADE;
 
-ALTER TABLE "course_progress" ADD FOREIGN KEY ("enrolment_id") REFERENCES "course_enrolments" ("enrolment_id");
+ALTER TABLE "course_progress" ADD FOREIGN KEY ("enrolment_id") REFERENCES "course_enrolments" ("enrolment_id") ON DELETE CASCADE;
 
-ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id");
+ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id") ON DELETE CASCADE;
 
-ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("request_id") REFERENCES "requests" ("request_id");
+ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("request_id") REFERENCES "requests" ("request_id") ON DELETE CASCADE;
 
-ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+ALTER TABLE "course_enrolments" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") ON DELETE CASCADE;
 
-ALTER TABLE "assignments" ADD FOREIGN KEY ("resource_id") REFERENCES "resources" ("resource_id");
+ALTER TABLE "assignments" ADD FOREIGN KEY ("resource_id") REFERENCES "resources" ("resource_id") ON DELETE CASCADE;
 
-ALTER TABLE "submissions" ADD FOREIGN KEY ("assignment_id") REFERENCES "assignments" ("assignment_id");
+ALTER TABLE "submissions" ADD FOREIGN KEY ("assignment_id") REFERENCES "assignments" ("assignment_id") ON DELETE CASCADE;
 
-ALTER TABLE "submissions" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+ALTER TABLE "submissions" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") ON DELETE CASCADE;
 
-ALTER TABLE "requests" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+ALTER TABLE "requests" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") ON DELETE CASCADE;
 
-ALTER TABLE "requests" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+ALTER TABLE "requests" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id") ON DELETE CASCADE;
 
-ALTER TABLE "requests" ADD FOREIGN KEY ("course_id") REFERENCES "courses" ("course_id");
-
-ALTER TABLE "resources" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("material_id");
+ALTER TABLE "resources" ADD FOREIGN KEY ("material_id") REFERENCES "materials" ("material_id") ON DELETE CASCADE;

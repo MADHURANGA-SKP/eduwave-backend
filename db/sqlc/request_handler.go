@@ -53,7 +53,8 @@ func (store *Store) DeleteRequest(ctx context.Context, requestID int64) error {
 
 //GetRequestParam contains the input parameters of the retriving  data
 type GetRequestParam struct {
-	UserID    int64 `json:"user_id"`
+	UserID   int64 `json:"user_id"`
+	CourseID int64 `json:"course_id"`
 }
 
 //GetRequestResponse contains the result of the updating of the data
@@ -68,7 +69,10 @@ func (store *Store) GetRequest(ctx context.Context, arg GetRequestParam) (GetReq
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		result.Request, err = q.GetRequest(ctx, arg.UserID)
+		result.Request, err = q.GetRequest(ctx, GetRequestParams{
+			UserID: arg.UserID,
+			CourseID: arg.CourseID,
+		})
 
 		if err != nil {
 			return err
