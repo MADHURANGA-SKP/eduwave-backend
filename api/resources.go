@@ -61,7 +61,15 @@ func(server *Server) uploadSingleFile(ctx *gin.Context, file multipart.File, hea
 	}
   
 	return filename, nil
-  }
+}
+
+//getResourceHandler creates an link to located the exact resource file from the server storage
+func (server *Server) getResourceHandler(ctx *gin.Context) {
+    filename := ctx.Param("filename")
+    serverAddress := server.config.FileSource
+    Image := fmt.Sprintf("%s/resources/%s", serverAddress, filename)
+    ctx.JSON(http.StatusOK, Image)
+}
 
 type TypeResource string
 

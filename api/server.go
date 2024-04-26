@@ -68,6 +68,8 @@ func (server *Server) setupRouter() {
     router.POST("tokens/renew_access", server.renewAccessToken)
     router.POST("/verify-email", server.VerifyEmailHandler)
     router.GET("/getCount", server.getCount)
+	router.GET("/images/:filename", server.getImageHandler)
+	router.GET("/resources/:filename", server.getResourceHandler)
 
 	//RBAC auth routes
 		authroute := router.Group("/").Use(authMiddleware(server.tokenMaker))
@@ -103,10 +105,10 @@ func (server *Server) setupRouter() {
 			authroute.PUT("/resource/edit", server.updateResource)
 			authroute.DELETE("/resource/delete", server.deleteResource)
 		//createcourse
-			authroute.POST("/course/:user_id", server.CreateCourse)	
+			authroute.POST("/course/:user_id", server.CreateCourses)	
 			authroute.GET("/course/get", server.GetCourse)
 			authroute.GET("/courses", server.ListCourses)
-			authroute.PUT("/course/edit", server.UpdateCourses)
+			authroute.PUT("/course/edit/:course_id", server.UpdateCourses)
 			authroute.DELETE("/course/delete", server.DeleteCourse)
 			authroute.GET("/courses/byuser", server.ListCoursesByUser)
 			authroute.GET("/course/byuser", server.GetCourseByUserCourse)
@@ -114,6 +116,7 @@ func (server *Server) setupRouter() {
 		//assignment
 			authroute.POST("/assignments", server.createAssignment)
 			authroute.GET("/assignment/get", server.getAssignment)
+			authroute.GET("/assignment/byresource", server.GetassignmentByResource)
 			authroute.PUT("/assignments/edit", server.updateAssignment)
 			authroute.DELETE("/assignment/delete", server.deleteAssignment)
 		//submissions
@@ -123,7 +126,7 @@ func (server *Server) setupRouter() {
 			authroute.GET("/submissions", server.listSubmissions)
 		//course_enrolments
 			authroute.POST("/enrol", server.CreateCourseEnrolment)
-			authroute.GET("/enrolments", server.listEnrolments)
+			authroute.GET("/enrolments", server.ListEnrolments)
 			authroute.GET("/enrolment/get", server.GetEnrolment)
 		//course_progress
 			authroute.POST("/createprogress", server.createCourseProgress)

@@ -81,6 +81,26 @@ func (q *Queries) GetAssignment(ctx context.Context, assignmentID int64) (Assign
 	return i, err
 }
 
+const getAssignmentByResource = `-- name: GetAssignmentByResource :one
+SELECT assignment_id, resource_id, type, title, description, submission_date, created_at FROM assignments
+WHERE resource_id = $1
+`
+
+func (q *Queries) GetAssignmentByResource(ctx context.Context, resourceID int64) (Assignment, error) {
+	row := q.queryRow(ctx, q.getAssignmentByResourceStmt, getAssignmentByResource, resourceID)
+	var i Assignment
+	err := row.Scan(
+		&i.AssignmentID,
+		&i.ResourceID,
+		&i.Type,
+		&i.Title,
+		&i.Description,
+		&i.SubmissionDate,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateAssignment = `-- name: UpdateAssignment :one
 UPDATE assignments
 SET type = $2, title = $3, description = $4, submission_date = $5

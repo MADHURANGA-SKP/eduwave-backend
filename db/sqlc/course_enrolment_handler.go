@@ -66,3 +66,8 @@ func (store *Store) GetEnrolment(ctx context.Context, arg GetEnrolmentParam) (Ge
 	})
 	return result, err
 }
+
+//ListEnrolments db handler for api call to list all enrolment data of the database by course
+func (store *Store) ListEnrolments(ctx context.Context, params ListEnrolmentsParams) ([]CourseEnrolment, error) {
+	return store.Queries.ListEnrolments(ctx, params)
+}
