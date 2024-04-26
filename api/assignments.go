@@ -165,3 +165,44 @@ func (server *Server) deleteAssignment(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Assignment deleted successfully"})
 }
+
+type GetassignmentByResourceRequest struct {
+	ResourceID  int64 `form:"resource_id"`
+}
+
+// @Summary Get Assignment By Resource
+// @Description Get Assignment By Resource
+// @ID update-assignment
+// @Accept json
+// @Produce json
+// @Param request body GetassignmentByResourceRequest true "Get Assignment By Resource details"
+// @Success 200 
+// @Failure 400 
+// @Failure 404 
+// @Failure 500
+// @Router /assignment/byresource [put]
+func(server *Server) GetassignmentByResource(ctx *gin.Context){
+	var req GetassignmentByResourceRequest
+
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, errorResponse(err))
+			return
+	}
+
+	arg := db.GetAssignmentByResourceParam{
+		ResourceID: req.ResourceID,
+	}
+
+	assignmentbyresource, err := server.store.GetAssignmentByResource(ctx, arg)
+	if err != nil {
+		if errors.Is(err ,db.ErrRecordNotFound){
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, assignmentbyresource)
+}

@@ -59,8 +59,16 @@ func(server *Server) uploadSingleImage(ctx *gin.Context, file multipart.File, he
 	}
   
 	return filename, nil
-  }
-  
+}
+
+//getImageHandler creates an link to located the exact image file from the server storage
+func (server *Server) getImageHandler(ctx *gin.Context) {
+    filename := ctx.Param("filename")
+    serverAddress := server.config.FileSource
+    Image := fmt.Sprintf("%s/images/%s", serverAddress, filename)
+    ctx.JSON(http.StatusOK, Image)
+}
+
 // CreateCourseRequest defines the request body structure for creating a course
 type CreateCourseRequest struct {
 	UserID      int64  `json:"user_id"`
@@ -81,7 +89,7 @@ type CreateCourseRequest struct {
 // @Failure 500
 // @Router /course/:user_id [post]
 // CreateCourse creates a new course
-func (server *Server) CreateCourse(ctx *gin.Context) {
+func (server *Server) CreateCourses(ctx *gin.Context) {
 	var req CreateCourseRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -104,6 +112,7 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 		return
 	  }
 	}
+
 	// Update request struct with image filename (if uploaded)
 	req.Image = imageFile
 
@@ -115,7 +124,7 @@ func (server *Server) CreateCourse(ctx *gin.Context) {
 		Image:       req.Image,
 	}
 
-	course, err := server.store.CreateCourses(ctx, arg)
+	course, err := server.store.CreateCourses(ctx, db.CreateCourseParam(arg))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -148,7 +157,7 @@ func (server *Server) GetCourse(ctx *gin.Context) {
 
 	arg := db.GetCourseParam{CourseID: req.CourseID}
 
-	course, err := server.store.GetCourse(ctx, db.GetCourseParam(arg))
+	course, err := server.store.GetCourse(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -198,9 +207,9 @@ func (server *Server) ListCourses(ctx *gin.Context) {
 // UpdateCoursesRequest defines the request body structure for listing courses
 type UpdateCoursesRequest struct {
 	CourseID    int64  `json:"course_id"`
-	Title       string `json:"title"`
-	Type        string `json:"type"`
-	Description string `json:"description"`
+	Title       string `form:"title"`
+	Type        string `form:"type"`
+	Description string `form:"description"`
 	Image       string `json:"image"`
 }
 
@@ -217,39 +226,37 @@ type UpdateCoursesRequest struct {
 // UpdateCourse updates the selected course
 func (server *Server) UpdateCourses(ctx *gin.Context) {
 	var req UpdateCoursesRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	// // Access uploaded file information
-	// file, err := ctx.FormFile("image") // Replace "file" with your actual form field name
-	// if err != nil {
-	//   ctx.JSON(http.StatusBadRequest, errorResponse(err))
-	//   return
-	// }
-  
-	// // Open the uploaded file on the server
-	// openedFile, err := file.Open()
-	// if err != nil {
-	//   ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-	//   return
-	// }
-	// defer openedFile.Close() // Close the file after processing
-  
-	// // Read the file contents into a byte array
-	// fileData, err := io.ReadAll(openedFile)
-	// if err != nil {
-	//   ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-	//   return
-	// }
+	courseID, err := strconv.Atoi(ctx.Param("course_id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
 
+	// Handle image upload (if included in the request)
+	var imageFile string
+	file, header, err := ctx.Request.FormFile("image") 
+	if err == nil {
+		imageFile, err = server.uploadSingleImage(ctx, file, header)
+	  if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	  }
+	}
+
+	// Update request struct with image filename (if uploaded)
+	req.Image = imageFile
+	
 	arg := db.UpdateCoursesParams{
-		CourseID:    req.CourseID,
+		CourseID:    int64(courseID),
 		Title:       req.Title,
 		Type:        req.Type,
 		Description: req.Description,
-		Image:       req.Image,
+		Image:       imageFile,
 	}
 
 	courses, err := server.store.UpdateCourses(ctx, db.UpdateCoursesParam(arg))

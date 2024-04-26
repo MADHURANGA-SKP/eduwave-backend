@@ -17,7 +17,7 @@ type CreateCourseResponse struct {
 }
 
 //CreateCourse db handler for api call to create course in database
-func(store *Store) CreateCourse(ctx context.Context, arg CreateCourseParam)(CreateCourseResponse, error){
+func(store *Store) CreateCourses(ctx context.Context, arg CreateCourseParam)(CreateCourseResponse, error){
 	var result CreateCourseResponse
 
 	err := store.execTx(ctx, func(q *Queries) error {

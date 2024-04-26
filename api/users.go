@@ -18,7 +18,7 @@ type createUserRequest struct {
 	UserName       string `json:"user_name" binding:"required,alphanum"`
 	FullName       string `json:"full_name"`
 	HashedPassword string `json:"hashed_password" binding:"required,min=6"`
-	Email          string `json:"email" binding:"required,email"`
+	Email          string `json:"email" binding:"required"`
 	Role           string `json:"role"`
 	Qualification  string `json:"qualification"`
 }
