@@ -407,7 +407,7 @@ func (server *Server) ListCoursesByUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, courses)
 }
 
-
+//under development
 // GetCourseByStudentRequest defines the request body structure for getting a course
 type GetCourseWithRequestdetails struct {
 	CourseID  int64    `form:"course_id"`
